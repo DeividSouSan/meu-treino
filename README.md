@@ -1,52 +1,57 @@
 # Meu Treino 🏋️‍♂️
 
-**Meu Treino** é um aplicativo pessoal e minimalista para rastreamento de musculação, projetado para ser tão simples e direto quanto um bloco de notas, com uma interface visual limpa (modo claro), plana e sem atritos desnecessários.
+**Meu Treino** é um rastreador de musculação progressivo (PWA) e offline-first, desenvolvido para ser tão rápido, leve e flexível quanto um bloco de notas físico. 
+
+Sem cadastros, sem anúncios, sem conexão com a internet e sem distrações.
 
 ---
 
-## 🎯 Filosofia de Design e Fluxo
+## 📢 Proposta Sincera
 
-1. **Eficiência e Velocidade (Sem Fricção):**
-   - Menos toques possíveis para registrar uma série.
-   - **Simplicidade do Bloco de Notas:** Não há caixas de seleção para "marcar como feito". Se uma série está listada no exercício, ela foi realizada. Você apenas digita o peso e as repetições.
-2. **Modo Claro & Visual Limpo:**
-   - Visual em **modo claro** com fundo claro (branco/cinza) e alto contraste.
-   - Sem gradientes, neon ou complexidades desnecessárias — tão simples quanto ler um bloco de notas físico.
-3. **Duas Telas Principais:**
-   - **Histórico (Tela Inicial):** Linha do tempo dos treinos anteriores com opções para exportar/importar dados, gerenciar histórico (editar/excluir treinos) e iniciar uma nova sessão com templates salvos.
-   - **Sessão de Treino Ativa (Tela Coringa):** Onde você realiza o treino atual ou edita treinos passados (reutilizando a mesma tela). Permite gerenciar exercícios e séries, preencher carga/repetições e adicionar técnicas.
+**Meu Treino** foi criado para quem quer registrar treinos com o mínimo de atrito. 
 
----
+❌ **O que ele NÃO é:**
+* Um aplicativo com gráficos complexos, estimativas de calorias ou redes sociais integradas.
+* Um sistema rígido com listas de exercícios fixas que bloqueiam a sua edição.
+* Um serviço em nuvem que coleta seus dados pessoais.
 
-## 📊 Estrutura das Informações Rastreadas
-
-Para cada exercício na sessão, o aplicativo gerencia:
-- **Nome do Exercício**
-- **Carga (Peso) por Série:** Flexibilidade para subir ou descer o peso em cada série individual.
-- **Séries Dinâmicas:** Adicione ou remova séries na hora.
-- **Comparativo Direto:** Exibição sutil do peso e repetições do último treino para facilitar a progressão.
-- **Técnicas Avançadas (Tags) por Série:** Toggles rápidos para associar técnicas como `RP` (Rest-Pause), `DS` (Drop-set), `FS` (Failure Set / Até a Falha) e `ISO` (Isometria) a séries específicas.
-- **Notas Pessoais:** Campo de texto rápido para observações rápidas do exercício.
+✅ **O que ele É:**
+* Um substituto direto do caderninho de papel ou do bloco de notas do celular.
+* Uma ferramenta ágil para marcar pesos, repetições e técnicas avançadas em segundos.
+* Um app soberano: todos os dados pertencem a você e ficam armazenados localmente no seu dispositivo.
 
 ---
 
-## ⏱️ Cronômetros e Tempo
+## 🎯 Principais Funcionalidades
 
-O controle de tempo é flexível e dinâmico, evitando a rigidez dos aplicativos tradicionais:
-1. **Cronômetro do Treino:** Um contador geral simples de duração do treino ativo exibido no topo.
-2. **Cronômetro de Descanso Progressivo:**
-   - O stopwatch de descanso inicia em `00:00` automaticamente quando o usuário adiciona uma nova série (`+ Série`) ou inicia manualmente.
-   - O usuário acompanha visualmente e clica para resetar ou iniciar a próxima série, sem alarmes ou pressões.
+* **Registro Notepad-Style (Sem Checkboxes):** Esqueça a burocracia de "marcar como feito". Se uma série está listada na tela, ela já foi executada.
+* **Cronômetro de Descanso Sutil:** Inicia a contagem progressiva automaticamente no rodapé assim que você registra uma nova série, sem alarmes irritantes.
+* **Técnicas Avançadas (Tags por Série):** Toggles rápidos para associar técnicas avançadas como `RP` (Rest-Pause), `DS` (Drop-set), `FS` (Feeder-set) e `ISO` (Isometria) a séries individuais.
+* **Flexibilidade Total de Carga:** Permite alterar o peso e repetições de cada série de forma independente.
+* **Templates & Repetições:** Salve treinos frequentes como modelos reutilizáveis ou carregue rapidamente a estrutura do seu último treino para progredir carga.
+* **Soberania de Dados (Backup em JSON):** Exporte todo o seu histórico em um clique. O arquivo JSON gerado é estruturado de forma limpa, ideal para que você possa alimentar ferramentas de Inteligência Artificial para analisar sua evolução.
 
 ---
 
-## 💾 Armazenamento e Exportação
+## 📲 Como Instalar (PWA)
 
-- **Offline-First:** Todo o histórico de treinos é armazenado no próprio dispositivo (via LocalStorage/IndexedDB). Sem servidores.
-- **Exportação e Importação de Dados:** 
-  - **Exportar JSON:** Baixa o arquivo `meu_treino_backup.json` estruturado para segurança ou para leitura por Inteligências Artificiais.
-  - **Importar JSON:** Permite restaurar o histórico de treinos a partir de um arquivo de backup local.
+Por ser um Progressive Web App (PWA), você pode instalá-lo diretamente na tela inicial do seu celular, rodando em tela cheia e funcionando 100% offline:
 
+### No iOS (Safari):
+1. Abra o link do aplicativo no Safari.
+2. Toque no botão **Compartilhar** (ícone de quadrado com seta para cima).
+3. Selecione **"Adicionar à Tela de Início"**.
 
+### No Android (Chrome):
+1. Abra o link do aplicativo no Chrome.
+2. Toque no menu de **três pontos** no canto superior direito.
+3. Toque em **"Instalar aplicativo"** ou **"Adicionar à tela inicial"**.
 
+---
 
+## 🛠️ Stack Tecnológica
+
+* **Framework:** React + TypeScript (Vite)
+* **Estilização:** CSS Puro (Light-mode plano de alto contraste)
+* **Persistência:** LocalStorage (Nativo do navegador)
+* **PWA:** `vite-plugin-pwa` para service worker offline e manifesto
