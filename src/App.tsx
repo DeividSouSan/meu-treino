@@ -1,5 +1,6 @@
 import { useWorkout } from './hooks/useWorkout';
 import { HistoryView } from './views/HistoryView';
+import { ActiveWorkoutView } from './views/ActiveWorkoutView';
 
 /**
  * Componente raiz do aplicativo que coordena o roteamento simples de telas com base no estado.
@@ -10,17 +11,24 @@ function App() {
     workoutHistory,
     workoutTemplates,
     activeSession,
+    editingSession,
     startNewWorkout,
     startEditingWorkout,
     cancelActiveWorkout,
+    updateActiveSession,
+    updateEditingSession,
+    finishActiveWorkout,
+    saveEditedWorkout,
     deleteSession,
     deleteTemplate,
     reloadAllData,
   } = useWorkout();
 
   const handleResumeActiveWorkout = () => {
-    // A ser implementado na navegação de tela ativa no Milestone 4
-    console.log('Retomando treino ativo...');
+    // Redireciona para o treino ativo que já está em andamento
+    if (activeSession) {
+      startNewWorkout(activeSession);
+    }
   };
 
   return (
@@ -38,22 +46,16 @@ function App() {
           onResumeActiveWorkout={handleResumeActiveWorkout}
         />
       ) : (
-        <div>
-          <header>
-            <h1>Sessão de Treino</h1>
-            <button className="danger" onClick={cancelActiveWorkout}>
-              Voltar
-            </button>
-          </header>
-          <main>
-            <div className="card">
-              <h2>Treino Ativo</h2>
-              <p className="text-secondary">
-                A tela do treino ativo e de edição está sendo preparada no próximo milestone (Milestone 4).
-              </p>
-            </div>
-          </main>
-        </div>
+        <ActiveWorkoutView
+          activeSession={activeSession}
+          editingSession={editingSession}
+          onUpdateActiveSession={updateActiveSession}
+          onUpdateEditingSession={updateEditingSession}
+          onFinishActiveWorkout={finishActiveWorkout}
+          onSaveEditedWorkout={saveEditedWorkout}
+          onCancelActiveWorkout={cancelActiveWorkout}
+          workoutHistory={workoutHistory}
+        />
       )}
     </div>
   );
