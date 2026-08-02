@@ -76,12 +76,7 @@ export function HistoryView({
     }
   };
 
-  const handleRepeatLastWorkout = () => {
-    if (workoutHistory.length > 0) {
-      const lastWorkoutSession = workoutHistory[0];
-      startNewWorkout(lastWorkoutSession);
-    }
-  };
+
 
   const formatWorkoutDate = (dateString: string) => {
     const parsedDate = new Date(dateString);
@@ -123,21 +118,6 @@ export function HistoryView({
           </div>
         )}
 
-        <section className="card">
-          <h2>Iniciar Treino</h2>
-          <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap', marginTop: 'var(--spacing-sm)' }}>
-            <button className="primary" onClick={() => startNewWorkout(null)}>
-              + Iniciar Treino Livre
-            </button>
-            <button
-              onClick={handleRepeatLastWorkout}
-              disabled={workoutHistory.length === 0}
-              style={{ opacity: workoutHistory.length === 0 ? 0.5 : 1 }}
-            >
-              🔄 Repetir Último Treino
-            </button>
-          </div>
-        </section>
 
         <section className="card">
           <h2>Templates (Modelos)</h2>
@@ -255,6 +235,44 @@ export function HistoryView({
           </div>
         </section>
       </main>
+
+      <div
+        style={{
+          position: 'fixed',
+          bottom: '24px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '100%',
+          maxWidth: '600px',
+          paddingRight: '24px',
+          display: 'flex',
+          justifyContent: 'flex-end',
+          pointerEvents: 'none',
+          zIndex: 99,
+        }}
+      >
+        <button
+          className="primary"
+          onClick={() => startNewWorkout(null)}
+          title="Iniciar Treino Livre"
+          style={{
+            width: '56px',
+            height: '56px',
+            borderRadius: '50%',
+            fontSize: '28px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+            pointerEvents: 'auto',
+            padding: '0',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: 'none',
+            lineHeight: '1',
+          }}
+        >
+          +
+        </button>
+      </div>
     </div>
   );
 }
