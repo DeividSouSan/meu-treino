@@ -121,6 +121,27 @@ export function saveActiveWorkoutSession(workoutSession: WorkoutSession | null):
   }
 }
 
+const LAST_BACKUP_COUNT_STORAGE_KEY = 'meu_treino_last_backup_count';
+
+/**
+ * Recupera o número de treinos salvos que estavam no histórico durante o último backup.
+ */
+export function getLastBackupWorkoutCount(): number {
+  const lastBackupCountString = localStorage.getItem(LAST_BACKUP_COUNT_STORAGE_KEY);
+  if (!lastBackupCountString) {
+    return 0;
+  }
+  const numericCount = parseInt(lastBackupCountString, 10);
+  return isNaN(numericCount) ? 0 : numericCount;
+}
+
+/**
+ * Define o número de treinos no histórico no momento em que o backup foi realizado.
+ */
+export function saveLastBackupWorkoutCount(workoutCount: number): void {
+  localStorage.setItem(LAST_BACKUP_COUNT_STORAGE_KEY, String(workoutCount));
+}
+
 /**
  * Limpa todo o histórico de dados local do aplicativo (usado para resets ou limpezas).
  */
@@ -128,4 +149,5 @@ export function clearAllWorkoutData(): void {
   localStorage.removeItem(HISTORY_STORAGE_KEY);
   localStorage.removeItem(TEMPLATE_STORAGE_KEY);
   localStorage.removeItem(ACTIVE_WORKOUT_STORAGE_KEY);
+  localStorage.removeItem(LAST_BACKUP_COUNT_STORAGE_KEY);
 }

@@ -1,5 +1,11 @@
 import type { WorkoutSession } from '../types/workout';
-import { getWorkoutHistory, getWorkoutTemplates, saveWorkoutSession, saveWorkoutTemplate } from './storageService';
+import {
+  getWorkoutHistory,
+  getWorkoutTemplates,
+  saveWorkoutSession,
+  saveWorkoutTemplate,
+  saveLastBackupWorkoutCount,
+} from './storageService';
 
 /**
  * Estrutura do arquivo de backup exportado pelo aplicativo.
@@ -23,9 +29,10 @@ export interface BackupData {
  * Gera um arquivo JSON contendo todos os dados do aplicativo e inicia o download no navegador.
  */
 export function exportWorkoutBackup(): void {
+  const history = getWorkoutHistory();
   const backupData: BackupData = {
     version: 1,
-    history: getWorkoutHistory(),
+    history: history,
     templates: getWorkoutTemplates(),
   };
 
@@ -42,6 +49,8 @@ export function exportWorkoutBackup(): void {
   
   document.body.removeChild(anchorElement);
   URL.revokeObjectURL(downloadUrl);
+
+  saveLastBackupWorkoutCount(history.length);
 }
 
 /**
@@ -92,6 +101,8 @@ export function importWorkoutBackup(jsonString: string): boolean {
     validatedTemplates.forEach((template) => {
       saveWorkoutTemplate(template);
     });
+
+    saveLastBackupWorkoutCount(validatedHistory.length);
 
     return true;
   } catch (error) {

@@ -1,6 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import type { WorkoutSession } from '../types/workout';
 import { exportWorkoutBackup, importWorkoutBackup } from '../services/backupService';
+import { getLastBackupWorkoutCount, getWorkoutHistory } from '../services/storageService';
 import packageInfo from '../../package.json';
 
 /**
@@ -33,6 +34,8 @@ export function HistoryView({
   onResumeActiveWorkout,
 }: HistoryViewProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [lastBackupCount, setLastBackupCount] = useState<number>(getLastBackupWorkoutCount());
+  const workoutsSinceLastBackup = Math.max(0, workoutHistory.length - lastBackupCount);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files;
@@ -49,6 +52,7 @@ export function HistoryView({
         const importSuccess = importWorkoutBackup(fileContent);
         if (importSuccess) {
           reloadAllData();
+          setLastBackupCount(getWorkoutHistory().length);
           alert('Dados importados com sucesso!');
         } else {
           alert('Erro ao importar. Verifique se o arquivo JSON está no formato correto.');
@@ -57,6 +61,11 @@ export function HistoryView({
     };
 
     fileReader.readAsText(selectedFile);
+  };
+
+  const handleExportBackup = () => {
+    exportWorkoutBackup();
+    setLastBackupCount(workoutHistory.length);
   };
 
   const handleTriggerFileInput = () => {
@@ -219,8 +228,20 @@ export function HistoryView({
 
         <section className="card">
           <h2>Backup dos Dados</h2>
+          {workoutsSinceLastBackup > 0 && (
+            <p
+              style={{
+                fontSize: '0.85rem',
+                color: 'var(--warning-color)',
+                marginTop: 'var(--spacing-xs)',
+                fontWeight: 'bold',
+              }}
+            >
+              ⚠️ {workoutsSinceLastBackup} {workoutsSinceLastBackup === 1 ? 'treino realizado' : 'treinos realizados'} desde o último backup. Exporte para garantir que não perderá seu progresso!
+            </p>
+          )}
           <div style={{ display: 'flex', gap: 'var(--spacing-sm)', marginTop: 'var(--spacing-sm)' }}>
-            <button onClick={exportWorkoutBackup}>
+            <button onClick={handleExportBackup}>
               📥 Exportar Backup (JSON)
             </button>
             <button onClick={handleTriggerFileInput}>

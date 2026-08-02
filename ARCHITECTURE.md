@@ -38,6 +38,15 @@ Para manter o projeto limpo, manutenível e alinhado com as suas preferências, 
 - **Camada de Dados (Services):** O acesso ao `localStorage` ou manipulações de JSON de importação/exportação não devem ocorrer diretamente nos componentes React. Criaremos serviços dedicados em `src/services/` para isolar essa lógica.
 - **Gerenciamento de Estado (Context/Hooks):** Lógicas de controle de tempo, cálculo de duração e mutação de treinos ativos ficarão em hooks customizados (`src/hooks/`) ou em contextos centrais.
 
+### D. Políticas de Versão (Semantic Versioning)
+- **Regra:** O projeto segue estritamente a especificação de Versionamento Semântico (SemVer) no formato `MAJOR.MINOR.PATCH`:
+  - `MAJOR`: Alterações incompatíveis na API/estrutura de dados que necessitem de migrações complexas.
+  - `MINOR`: Novas funcionalidades compatíveis com versões anteriores (como novos componentes de UI, atalhos).
+  - `PATCH`: Correção de bugs de tipagem, alinhamento de CSS ou pequenas correções sem novas funções.
+
+### E. Políticas de Migração de Dados (Sem Perda de Dados)
+- **Regra:** Sempre que alteramos o formato estrutural dos dados no `localStorage`, nós implementamos um pequeno script de migração no `storageService.ts` que roda na inicialização do aplicativo. Esse script deve detectar o formato antigo, convertê-lo e sanitizá-lo para o novo formato antes de salvar a estrutura atualizada.
+
 ---
 
 ## 2. Estrutura de Diretórios Final
