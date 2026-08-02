@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import type { WorkoutSession } from '../types/workout';
 import { exportWorkoutBackup, importWorkoutBackup } from '../services/backupService';
+import packageInfo from '../../package.json';
 
 /**
  * Interface de propriedades para a visualização do histórico.
@@ -244,13 +245,27 @@ export function HistoryView({
           transform: 'translateX(-50%)',
           width: '100%',
           maxWidth: '600px',
+          paddingLeft: '24px',
           paddingRight: '24px',
           display: 'flex',
-          justifyContent: 'flex-end',
+          justifyContent: 'space-between',
+          alignItems: 'flex-end',
           pointerEvents: 'none',
           zIndex: 99,
         }}
       >
+        <span
+          style={{
+            fontSize: '0.75rem',
+            color: 'var(--text-secondary)',
+            opacity: 0.4,
+            pointerEvents: 'none',
+            userSelect: 'none',
+            marginBottom: '16px',
+          }}
+        >
+          v{packageInfo.version}
+        </span>
         <button
           className="primary"
           onClick={() => startNewWorkout(null)}
