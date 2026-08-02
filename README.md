@@ -1,24 +1,52 @@
 # Meu Treino 🏋️‍♂️
 
-**Meu Treino** é um aplicativo projetado para ajudar usuários a planejar, registrar e acompanhar suas rotinas de treinos físicos. A proposta é oferecer uma experiência simples, moderna e eficiente para que qualquer pessoa possa gerenciar sua evolução nos exercícios.
+**Meu Treino** é um aplicativo pessoal e minimalista para rastreamento de musculação, projetado para ser tão simples e direto quanto um bloco de notas, com uma interface visual limpa (modo claro), plana e sem atritos desnecessários.
 
 ---
 
-## 🚀 Funcionalidades Principais (Planejadas)
+## 🎯 Filosofia de Design e Fluxo
 
-- 📅 **Planejamento de Rotinas:** Criação de fichas de treino personalizadas (ex: Treino A, B, C) organizadas por dias da semana ou grupos musculares.
-- 💪 **Registro de Exercícios:** Controle detalhado de séries, repetições, carga (peso) e tempo de descanso para cada exercício.
-- 📈 **Acompanhamento de Evolução:** Gráficos e histórico para monitorar o progresso de cargas, volume de treino e consistência ao longo do tempo.
-- ⏱️ **Cronômetro Integrado:** Auxílio para marcar o tempo de descanso regulamentar entre as séries.
+1. **Eficiência e Velocidade (Sem Fricção):**
+   - Menos toques possíveis para registrar uma série.
+   - **Simplicidade do Bloco de Notas:** Não há caixas de seleção para "marcar como feito". Se uma série está listada no exercício, ela foi realizada. Você apenas digita o peso e as repetições.
+2. **Modo Claro & Visual Limpo:**
+   - Visual em **modo claro** com fundo claro (branco/cinza) e alto contraste.
+   - Sem gradientes, neon ou complexidades desnecessárias — tão simples quanto ler um bloco de notas físico.
+3. **Duas Telas Principais:**
+   - **Histórico (Tela Inicial):** Linha do tempo dos treinos anteriores com opções para exportar/importar dados, gerenciar histórico (editar/excluir treinos) e iniciar uma nova sessão com templates salvos.
+   - **Sessão de Treino Ativa (Tela Coringa):** Onde você realiza o treino atual ou edita treinos passados (reutilizando a mesma tela). Permite gerenciar exercícios e séries, preencher carga/repetições e adicionar técnicas.
 
 ---
 
-## 🛠️ Tecnologias
+## 📊 Estrutura das Informações Rastreadas
 
-O stack tecnológico deste projeto será definido e documentado à medida que iniciarmos o desenvolvimento.
+Para cada exercício na sessão, o aplicativo gerencia:
+- **Nome do Exercício**
+- **Carga (Peso) por Série:** Flexibilidade para subir ou descer o peso em cada série individual.
+- **Séries Dinâmicas:** Adicione ou remova séries na hora.
+- **Comparativo Direto:** Exibição sutil do peso e repetições do último treino para facilitar a progressão.
+- **Técnicas Avançadas (Tags) por Série:** Toggles rápidos para associar técnicas como `RP` (Rest-Pause), `DS` (Drop-set), `FS` (Failure Set / Até a Falha) e `ISO` (Isometria) a séries específicas.
+- **Notas Pessoais:** Campo de texto rápido para observações rápidas do exercício.
 
 ---
 
-## 🗂️ Estrutura do Projeto
+## ⏱️ Cronômetros e Tempo
 
-*(A estrutura de arquivos e diretórios será adicionada conforme o código for desenvolvido.)*
+O controle de tempo é flexível e dinâmico, evitando a rigidez dos aplicativos tradicionais:
+1. **Cronômetro do Treino:** Um contador geral simples de duração do treino ativo exibido no topo.
+2. **Cronômetro de Descanso Progressivo:**
+   - O stopwatch de descanso inicia em `00:00` automaticamente quando o usuário adiciona uma nova série (`+ Série`) ou inicia manualmente.
+   - O usuário acompanha visualmente e clica para resetar ou iniciar a próxima série, sem alarmes ou pressões.
+
+---
+
+## 💾 Armazenamento e Exportação
+
+- **Offline-First:** Todo o histórico de treinos é armazenado no próprio dispositivo (via LocalStorage/IndexedDB). Sem servidores.
+- **Exportação e Importação de Dados:** 
+  - **Exportar JSON:** Baixa o arquivo `meu_treino_backup.json` estruturado para segurança ou para leitura por Inteligências Artificiais.
+  - **Importar JSON:** Permite restaurar o histórico de treinos a partir de um arquivo de backup local.
+
+
+
+
