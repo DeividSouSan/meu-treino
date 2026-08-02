@@ -1,30 +1,60 @@
-import { useState } from 'react';
+import { useWorkout } from './hooks/useWorkout';
+import { HistoryView } from './views/HistoryView';
 
 /**
- * Componente principal da aplicação que gerencia a inicialização dos marcos de desenvolvimento.
+ * Componente raiz do aplicativo que coordena o roteamento simples de telas com base no estado.
  */
 function App() {
-  const [isSetupComplete] = useState<boolean>(true);
+  const {
+    currentView,
+    workoutHistory,
+    workoutTemplates,
+    activeSession,
+    startNewWorkout,
+    startEditingWorkout,
+    cancelActiveWorkout,
+    deleteSession,
+    deleteTemplate,
+    reloadAllData,
+  } = useWorkout();
+
+  const handleResumeActiveWorkout = () => {
+    // A ser implementado na navegação de tela ativa no Milestone 4
+    console.log('Retomando treino ativo...');
+  };
 
   return (
     <div>
-      <header>
-        <h1>Meu Treino</h1>
-        <span className="badge completed">Milestone 1 Ativo</span>
-      </header>
-      <main>
-        <div className="card">
-          <h2>Ambiente Configurado com Sucesso!</h2>
-          <p className="text-secondary">
-            O projeto React + TypeScript + Vite + PWA foi inicializado com sucesso e a folha de estilos base está carregada.
-          </p>
-          {isSetupComplete && (
-            <p className="text-success" style={{ fontWeight: 600, marginTop: '8px' }}>
-              ✓ PWA Manifest configurado e ativo.
-            </p>
-          )}
+      {currentView === 'history' ? (
+        <HistoryView
+          workoutHistory={workoutHistory}
+          workoutTemplates={workoutTemplates}
+          activeSession={activeSession}
+          startNewWorkout={startNewWorkout}
+          startEditingWorkout={startEditingWorkout}
+          deleteSession={deleteSession}
+          deleteTemplate={deleteTemplate}
+          reloadAllData={reloadAllData}
+          onResumeActiveWorkout={handleResumeActiveWorkout}
+        />
+      ) : (
+        <div>
+          <header>
+            <h1>Sessão de Treino</h1>
+            <button className="danger" onClick={cancelActiveWorkout}>
+              Voltar
+            </button>
+          </header>
+          <main>
+            <div className="card">
+              <h2>Treino Ativo</h2>
+              <p className="text-secondary">
+                A tela do treino ativo e de edição está sendo preparada no próximo milestone (Milestone 4).
+              </p>
+            </div>
+          </main>
         </div>
-      </main>
+      )}
     </div>
   );
 }
