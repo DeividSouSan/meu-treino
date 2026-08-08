@@ -2,6 +2,8 @@ import { useCallback } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import type { WorkoutExercise, AdvancedTechnique } from '../types/workout';
 import { useExerciseForm } from '../hooks/useExerciseForm';
+import type { UseStopwatchResult } from '../hooks/useStopwatch';
+import { RestTimer } from './RestTimer';
 
 export interface ExerciseScreenProps {
   exercise: WorkoutExercise;
@@ -13,6 +15,7 @@ export interface ExerciseScreenProps {
   onNavigateNext: () => void;
   hasPrevious: boolean;
   hasNext: boolean;
+  restStopwatch: UseStopwatchResult;
 }
 
 export function ExerciseScreen({
@@ -25,6 +28,7 @@ export function ExerciseScreen({
   onNavigateNext,
   hasPrevious,
   hasNext,
+  restStopwatch,
 }: ExerciseScreenProps) {
   const {
     repetitionsInput,
@@ -322,6 +326,11 @@ export function ExerciseScreen({
           </div>
         </form>
       </div>
+
+      <RestTimer
+        stopwatch={restStopwatch}
+        targetSeconds={exercise.sets.length > 0 ? exercise.sets[exercise.sets.length - 1].restTimeInSeconds : 0}
+      />
     </div>
   );
 }

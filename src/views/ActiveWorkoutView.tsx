@@ -238,6 +238,7 @@ export function ActiveWorkoutView({
             onNavigateNext={handleNavigateNext}
             hasPrevious={currentExerciseIndex > 0}
             hasNext={currentExerciseIndex < currentSession.exercises.length - 1}
+            restStopwatch={restStopwatch}
           />
         ) : (
           <>

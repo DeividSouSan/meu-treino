@@ -75,10 +75,13 @@ export function useExerciseForm(initialExercise: WorkoutExercise): UseExerciseFo
       return { newSet: null as any, rest: 0 };
     }
 
+    // Se for FS (Feeder Set), o descanso é sempre 60s
+    const effectiveRest = selectedTechniques.includes('FS') ? 60 : rest;
+
     const newSet: ExerciseSet = {
       weightInKg: weight,
       repetitions: repetitions,
-      restTimeInSeconds: rest,
+      restTimeInSeconds: effectiveRest,
       advancedTechniques: [...selectedTechniques],
     };
 
@@ -90,7 +93,7 @@ export function useExerciseForm(initialExercise: WorkoutExercise): UseExerciseFo
 
     setRepetitionsInput('');
     setSelectedTechniques([]);
-    return { newSet, rest };
+    return { newSet, rest: effectiveRest };
   }, [repetitionsInput, weightInput, restInput, selectedTechniques, exercise]);
 
   const handleDeleteSet = useCallback((setIndexToDelete: number): ExerciseSet | null => {
