@@ -249,10 +249,31 @@ export function ActiveWorkoutView({
           </span>
         </div>
         <div style={{ display: 'flex', gap: 'var(--spacing-xs)' }}>
-          <button className="danger small" onClick={onCancelActiveWorkout}>
+          <button 
+            className="small" 
+            onClick={onCancelActiveWorkout}
+            style={{ 
+              borderColor: 'var(--danger-color)',
+              color: 'var(--danger-color)'
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
             Cancelar
           </button>
-          <button className="primary small" onClick={handleSaveOrFinishClick}>
+          <button 
+            className="small" 
+            onClick={handleSaveOrFinishClick}
+            style={{ 
+              borderColor: 'var(--accent-color)',
+              color: 'var(--accent-color)'
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
             {isEditing ? 'Salvar' : 'Encerrar'}
           </button>
         </div>
@@ -285,8 +306,18 @@ export function ActiveWorkoutView({
                   onChange={(event) => setCueInput(event.target.value)}
                   placeholder="Ex: Controlar a descida no agachamento"
                 />
-                <button type="submit" className="primary">
-                  Add
+                <button 
+                  type="submit"
+                  className="small"
+                  style={{ 
+                    borderColor: 'var(--accent-color)',
+                    color: 'var(--accent-color)'
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
                 </button>
               </form>
               {currentSession.cues.length > 0 && (
@@ -309,8 +340,12 @@ export function ActiveWorkoutView({
                         className="text text-danger"
                         style={{ padding: '0 4px', fontSize: '0.8rem' }}
                         onClick={() => handleRemoveCue(index)}
+                        title="Remover lembrete"
                       >
-                        ✕
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="18" y1="6" x2="6" y2="18" />
+                          <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
                       </button>
                     </li>
                   ))}
@@ -341,8 +376,19 @@ export function ActiveWorkoutView({
                     }
                   }}
                 />
-                <button className="primary" onClick={() => handleAddExercise(exerciseSearchInput)}>
-                  +
+                <button 
+                  className="small" 
+                  onClick={() => handleAddExercise(exerciseSearchInput)}
+                  style={{ 
+                    width: '42px',
+                    borderColor: 'var(--accent-color)',
+                    color: 'var(--accent-color)'
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
                 </button>
               </div>
 

@@ -117,11 +117,26 @@ Sempre fornecer um caminho claro para a ação principal.
 - Cores semânticas (completed, in-progress)
 - Uso: tags, status, categorização
 
+**Ícones:**
+- Estilo: **apenas outline** (sem preenchimento)
+- strokeWidth: 2 ou 2.5
+- Uso: ações, navegação, indicadores
+- Combinação ícone + texto quando a ação precisa de clareza
+
 **Botões:**
-- Três variantes: primary, danger, text
+- Estilo preferido: **outline** (sem background sólido)
+- Cores semânticas via borda e texto
 - Dois tamanhos: default, small
-- Estados: hover, disabled
+- Estados: hover (background sutil), disabled
 - Gap interno consistente (8px)
+- Evitar preenchimentos sólidos
+
+**Exemplos de ícones por contexto:**
+- Navegação: setas direcionais (← →)
+- Ações destrutivas: lixeira, X
+- Ações positivas: check, +
+- Backup: seta para baixo (exportar), seta para cima (importar)
+- Avisos: círculo com exclamação
 
 ### 10. Navegação
 
