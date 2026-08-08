@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import type { WorkoutSession, WorkoutExercise } from '../types/workout';
 import { useStopwatch } from '../hooks/useStopwatch';
-import { ExerciseCard } from '../components/ExerciseCard';
+import { ExerciseList } from '../components/ExerciseList';
+import { ExerciseScreen } from '../components/ExerciseScreen';
 
 /**
  * Interface de propriedades para a visualização do treino ativo/modo edição.
@@ -45,6 +46,7 @@ export function ActiveWorkoutView({
   const [exerciseSearchInput, setExerciseSearchInput] = useState<string>('');
   const [showTemplateModal, setShowTemplateModal] = useState<boolean>(false);
   const [templateNameInput, setTemplateNameInput] = useState<string>('');
+  const [currentExerciseId, setCurrentExerciseId] = useState<string | null>(null);
 
   useEffect(() => {
     if (currentSession) {
@@ -227,6 +229,36 @@ export function ActiveWorkoutView({
 
   const exerciseSuggestions = getPastExerciseSuggestions();
 
+  const selectedExercise = currentSession.exercises.find(
+    (exercise) => exercise.id === currentExerciseId
+  ) || null;
+
+  const currentExerciseIndex = currentSession.exercises.findIndex(
+    (exercise) => exercise.id === currentExerciseId
+  );
+
+  const handleSelectExercise = (exerciseId: string) => {
+    setCurrentExerciseId(exerciseId);
+  };
+
+  const handleBackToList = () => {
+    setCurrentExerciseId(null);
+  };
+
+  const handleNavigatePrevious = () => {
+    if (currentExerciseIndex > 0) {
+      const previousExercise = currentSession.exercises[currentExerciseIndex - 1];
+      setCurrentExerciseId(previousExercise.id);
+    }
+  };
+
+  const handleNavigateNext = () => {
+    if (currentExerciseIndex < currentSession.exercises.length - 1) {
+      const nextExercise = currentSession.exercises[currentExerciseIndex + 1];
+      setCurrentExerciseId(nextExercise.id);
+    }
+  };
+
   return (
     <div>
       <header>
@@ -248,153 +280,170 @@ export function ActiveWorkoutView({
         </div>
       </header>
 
-      <main style={{ paddingBottom: '120px' }}>
-        <section className="card">
-          <h2>Cues da Sessão (Lembretes)</h2>
-          <form onSubmit={handleAddCue} style={{ display: 'flex', gap: 'var(--spacing-xs)', marginTop: 'var(--spacing-xs)' }}>
-            <input
-              type="text"
-              value={cueInput}
-              onChange={(event) => setCueInput(event.target.value)}
-              placeholder="Ex: Controlar a descida no agachamento"
-            />
-            <button type="submit" className="primary">
-              Add
-            </button>
-          </form>
-          {currentSession.cues.length > 0 && (
-            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px', marginTop: 'var(--spacing-sm)' }}>
-              {currentSession.cues.map((cue, index) => (
-                <li
-                  key={index}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '6px 10px',
-                    backgroundColor: 'var(--background-color)',
-                    borderRadius: 'var(--border-radius)',
-                    fontSize: '0.9rem',
+      <main style={{ paddingBottom: currentExerciseId ? '20px' : '120px' }}>
+        {currentExerciseId && selectedExercise ? (
+          <ExerciseScreen
+            exercise={selectedExercise}
+            onUpdate={handleUpdateExercise}
+            onDelete={() => {
+              handleDeleteExercise(selectedExercise.id);
+              handleBackToList();
+            }}
+            onSetAdded={handleSetAddedCallback}
+            onBack={handleBackToList}
+            onNavigatePrevious={handleNavigatePrevious}
+            onNavigateNext={handleNavigateNext}
+            hasPrevious={currentExerciseIndex > 0}
+            hasNext={currentExerciseIndex < currentSession.exercises.length - 1}
+          />
+        ) : (
+          <>
+            <section className="card">
+              <h2>Cues da Sessão (Lembretes)</h2>
+              <form onSubmit={handleAddCue} style={{ display: 'flex', gap: 'var(--spacing-xs)', marginTop: 'var(--spacing-xs)' }}>
+                <input
+                  type="text"
+                  value={cueInput}
+                  onChange={(event) => setCueInput(event.target.value)}
+                  placeholder="Ex: Controlar a descida no agachamento"
+                />
+                <button type="submit" className="primary">
+                  Add
+                </button>
+              </form>
+              {currentSession.cues.length > 0 && (
+                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px', marginTop: 'var(--spacing-sm)' }}>
+                  {currentSession.cues.map((cue, index) => (
+                    <li
+                      key={index}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '6px 10px',
+                        backgroundColor: 'var(--background-color)',
+                        borderRadius: 'var(--border-radius)',
+                        fontSize: '0.9rem',
+                      }}
+                    >
+                      <span>{cue}</span>
+                      <button
+                        className="text text-danger"
+                        style={{ padding: '0 4px', fontSize: '0.8rem' }}
+                        onClick={() => handleRemoveCue(index)}
+                      >
+                        ✕
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+
+            <section style={{ marginTop: 'var(--spacing-md)' }}>
+              <h2 style={{ fontSize: '1.1rem', marginBottom: 'var(--spacing-sm)' }}>Exercícios</h2>
+              <ExerciseList
+                exercises={currentSession.exercises}
+                selectedExerciseId={currentExerciseId}
+                onSelectExercise={handleSelectExercise}
+              />
+            </section>
+
+            <section className="card" style={{ marginTop: 'var(--spacing-md)' }}>
+              <h2>Adicionar Exercício</h2>
+              <div style={{ display: 'flex', gap: 'var(--spacing-xs)', marginTop: 'var(--spacing-xs)', position: 'relative' }}>
+                <input
+                  type="text"
+                  value={exerciseSearchInput}
+                  onChange={(event) => setExerciseSearchInput(event.target.value)}
+                  placeholder="Buscar ou digitar nome do exercício..."
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      handleAddExercise(exerciseSearchInput);
+                    }
                   }}
-                >
-                  <span>{cue}</span>
-                  <button
-                    className="text text-danger"
-                    style={{ padding: '0 4px', fontSize: '0.8rem' }}
-                    onClick={() => handleRemoveCue(index)}
-                  >
-                    ✕
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+                />
+                <button className="primary" onClick={() => handleAddExercise(exerciseSearchInput)}>
+                  +
+                </button>
+              </div>
 
-        <section style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-          {currentSession.exercises.map((exercise) => (
-            <ExerciseCard
-              key={exercise.id}
-              exercise={exercise}
-              onUpdate={handleUpdateExercise}
-              onDelete={() => handleDeleteExercise(exercise.id)}
-              onSetAdded={handleSetAddedCallback}
-            />
-          ))}
-        </section>
-
-        <section className="card" style={{ marginTop: 'var(--spacing-md)' }}>
-          <h2>Adicionar Exercício</h2>
-          <div style={{ display: 'flex', gap: 'var(--spacing-xs)', marginTop: 'var(--spacing-xs)', position: 'relative' }}>
-            <input
-              type="text"
-              value={exerciseSearchInput}
-              onChange={(event) => setExerciseSearchInput(event.target.value)}
-              placeholder="Buscar ou digitar nome do exercício..."
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') {
-                  handleAddExercise(exerciseSearchInput);
-                }
-              }}
-            />
-            <button className="primary" onClick={() => handleAddExercise(exerciseSearchInput)}>
-              +
-            </button>
-          </div>
-
-          {exerciseSuggestions.length > 0 && (
-            <div
-              style={{
-                border: '1px solid var(--border-color)',
-                borderRadius: 'var(--border-radius)',
-                marginTop: '4px',
-                maxHeight: '150px',
-                overflowY: 'auto',
-                backgroundColor: 'var(--card-background)',
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
-              {exerciseSuggestions.map((suggestion) => (
+              {exerciseSuggestions.length > 0 && (
                 <div
-                  key={suggestion}
-                  onClick={() => handleAddExercise(suggestion)}
                   style={{
-                    padding: '10px 12px',
-                    cursor: 'pointer',
-                    borderBottom: '1px solid var(--border-color)',
-                    fontSize: '0.9rem',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: 'var(--border-radius)',
+                    marginTop: '4px',
+                    maxHeight: '150px',
+                    overflowY: 'auto',
+                    backgroundColor: 'var(--card-background)',
+                    display: 'flex',
+                    flexDirection: 'column',
                   }}
-                  className="suggestion-item"
                 >
-                  {suggestion}
+                  {exerciseSuggestions.map((suggestion) => (
+                    <div
+                      key={suggestion}
+                      onClick={() => handleAddExercise(suggestion)}
+                      style={{
+                        padding: '10px 12px',
+                        cursor: 'pointer',
+                        borderBottom: '1px solid var(--border-color)',
+                        fontSize: '0.9rem',
+                      }}
+                      className="suggestion-item"
+                    >
+                      {suggestion}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
-        </section>
+              )}
+            </section>
+          </>
+        )}
       </main>
 
-      {/* Manual Rest Timer Widget Footer */}
-      <div
-        style={{
-          position: 'fixed',
-          bottom: '0',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '100%',
-          maxWidth: '600px',
-          backgroundColor: 'var(--card-background)',
-          borderTop: '1px solid var(--border-color)',
-          padding: '12px var(--spacing-md)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          zIndex: 100,
-        }}
-      >
-        <div>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block' }}>
-            Cronômetro de Descanso
-          </span>
-          <strong style={{ fontSize: '1.25rem', fontFamily: 'monospace' }}>
-            {formatTimerValue(restStopwatch.seconds)}
-            {targetRestDuration > 0 && (
-              <span className="text-muted" style={{ fontSize: '0.9rem', fontWeight: 'normal', marginLeft: '6px' }}>
-                / {targetRestDuration}s
-              </span>
-            )}
-          </strong>
+      {currentExerciseId && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '0',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '100%',
+            maxWidth: '600px',
+            backgroundColor: 'var(--card-background)',
+            borderTop: '1px solid var(--border-color)',
+            padding: '12px var(--spacing-md)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            zIndex: 100,
+          }}
+        >
+          <div>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block' }}>
+              Cronômetro de Descanso
+            </span>
+            <strong style={{ fontSize: '1.25rem', fontFamily: 'monospace' }}>
+              {formatTimerValue(restStopwatch.seconds)}
+              {targetRestDuration > 0 && (
+                <span className="text-muted" style={{ fontSize: '0.9rem', fontWeight: 'normal', marginLeft: '6px' }}>
+                  / {targetRestDuration}s
+                </span>
+              )}
+            </strong>
+          </div>
+          <div style={{ display: 'flex', gap: 'var(--spacing-xs)' }}>
+            <button className="small" onClick={restStopwatch.reset}>
+              Reset
+            </button>
+            <button className="small" onClick={restStopwatch.isRunning ? restStopwatch.pause : restStopwatch.start}>
+              {restStopwatch.isRunning ? 'Pausar' : 'Iniciar'}
+            </button>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: 'var(--spacing-xs)' }}>
-          <button className="small" onClick={restStopwatch.reset}>
-            Reset
-          </button>
-          <button className="small" onClick={restStopwatch.isRunning ? restStopwatch.pause : restStopwatch.start}>
-            {restStopwatch.isRunning ? 'Pausar' : 'Iniciar'}
-          </button>
-        </div>
-      </div>
+      )}
 
       {/* Save Template Modal Prompt overlay */}
       {showTemplateModal && (
