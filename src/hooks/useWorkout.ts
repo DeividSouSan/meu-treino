@@ -2,13 +2,10 @@ import { useState, useEffect } from 'react';
 import type { WorkoutSession, WorkoutExercise } from '../types/workout';
 import {
   getWorkoutHistory,
-  getWorkoutTemplates,
   getActiveWorkoutSession,
   saveWorkoutSession,
   saveActiveWorkoutSession,
-  saveWorkoutTemplate,
   deleteWorkoutSession,
-  deleteWorkoutTemplate,
 } from '../services/storageService';
 
 /**
@@ -17,7 +14,6 @@ import {
 export interface UseWorkoutResult {
   currentView: 'history' | 'active_workout';
   workoutHistory: WorkoutSession[];
-  workoutTemplates: WorkoutSession[];
   activeSession: WorkoutSession | null;
   editingSession: WorkoutSession | null;
   navigateToHistory: () => void;
@@ -26,10 +22,9 @@ export interface UseWorkoutResult {
   cancelActiveWorkout: () => void;
   updateActiveSession: (updatedSession: WorkoutSession) => void;
   updateEditingSession: (updatedSession: WorkoutSession) => void;
-  finishActiveWorkout: (templateName?: string) => void;
+  finishActiveWorkout: () => void;
   saveEditedWorkout: () => void;
   deleteSession: (sessionId: string) => void;
-  deleteTemplate: (templateId: string) => void;
   reloadAllData: () => void;
 }
 
@@ -39,19 +34,16 @@ export interface UseWorkoutResult {
 export function useWorkout(): UseWorkoutResult {
   const [currentView, setCurrentView] = useState<'history' | 'active_workout'>('history');
   const [workoutHistory, setWorkoutHistory] = useState<WorkoutSession[]>([]);
-  const [workoutTemplates, setWorkoutTemplates] = useState<WorkoutSession[]>([]);
   const [activeSession, setActiveSession] = useState<WorkoutSession | null>(null);
   const [editingSession, setEditingSession] = useState<WorkoutSession | null>(null);
 
   useEffect(() => {
     setWorkoutHistory(getWorkoutHistory());
-    setWorkoutTemplates(getWorkoutTemplates());
     setActiveSession(getActiveWorkoutSession());
   }, []);
 
   const reloadAllData = () => {
     setWorkoutHistory(getWorkoutHistory());
-    setWorkoutTemplates(getWorkoutTemplates());
     setActiveSession(getActiveWorkoutSession());
   };
 
@@ -115,7 +107,7 @@ export function useWorkout(): UseWorkoutResult {
     setEditingSession(updatedSession);
   };
 
-  const finishActiveWorkout = (templateName?: string) => {
+  const finishActiveWorkout = () => {
     if (!activeSession) {
       return;
     }
@@ -129,19 +121,7 @@ export function useWorkout(): UseWorkoutResult {
     saveActiveWorkoutSession(null);
     setActiveSession(null);
 
-    if (templateName && templateName.trim() !== '') {
-      const newTemplateSession: WorkoutSession = {
-        ...completedSession,
-        id: crypto.randomUUID(),
-        name: templateName,
-        isTemplate: true,
-        status: 'completed',
-      };
-      saveWorkoutTemplate(newTemplateSession);
-    }
-
     setWorkoutHistory(getWorkoutHistory());
-    setWorkoutTemplates(getWorkoutTemplates());
     setCurrentView('history');
   };
 
@@ -161,15 +141,9 @@ export function useWorkout(): UseWorkoutResult {
     setWorkoutHistory(getWorkoutHistory());
   };
 
-  const deleteTemplate = (templateId: string) => {
-    deleteWorkoutTemplate(templateId);
-    setWorkoutTemplates(getWorkoutTemplates());
-  };
-
   return {
     currentView,
     workoutHistory,
-    workoutTemplates,
     activeSession,
     editingSession,
     navigateToHistory,
@@ -181,7 +155,6 @@ export function useWorkout(): UseWorkoutResult {
     finishActiveWorkout,
     saveEditedWorkout,
     deleteSession,
-    deleteTemplate,
     reloadAllData,
   };
 }

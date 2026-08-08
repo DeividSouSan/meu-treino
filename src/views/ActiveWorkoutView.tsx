@@ -12,7 +12,7 @@ export interface ActiveWorkoutViewProps {
   editingSession: WorkoutSession | null;
   onUpdateActiveSession: (workoutSession: WorkoutSession) => void;
   onUpdateEditingSession: (workoutSession: WorkoutSession) => void;
-  onFinishActiveWorkout: (templateName?: string) => void;
+  onFinishActiveWorkout: () => void;
   onSaveEditedWorkout: () => void;
   onCancelActiveWorkout: () => void;
   workoutHistory: WorkoutSession[];
@@ -40,12 +40,9 @@ export function ActiveWorkoutView({
   );
 
   const restStopwatch = useStopwatch(0, false);
-  const [targetRestDuration, setTargetRestDuration] = useState<number>(0);
 
   const [cueInput, setCueInput] = useState<string>('');
   const [exerciseSearchInput, setExerciseSearchInput] = useState<string>('');
-  const [showTemplateModal, setShowTemplateModal] = useState<boolean>(false);
-  const [templateNameInput, setTemplateNameInput] = useState<string>('');
   const [currentExerciseId, setCurrentExerciseId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -145,8 +142,7 @@ export function ActiveWorkoutView({
     });
   };
 
-  const handleSetAddedCallback = (restTimeInSeconds: number) => {
-    setTargetRestDuration(restTimeInSeconds);
+  const handleSetAddedCallback = (_restTimeInSeconds: number) => {
     restStopwatch.reset();
   };
 
@@ -160,26 +156,8 @@ export function ActiveWorkoutView({
     if (isEditing) {
       onSaveEditedWorkout();
     } else {
-      setShowTemplateModal(true);
+      onFinishActiveWorkout();
     }
-  };
-
-  const handleFinalizeWithoutTemplate = () => {
-    const finalSession = {
-      ...currentSession,
-      durationInSeconds: sessionStopwatch.seconds,
-    };
-    handleUpdateSession(finalSession);
-    onFinishActiveWorkout();
-  };
-
-  const handleFinalizeWithTemplate = () => {
-    const finalSession = {
-      ...currentSession,
-      durationInSeconds: sessionStopwatch.seconds,
-    };
-    handleUpdateSession(finalSession);
-    onFinishActiveWorkout(templateNameInput);
   };
 
   const formatTimerValue = (totalSeconds: number) => {
@@ -403,101 +381,6 @@ export function ActiveWorkoutView({
         )}
       </main>
 
-      {currentExerciseId && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: '0',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '100%',
-            maxWidth: '600px',
-            backgroundColor: 'var(--card-background)',
-            borderTop: '1px solid var(--border-color)',
-            padding: '12px var(--spacing-md)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            zIndex: 100,
-          }}
-        >
-          <div>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block' }}>
-              Cronômetro de Descanso
-            </span>
-            <strong style={{ fontSize: '1.25rem', fontFamily: 'monospace' }}>
-              {formatTimerValue(restStopwatch.seconds)}
-              {targetRestDuration > 0 && (
-                <span className="text-muted" style={{ fontSize: '0.9rem', fontWeight: 'normal', marginLeft: '6px' }}>
-                  / {targetRestDuration}s
-                </span>
-              )}
-            </strong>
-          </div>
-          <div style={{ display: 'flex', gap: 'var(--spacing-xs)' }}>
-            <button className="small" onClick={restStopwatch.reset}>
-              Reset
-            </button>
-            <button className="small" onClick={restStopwatch.isRunning ? restStopwatch.pause : restStopwatch.start}>
-              {restStopwatch.isRunning ? 'Pausar' : 'Iniciar'}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Save Template Modal Prompt overlay */}
-      {showTemplateModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'rgba(0, 0, 0, 0.4)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1000,
-          }}
-        >
-          <div
-            className="card"
-            style={{
-              width: '90%',
-              maxWidth: '400px',
-              backgroundColor: 'var(--card-background)',
-              padding: 'var(--spacing-lg)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-            }}
-          >
-            <h2>Salvar como Template?</h2>
-            <p className="text-secondary" style={{ fontSize: '0.9rem', margin: 'var(--spacing-xs) 0 var(--spacing-md)' }}>
-              Deseja salvar a estrutura de exercícios deste treino como um modelo para facilitar futuros treinos?
-            </p>
-            <div style={{ marginBottom: 'var(--spacing-md)' }}>
-              <label>Nome do Template (Opcional)</label>
-              <input
-                type="text"
-                value={templateNameInput}
-                onChange={(event) => setTemplateNameInput(event.target.value)}
-                placeholder="Ex: Treino Peito 1"
-              />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
-              <button className="primary" onClick={handleFinalizeWithTemplate} disabled={templateNameInput.trim() === ''}>
-                Salvar e Finalizar Treino
-              </button>
-              <button onClick={handleFinalizeWithoutTemplate}>
-                Apenas Finalizar Treino
-              </button>
-              <button className="danger" onClick={() => setShowTemplateModal(false)}>
-                Voltar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -9,7 +9,6 @@ function App() {
   const {
     currentView,
     workoutHistory,
-    workoutTemplates,
     activeSession,
     editingSession,
     startNewWorkout,
@@ -20,7 +19,6 @@ function App() {
     finishActiveWorkout,
     saveEditedWorkout,
     deleteSession,
-    deleteTemplate,
     reloadAllData,
   } = useWorkout();
 
@@ -36,12 +34,10 @@ function App() {
       {currentView === 'history' ? (
         <HistoryView
           workoutHistory={workoutHistory}
-          workoutTemplates={workoutTemplates}
           activeSession={activeSession}
           startNewWorkout={startNewWorkout}
           startEditingWorkout={startEditingWorkout}
           deleteSession={deleteSession}
-          deleteTemplate={deleteTemplate}
           reloadAllData={reloadAllData}
           onResumeActiveWorkout={handleResumeActiveWorkout}
         />

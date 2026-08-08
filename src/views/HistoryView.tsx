@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import type { WorkoutSession } from '../types/workout';
 import { exportWorkoutBackup, importWorkoutBackup } from '../services/backupService';
 import { getLastBackupWorkoutCount, getWorkoutHistory } from '../services/storageService';
@@ -9,27 +9,23 @@ import packageInfo from '../../package.json';
  */
 export interface HistoryViewProps {
   workoutHistory: WorkoutSession[];
-  workoutTemplates: WorkoutSession[];
   activeSession: WorkoutSession | null;
   startNewWorkout: (templateSession?: WorkoutSession | null) => void;
   startEditingWorkout: (workoutSession: WorkoutSession) => void;
   deleteSession: (sessionId: string) => void;
-  deleteTemplate: (templateId: string) => void;
   reloadAllData: () => void;
   onResumeActiveWorkout: () => void;
 }
 
 /**
- * Componente de visualização do histórico de treinos e controle de modelos.
+ * Componente de visualização do histórico de treinos.
  */
 export function HistoryView({
   workoutHistory,
-  workoutTemplates,
   activeSession,
   startNewWorkout,
   startEditingWorkout,
   deleteSession,
-  deleteTemplate,
   reloadAllData,
   onResumeActiveWorkout,
 }: HistoryViewProps) {
@@ -79,15 +75,6 @@ export function HistoryView({
     }
   };
 
-  const handleConfirmDeleteTemplate = (templateId: string) => {
-    const userConfirmed = window.confirm('Deseja realmente excluir este template?');
-    if (userConfirmed) {
-      deleteTemplate(templateId);
-    }
-  };
-
-
-
   const formatWorkoutDate = (dateString: string) => {
     const parsedDate = new Date(dateString);
     return parsedDate.toLocaleDateString('pt-BR', {
@@ -104,6 +91,14 @@ export function HistoryView({
     return `${durationInMinutes} min`;
   };
 
+  const handleSessionTap = useCallback((session: WorkoutSession) => {
+    startEditingWorkout(session);
+  }, [startEditingWorkout]);
+
+  const handleSessionLongPress = useCallback((sessionId: string) => {
+    handleConfirmDeleteSession(sessionId);
+  }, [handleConfirmDeleteSession]);
+
   return (
     <div>
       <header>
@@ -112,6 +107,46 @@ export function HistoryView({
       </header>
 
       <main>
+        <section className="card" style={{ gap: 'var(--spacing-sm)' }}>
+          <div style={{ display: 'flex', gap: 'var(--spacing-sm)', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', gap: 'var(--spacing-sm)', alignItems: 'center' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-secondary)' }}>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+              <span className="text-secondary" style={{ fontSize: '0.9rem', fontWeight: 600 }}>Backup</span>
+            </div>
+            <div style={{ display: 'flex', gap: 'var(--spacing-xs)' }}>
+              <button className="small" onClick={handleExportBackup} title="Exportar backup">
+                📥
+              </button>
+              <button className="small" onClick={handleTriggerFileInput} title="Importar backup">
+                📤
+              </button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                accept=".json"
+                style={{ display: 'none' }}
+              />
+            </div>
+          </div>
+          {workoutsSinceLastBackup > 0 && (
+            <p
+              style={{
+                fontSize: '0.8rem',
+                color: 'var(--warning-color)',
+                fontWeight: 600,
+                marginTop: 'var(--spacing-xs)',
+              }}
+            >
+              ⚠️ {workoutsSinceLastBackup} {workoutsSinceLastBackup === 1 ? 'treino realizado' : 'treinos realizados'} desde o último backup.
+            </p>
+          )}
+        </section>
+
         {activeSession && (
           <div className="card" style={{ borderColor: 'var(--warning-color)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -128,133 +163,74 @@ export function HistoryView({
           </div>
         )}
 
-
-        <section className="card">
-          <h2>Templates (Modelos)</h2>
-          {workoutTemplates.length === 0 ? (
-            <p className="text-secondary" style={{ fontSize: '0.9rem', marginTop: 'var(--spacing-xs)' }}>
-              Nenhum template salvo. Salve um modelo ao concluir um treino ativo.
-            </p>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)', marginTop: 'var(--spacing-sm)' }}>
-              {workoutTemplates.map((template) => (
-                <div
-                  key={template.id}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    borderBottom: '1px solid var(--border-color)',
-                    paddingBottom: 'var(--spacing-sm)',
-                  }}
-                >
-                  <div>
-                    <strong style={{ fontSize: '0.95rem' }}>{template.name}</strong>
-                    <div className="text-muted" style={{ fontSize: '0.8rem' }}>
-                      {template.exercises.map((exercise) => exercise.name).join(', ')}
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', gap: 'var(--spacing-xs)' }}>
-                    <button className="small" onClick={() => startNewWorkout(template)}>
-                      Carregar
-                    </button>
-                    <button className="danger small" onClick={() => handleConfirmDeleteTemplate(template.id)}>
-                      Excluir
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section className="card">
-          <h2>Histórico</h2>
+        <section className="card" style={{ gap: 'var(--spacing-sm)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h2 style={{ margin: 0 }}>Histórico</h2>
+          </div>
           {workoutHistory.length === 0 ? (
-            <p className="text-secondary" style={{ fontSize: '0.9rem', marginTop: 'var(--spacing-xs)' }}>
-              Nenhum treino registrado ainda. Comece agora mesmo!
-            </p>
+            <div style={{ textAlign: 'center', padding: 'var(--spacing-lg) 0' }}>
+              <p className="text-secondary" style={{ fontSize: '0.9rem', marginBottom: 'var(--spacing-md)' }}>
+                Nenhum treino registrado
+              </p>
+              <button className="primary" onClick={() => startNewWorkout(null)}>
+                Criar primeiro treino
+              </button>
+            </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)', marginTop: 'var(--spacing-sm)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
               {workoutHistory.map((session) => (
                 <div
                   key={session.id}
+                  onClick={() => handleSessionTap(session)}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    handleSessionLongPress(session.id);
+                  }}
+                  onTouchStart={(e) => {
+                    const timer = setTimeout(() => {
+                      handleSessionLongPress(session.id);
+                    }, 600);
+                    e.currentTarget.dataset.timerId = String(timer);
+                  }}
+                  onTouchEnd={(e) => {
+                    const timerId = e.currentTarget.dataset.timerId;
+                    if (timerId) {
+                      clearTimeout(Number(timerId));
+                      delete e.currentTarget.dataset.timerId;
+                    }
+                  }}
+                  onTouchMove={() => {
+                    const timerId = document.querySelector('[data-timer-id]')?.getAttribute('data-timer-id');
+                    if (timerId) {
+                      clearTimeout(Number(timerId));
+                    }
+                  }}
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: 'var(--spacing-xs)',
+                    gap: '4px',
                     borderBottom: '1px solid var(--border-color)',
-                    paddingBottom: 'var(--spacing-md)',
+                    paddingBottom: 'var(--spacing-sm)',
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                    WebkitTapHighlightColor: 'transparent',
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <strong>{formatWorkoutDate(session.date)}</strong>
+                    <strong style={{ fontSize: '0.95rem' }}>
+                      {session.name !== 'Treino Livre' ? session.name : 'Treino Livre'}
+                    </strong>
                     <span className="text-muted" style={{ fontSize: '0.85rem' }}>
-                      ⏱ {formatWorkoutDuration(session.durationInSeconds)}
+                      {formatWorkoutDuration(session.durationInSeconds)}
                     </span>
                   </div>
-                  
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                    {session.name !== 'Treino Livre' && (
-                      <span className="badge completed" style={{ marginRight: '6px', fontSize: '0.7rem', padding: '2px 4px' }}>
-                        {session.name}
-                      </span>
-                    )}
-                    {session.exercises.map((exercise) => {
-                      const setsCount = exercise.sets.length;
-                      return `${exercise.name} (${setsCount} ${setsCount === 1 ? 'série' : 'séries'})`;
-                    }).join(', ')}
-                  </div>
-
-                  {session.cues.length > 0 && (
-                    <div style={{ fontSize: '0.8rem', fontStyle: 'italic', color: 'var(--text-secondary)' }}>
-                      Lembretes: {session.cues.join(' | ')}
-                    </div>
-                  )}
-
-                  <div style={{ display: 'flex', gap: 'var(--spacing-xs)', marginTop: 'var(--spacing-xs)' }}>
-                    <button className="small" onClick={() => startEditingWorkout(session)}>
-                      Editar
-                    </button>
-                    <button className="danger small" onClick={() => handleConfirmDeleteSession(session.id)}>
-                      Excluir
-                    </button>
+                  <div className="text-secondary" style={{ fontSize: '0.8rem' }}>
+                    {formatWorkoutDate(session.date)}
                   </div>
                 </div>
               ))}
             </div>
           )}
-        </section>
-
-        <section className="card">
-          <h2>Backup dos Dados</h2>
-          {workoutsSinceLastBackup > 0 && (
-            <p
-              style={{
-                fontSize: '0.85rem',
-                color: 'var(--warning-color)',
-                marginTop: 'var(--spacing-xs)',
-                fontWeight: 'bold',
-              }}
-            >
-              ⚠️ {workoutsSinceLastBackup} {workoutsSinceLastBackup === 1 ? 'treino realizado' : 'treinos realizados'} desde o último backup. Exporte para garantir que não perderá seu progresso!
-            </p>
-          )}
-          <div style={{ display: 'flex', gap: 'var(--spacing-sm)', marginTop: 'var(--spacing-sm)' }}>
-            <button onClick={handleExportBackup}>
-              📥 Exportar Backup (JSON)
-            </button>
-            <button onClick={handleTriggerFileInput}>
-              📤 Importar Backup (JSON)
-            </button>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileUpload}
-              accept=".json"
-              style={{ display: 'none' }}
-            />
-          </div>
         </section>
       </main>
 

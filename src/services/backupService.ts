@@ -1,9 +1,7 @@
 import type { WorkoutSession } from '../types/workout';
 import {
   getWorkoutHistory,
-  getWorkoutTemplates,
   saveWorkoutSession,
-  saveWorkoutTemplate,
   saveLastBackupWorkoutCount,
 } from './storageService';
 
@@ -19,10 +17,6 @@ export interface BackupData {
    * Histórico de sessões de treinos finalizados.
    */
   history: WorkoutSession[];
-  /**
-   * Modelos de templates de treino configurados.
-   */
-  templates: WorkoutSession[];
 }
 
 /**
@@ -33,7 +27,6 @@ export function exportWorkoutBackup(): void {
   const backupData: BackupData = {
     version: 1,
     history: history,
-    templates: getWorkoutTemplates(),
   };
 
   const jsonString = JSON.stringify(backupData, null, 2);
@@ -80,9 +73,8 @@ export function importWorkoutBackup(jsonString: string): boolean {
     }
 
     const hasValidHistory = Array.isArray(parsedData.history);
-    const hasValidTemplates = Array.isArray(parsedData.templates);
 
-    if (!hasValidHistory || !hasValidTemplates) {
+    if (!hasValidHistory) {
       return false;
     }
 
@@ -90,16 +82,8 @@ export function importWorkoutBackup(jsonString: string): boolean {
       return isValidWorkoutSession(session);
     });
 
-    const validatedTemplates = (parsedData.templates as any[]).filter((template) => {
-      return isValidWorkoutSession(template);
-    });
-
     validatedHistory.forEach((session) => {
       saveWorkoutSession(session);
-    });
-
-    validatedTemplates.forEach((template) => {
-      saveWorkoutTemplate(template);
     });
 
     saveLastBackupWorkoutCount(validatedHistory.length);

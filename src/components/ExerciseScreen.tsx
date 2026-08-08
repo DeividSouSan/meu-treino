@@ -95,8 +95,8 @@ export function ExerciseScreen({
   return (
     <div className="card" style={{ padding: 'var(--spacing-md)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-md)' }}>
-        <button className="small" onClick={onBack}>
-          ← Voltar
+        <button className="small" onClick={onBack} title="Voltar">
+          ←
         </button>
         <div style={{ display: 'flex', gap: 'var(--spacing-xs)' }}>
           <button
@@ -104,20 +104,22 @@ export function ExerciseScreen({
             onClick={onNavigatePrevious}
             disabled={!hasPrevious}
             style={{ opacity: hasPrevious ? 1 : 0.5 }}
+            title="Exercício anterior"
           >
-            ← Ant.
+            ←
           </button>
           <button
             className="small"
             onClick={onNavigateNext}
             disabled={!hasNext}
             style={{ opacity: hasNext ? 1 : 0.5 }}
+            title="Próximo exercício"
           >
-            Próx. →
+            →
           </button>
         </div>
-        <button className="danger small" onClick={onDelete}>
-          Excluir Ex.
+        <button className="danger small" onClick={onDelete} title="Excluir exercício">
+          ✕
         </button>
       </div>
 
@@ -134,7 +136,7 @@ export function ExerciseScreen({
 
         <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
           <div style={{ flex: 1 }}>
-            <label>Carga Geral (kg)</label>
+            <label>Carga (kg)</label>
             <input
               type="number"
               step="any"
@@ -144,21 +146,21 @@ export function ExerciseScreen({
             />
           </div>
           <div style={{ flex: 2 }}>
-            <label>Notas do Exercício</label>
+            <label>Notas</label>
             <input
               type="text"
               value={exercise.notes}
               onChange={handleNotesChange}
-              placeholder="Ex: Pegada aberta, descer até o peito"
+              placeholder="Ex: Pegada aberta"
             />
           </div>
         </div>
 
         <div>
-          <label style={{ marginBottom: 'var(--spacing-xs)' }}>Séries Registradas</label>
+          <label style={{ marginBottom: 'var(--spacing-xs)' }}>Séries</label>
           {exercise.sets.length === 0 ? (
             <p className="text-secondary" style={{ fontSize: '0.85rem', fontStyle: 'italic' }}>
-              Nenhuma série registrada ainda. Adicione abaixo.
+              Nenhuma série registrada
             </p>
           ) : (
             <ol style={{ paddingLeft: 'var(--spacing-md)', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
@@ -193,8 +195,9 @@ export function ExerciseScreen({
                       className="text text-danger"
                       style={{ padding: '2px 6px', fontSize: '0.8rem' }}
                       onClick={() => handleDeleteSetClick(index)}
+                      title="Excluir série"
                     >
-                      Excluir
+                      ✕
                     </button>
                   </div>
                 </li>
@@ -211,24 +214,27 @@ export function ExerciseScreen({
               style={{ flex: 1 }}
               onClick={handleCopyLastSet}
               disabled={exercise.sets.length === 0}
+              title="Copiar reps da última série"
             >
-              Mesmas reps
+              ↻
             </button>
             <button
               type="button"
               className="small"
               style={{ flex: 1 }}
               onClick={() => handleQuickAdjust(-1)}
+              title="Diminuir 1 repetição"
             >
-              -1 rep
+              −
             </button>
             <button
               type="button"
               className="small"
               style={{ flex: 1 }}
               onClick={() => handleQuickAdjust(1)}
+              title="Aumentar 1 repetição"
             >
-              +1 rep
+              +
             </button>
           </div>
 
@@ -244,7 +250,7 @@ export function ExerciseScreen({
               />
             </div>
             <div style={{ flex: 1 }}>
-              <label style={{ fontSize: '0.75rem' }}>Carga (kg)</label>
+              <label style={{ fontSize: '0.75rem' }}>Carga</label>
               <input
                 type="number"
                 step="any"
@@ -254,7 +260,7 @@ export function ExerciseScreen({
               />
             </div>
             <div style={{ flex: 1 }}>
-              <label style={{ fontSize: '0.75rem' }}>Descanso (s)</label>
+              <label style={{ fontSize: '0.75rem' }}>Descanso</label>
               <input
                 type="number"
                 value={restInput}
@@ -271,13 +277,14 @@ export function ExerciseScreen({
                 padding: '0',
                 borderRadius: 'var(--border-radius)',
               }}
+              title="Adicionar série"
             >
               +
             </button>
           </div>
 
           <div style={{ marginTop: 'var(--spacing-sm)' }}>
-            <label style={{ fontSize: '0.75rem', marginBottom: 'var(--spacing-xs)' }}>Técnicas Avançadas</label>
+            <label style={{ fontSize: '0.75rem', marginBottom: 'var(--spacing-xs)' }}>Técnicas</label>
             <div style={{ display: 'flex', gap: 'var(--spacing-xs)', flexWrap: 'wrap' }}>
               {(['FS', 'RP', 'DS', 'ISO'] as AdvancedTechnique[]).map((technique) => {
                 const isActive = selectedTechniques.includes(technique);
