@@ -102,56 +102,95 @@ export function HistoryView({
   return (
     <div>
       <header>
-        <h1>Histórico de Treinos</h1>
-        <span className="badge completed">Offline-First</span>
+        <h1>Histórico</h1>
       </header>
 
       <main>
-        <section className="card" style={{ gap: 'var(--spacing-sm)' }}>
-          <div style={{ display: 'flex', gap: 'var(--spacing-sm)', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', gap: 'var(--spacing-sm)', alignItems: 'center' }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-secondary)' }}>
+        <section className="card" style={{ gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-md)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>Backup</span>
+          </div>
+          <div style={{ display: 'flex', gap: 'var(--spacing-sm)', marginTop: 'var(--spacing-xs)' }}>
+            <button 
+              className="small" 
+              onClick={handleExportBackup}
+              style={{ 
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px'
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Exportar
+            </button>
+            <button 
+              className="small" 
+              onClick={handleTriggerFileInput}
+              style={{ 
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px'
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                 <polyline points="17 8 12 3 7 8" />
                 <line x1="12" y1="3" x2="12" y2="15" />
               </svg>
-              <span className="text-secondary" style={{ fontSize: '0.9rem', fontWeight: 600 }}>Backup</span>
-            </div>
-            <div style={{ display: 'flex', gap: 'var(--spacing-xs)' }}>
-              <button className="small" onClick={handleExportBackup} title="Exportar backup">
-                📥
-              </button>
-              <button className="small" onClick={handleTriggerFileInput} title="Importar backup">
-                📤
-              </button>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileUpload}
-                accept=".json"
-                style={{ display: 'none' }}
-              />
-            </div>
+              Importar
+            </button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              accept=".json"
+              style={{ display: 'none' }}
+            />
           </div>
           {workoutsSinceLastBackup > 0 && (
-            <p
-              style={{
-                fontSize: '0.8rem',
-                color: 'var(--warning-color)',
-                fontWeight: 600,
-                marginTop: 'var(--spacing-xs)',
-              }}
-            >
-              ⚠️ {workoutsSinceLastBackup} {workoutsSinceLastBackup === 1 ? 'treino realizado' : 'treinos realizados'} desde o último backup.
-            </p>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 10px',
+              backgroundColor: 'var(--warning-light)',
+              borderRadius: 'var(--border-radius)',
+              fontSize: '0.8rem',
+              color: 'var(--warning-color)',
+              fontWeight: 600,
+              marginTop: 'var(--spacing-xs)',
+            }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              {workoutsSinceLastBackup} {workoutsSinceLastBackup === 1 ? 'treino novo' : 'treinos novos'} desde último backup
+            </div>
           )}
         </section>
 
         {activeSession && (
-          <div className="card" style={{ borderColor: 'var(--warning-color)' }}>
+          <div className="card" style={{ 
+            borderLeft: '4px solid var(--warning-color)',
+            marginBottom: 'var(--spacing-md)'
+          }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <h3 style={{ color: 'var(--warning-color)' }}>Treino em Andamento</h3>
+                <h3 style={{ color: 'var(--warning-color)', marginBottom: '4px' }}>Treino em Andamento</h3>
                 <p className="text-secondary" style={{ fontSize: '0.85rem' }}>
                   Iniciado em: {formatWorkoutDate(activeSession.date)}
                 </p>
@@ -164,12 +203,13 @@ export function HistoryView({
         )}
 
         <section className="card" style={{ gap: 'var(--spacing-sm)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2 style={{ margin: 0 }}>Histórico</h2>
-          </div>
+          <h2 style={{ margin: 0 }}>Histórico</h2>
           {workoutHistory.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 'var(--spacing-lg) 0' }}>
-              <p className="text-secondary" style={{ fontSize: '0.9rem', marginBottom: 'var(--spacing-md)' }}>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 'var(--spacing-md)', opacity: 0.5 }}>
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+              </svg>
+              <p className="text-secondary" style={{ fontSize: '0.95rem', marginBottom: 'var(--spacing-md)', fontWeight: 500 }}>
                 Nenhum treino registrado
               </p>
               <button className="primary" onClick={() => startNewWorkout(null)}>
@@ -208,23 +248,39 @@ export function HistoryView({
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '4px',
+                    gap: '6px',
+                    padding: 'var(--spacing-sm) 0',
                     borderBottom: '1px solid var(--border-color)',
-                    paddingBottom: 'var(--spacing-sm)',
                     cursor: 'pointer',
                     userSelect: 'none',
                     WebkitTapHighlightColor: 'transparent',
+                    transition: 'background-color 0.15s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--background-color)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <strong style={{ fontSize: '0.95rem' }}>
+                    <strong style={{ fontSize: '0.95rem', color: 'var(--text-primary)' }}>
                       {session.name !== 'Treino Livre' ? session.name : 'Treino Livre'}
                     </strong>
-                    <span className="text-muted" style={{ fontSize: '0.85rem' }}>
+                    <span style={{ 
+                      fontSize: '0.85rem', 
+                      color: 'var(--accent-color)',
+                      fontWeight: 600,
+                      fontFamily: 'monospace'
+                    }}>
                       {formatWorkoutDuration(session.durationInSeconds)}
                     </span>
                   </div>
-                  <div className="text-secondary" style={{ fontSize: '0.8rem' }}>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <polyline points="12 6 12 12 16 14" />
+                    </svg>
                     {formatWorkoutDate(session.date)}
                   </div>
                 </div>
@@ -266,7 +322,7 @@ export function HistoryView({
         <button
           className="primary"
           onClick={() => startNewWorkout(null)}
-          title="Iniciar Treino Livre"
+          title="Novo Treino"
           style={{
             width: '56px',
             height: '56px',
