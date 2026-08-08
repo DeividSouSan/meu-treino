@@ -145,6 +145,7 @@ button.text {
 
 button.text:hover {
   background-color: var(--accent-light);
+  transform: translateY(-1px);
 }
 
 button.small {
@@ -184,6 +185,30 @@ label {
   color: var(--text-secondary);
   display: block;
   margin-bottom: var(--spacing-xs);
+}
+
+/* Elevated Shadow System */
+.shadow-sm {
+  box-shadow: 0 1px 2px rgba(142, 141, 141, 0.345);
+}
+
+.shadow-md {
+  box-shadow: 0 4px 6px rgba(142, 141, 141, 0.5);
+}
+
+.shadow-hover {
+  transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s;
+}
+
+.shadow-hover:hover {
+  box-shadow: 0 4px 6px rgba(142, 141, 141, 0.5);
+  border-color: rgba(142, 141, 141, 0.5);
+  transform: translateY(-2px);
+}
+
+.shadow-hover--sm:hover {
+  box-shadow: 0 3px 5px rgba(142, 141, 141, 0.5);
+  transform: translateY(-1px);
 }
 
 /* Workout History Item */
@@ -315,6 +340,13 @@ label {
   border-radius: 4px;
   font-weight: 600;
   display: inline-flex;
+  box-shadow: 0 1px 2px rgba(142, 141, 141, 0.345);
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.badge:hover {
+  box-shadow: 0 3px 5px rgba(142, 141, 141, 0.5);
+  transform: translateY(-1px);
 }
 
 .badge.in-progress {
@@ -324,7 +356,7 @@ label {
 }
 
 .badge.completed {
-  background-color: var(--success-light);
-  color: var(--success-color);
-  border: 1px solid var(--success-color);
+  background-color: var(--accent-light);
+  color: var(--accent-color);
+  border: 1px solid var(--accent-color);
 }
