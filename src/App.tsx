@@ -19,7 +19,6 @@ function App() {
     finishActiveWorkout,
     saveEditedWorkout,
     deleteSession,
-    reloadAllData,
   } = useWorkout();
 
   const handleResumeActiveWorkout = () => {
@@ -38,7 +37,6 @@ function App() {
           startNewWorkout={startNewWorkout}
           startEditingWorkout={startEditingWorkout}
           deleteSession={deleteSession}
-          reloadAllData={reloadAllData}
           onResumeActiveWorkout={handleResumeActiveWorkout}
         />
       ) : (
