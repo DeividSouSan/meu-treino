@@ -1,5 +1,6 @@
 import type { WorkoutSession } from '../../types/workout';
 import { WorkoutHistoryItem } from './WorkoutHistoryItem';
+import { Sun } from 'lucide-react';
 
 export interface WorkoutHistoryListProps {
   sessions: WorkoutSession[];
@@ -21,9 +22,12 @@ export function WorkoutHistoryList({
   if (sessions.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: 'var(--spacing-lg) 0' }}>
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 'var(--spacing-md)', opacity: 0.5 }}>
-          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
-        </svg>
+        <Sun
+          size={48}
+          strokeWidth={1.5}
+          color="var(--text-light)"
+          style={{ marginBottom: 'var(--spacing-md)', opacity: 0.5 }}
+        />
         <p className="text-secondary" style={{ fontSize: '0.95rem', marginBottom: 'var(--spacing-md)', fontWeight: 500 }}>
           Nenhum treino registrado
         </p>
