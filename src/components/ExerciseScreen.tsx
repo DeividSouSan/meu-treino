@@ -4,7 +4,7 @@ import type { WorkoutExercise, AdvancedTechnique } from '../types/workout';
 import { useExerciseForm } from '../hooks/useExerciseForm';
 import type { UseStopwatchResult } from '../hooks/useStopwatch';
 import { RestTimer } from './RestTimer';
-import { MtEmptyState } from './ui';
+import { MtButton, MtEmptyState } from './ui';
 import { ArrowLeft, ChevronLeft, ChevronRight, Trash2, X, Copy, Minus, Plus } from 'lucide-react';
 
 export interface ExerciseScreenProps {
@@ -101,32 +101,30 @@ export function ExerciseScreen({
   return (
     <div className="card" style={{ padding: 'var(--spacing-md)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-md)' }}>
-        <button className="small" onClick={onBack} title="Voltar para lista">
+        <MtButton size="small" onClick={onBack} title="Voltar para lista">
           <ArrowLeft size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-        </button>
+        </MtButton>
         <div style={{ display: 'flex', gap: 'var(--spacing-xs)' }}>
-            <button
-              className="small"
+            <MtButton
+              size="small"
               onClick={onNavigatePrevious}
               disabled={!hasPrevious}
-              style={{ opacity: hasPrevious ? 1 : 0.5 }}
               title="Exercício anterior"
             >
               <ChevronLeft size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-            </button>
-            <button
-              className="small"
+            </MtButton>
+            <MtButton
+              size="small"
               onClick={onNavigateNext}
               disabled={!hasNext}
-              style={{ opacity: hasNext ? 1 : 0.5 }}
               title="Próximo exercício"
             >
               <ChevronRight size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-            </button>
+            </MtButton>
         </div>
-        <button className="danger small" onClick={onDelete} title="Excluir exercício">
+        <MtButton variant="danger" size="small" onClick={onDelete} title="Excluir exercício">
           <Trash2 size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-        </button>
+        </MtButton>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
