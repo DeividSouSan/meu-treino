@@ -6,6 +6,7 @@ import type { UseStopwatchResult } from '../hooks/useStopwatch';
 import { RestTimer } from './RestTimer';
 import { MtButton, MtEmptyState, MtField } from './ui';
 import { ExerciseSetItem } from './ExerciseSetItem';
+import { ExerciseTechniquePills } from './ExerciseTechniquePills';
 import { ArrowLeft, ChevronLeft, ChevronRight, Trash2, Copy, Minus, Plus } from 'lucide-react';
 
 export interface ExerciseScreenProps {
@@ -253,23 +254,11 @@ export function ExerciseScreen({
             </MtButton>
           </div>
 
-          <div style={{ marginTop: 'var(--spacing-sm)' }}>
-            <label style={{ fontSize: '0.75rem', marginBottom: 'var(--spacing-xs)' }}>Técnicas</label>
-            <div style={{ display: 'flex', gap: 'var(--spacing-xs)', flexWrap: 'wrap' }}>
-              {(['FS', 'RP', 'DS', 'ISO'] as AdvancedTechnique[]).map((technique) => {
-                const isActive = selectedTechniques.includes(technique);
-                return (
-                  <span
-                    key={technique}
-                    className={`pill ${isActive ? 'active' : ''}`}
-                    onClick={() => handleToggleTechnique(technique)}
-                  >
-                    {technique}
-                  </span>
-                );
-              })}
-            </div>
-          </div>
+          <ExerciseTechniquePills
+            label="Técnicas"
+            selectedTechniques={selectedTechniques}
+            onToggle={handleToggleTechnique}
+          />
         </form>
       </div>
 
