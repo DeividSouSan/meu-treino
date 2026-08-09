@@ -8,6 +8,8 @@ import {
   CueManager,
   ExerciseSearch,
 } from '../components/active-workout';
+import { MtSectionTitle } from '../components';
+import { Dumbbell } from 'lucide-react';
 
 export interface ActiveWorkoutViewProps {
   activeSession: WorkoutSession | null;
@@ -251,7 +253,7 @@ export function ActiveWorkoutView({
             />
 
             <section style={{ marginTop: 'var(--spacing-md)' }}>
-              <h2 style={{ fontSize: '1.1rem', marginBottom: 'var(--spacing-sm)' }}>Exercícios</h2>
+              <MtSectionTitle icon={<Dumbbell size={18} />} style={{ fontSize: '1.1rem', marginBottom: 'var(--spacing-sm)' }}>Exercícios</MtSectionTitle>
               <ExerciseList
                 exercises={currentSession.exercises}
                 selectedExerciseId={currentExerciseId}
