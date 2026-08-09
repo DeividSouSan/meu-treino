@@ -1,7 +1,7 @@
 import React, { useRef, useState, useCallback } from 'react';
 import { exportWorkoutBackup, importWorkoutBackup } from '../../services/backupService';
 import { getLastBackupWorkoutCount, getWorkoutHistory } from '../../services/storageService';
-import { MtAlert } from '../ui';
+import { MtAlert, MtSectionTitle } from '../ui';
 
 export interface BackupSectionProps {
   onImportSuccess: () => void;
@@ -50,14 +50,17 @@ export function BackupSection({ onImportSuccess, workoutHistoryLength }: BackupS
 
   return (
     <section className="card" style={{ gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-md)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="17 8 12 3 7 8" />
-          <line x1="12" y1="3" x2="12" y2="15" />
-        </svg>
-        <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>Backup</span>
-      </div>
+      <MtSectionTitle
+        icon={
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+        }
+      >
+        Backup
+      </MtSectionTitle>
       <div style={{ display: 'flex', gap: 'var(--spacing-sm)', marginTop: 'var(--spacing-xs)' }}>
         <button 
           className="small" 

@@ -12,3 +12,6 @@ export type { SuggestionDropdownProps, SuggestionItem } from './SuggestionDropdo
 
 export { MtAlert } from './MtAlert';
 export type { MtAlertVariant, MtAlertProps } from './MtAlert';
+
+export { MtSectionTitle } from './MtSectionTitle';
+export type { MtSectionTitleProps } from './MtSectionTitle';
