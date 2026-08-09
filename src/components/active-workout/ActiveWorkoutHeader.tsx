@@ -1,5 +1,6 @@
 import type { WorkoutSession } from '../../types/workout';
 import type { UseStopwatchResult } from '../../hooks/useStopwatch';
+import { useContextWorkout } from '../../hooks';
 import { MtButton } from '../ui';
 import { X, Check } from 'lucide-react';
 
@@ -7,17 +8,14 @@ export interface ActiveWorkoutHeaderProps {
   session: WorkoutSession;
   isEditing: boolean;
   durationStopwatch: UseStopwatchResult;
-  onCancel: () => void;
-  onSaveOrFinish: () => void;
 }
 
 export function ActiveWorkoutHeader({
   session,
   isEditing,
   durationStopwatch,
-  onCancel,
-  onSaveOrFinish,
 }: ActiveWorkoutHeaderProps) {
+  const { cancelActiveWorkout, finishActiveWorkout, saveEditedWorkout } = useContextWorkout();
   const formattedDate = new Date(session.date).toLocaleDateString('pt-BR', {
     weekday: 'short',
     day: '2-digit',
@@ -25,6 +23,18 @@ export function ActiveWorkoutHeader({
     hour: '2-digit',
     minute: '2-digit',
   });
+
+  const handleCancel = () => {
+    cancelActiveWorkout();
+  };
+
+  const handleSaveOrFinish = () => {
+    if (isEditing) {
+      saveEditedWorkout();
+    } else {
+      finishActiveWorkout();
+    }
+  };
 
   return (
     <header>
@@ -40,7 +50,7 @@ export function ActiveWorkoutHeader({
         <MtButton
           size="small"
           variant="danger"
-          onClick={onCancel}
+          onClick={handleCancel}
         >
           <X size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
           Cancelar
@@ -48,7 +58,7 @@ export function ActiveWorkoutHeader({
         <MtButton
           size="small"
           variant="primary"
-          onClick={onSaveOrFinish}
+          onClick={handleSaveOrFinish}
         >
           <Check size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
           {isEditing ? 'Salvar' : 'Encerrar'}

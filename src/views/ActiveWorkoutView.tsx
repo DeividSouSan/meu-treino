@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import type { WorkoutSession, WorkoutExercise } from '../types/workout';
-import { useStopwatch } from '../hooks/useStopwatch';
+import type { WorkoutSession } from '../types/workout';
+import { useContextWorkout } from '../hooks';
 import { useActiveWorkoutSession } from '../hooks/useActiveWorkoutSession';
 import { useExerciseNavigation } from '../hooks/useExerciseNavigation';
 import { ExerciseList } from '../components/ExerciseList';
@@ -14,46 +14,39 @@ import { MtEmptyState, MtSectionTitle } from '../components';
 import { Dumbbell } from 'lucide-react';
 
 export interface ActiveWorkoutViewProps {
-  activeSession: WorkoutSession | null;
-  editingSession: WorkoutSession | null;
-  onUpdateActiveSession: (workoutSession: WorkoutSession) => void;
-  onUpdateEditingSession: (workoutSession: WorkoutSession) => void;
-  onFinishActiveWorkout: () => void;
-  onSaveEditedWorkout: () => void;
-  onCancelActiveWorkout: () => void;
   workoutHistory: WorkoutSession[];
 }
 
 export function ActiveWorkoutView({
-  activeSession,
-  editingSession,
-  onUpdateActiveSession,
-  onUpdateEditingSession,
-  onFinishActiveWorkout,
-  onSaveEditedWorkout,
-  onCancelActiveWorkout,
   workoutHistory,
 }: ActiveWorkoutViewProps) {
+  const {
+    activeSession,
+    editingSession,
+    updateActiveSession,
+    updateEditingSession,
+    finishActiveWorkout,
+    saveEditedWorkout,
+    cancelActiveWorkout,
+  } = useContextWorkout();
+
   const {
     session,
     isEditing,
     durationStopwatch,
-    updateSession,
     addCue,
     removeCue,
     addExercise,
     updateExercise,
     deleteExercise,
-    onCancel,
-    onSaveOrFinish,
   } = useActiveWorkoutSession({
     activeSession,
     editingSession,
-    onUpdateActiveSession,
-    onUpdateEditingSession,
-    onFinishActiveWorkout,
-    onSaveEditedWorkout,
-    onCancelActiveWorkout,
+    onUpdateActiveSession: updateActiveSession,
+    onUpdateEditingSession: updateEditingSession,
+    onFinishActiveWorkout: finishActiveWorkout,
+    onSaveEditedWorkout: saveEditedWorkout,
+    onCancelActiveWorkout: cancelActiveWorkout,
   });
 
   const [currentExerciseId, setCurrentExerciseId] = useState<string | null>(null);
@@ -78,7 +71,7 @@ export function ActiveWorkoutView({
             titleStyle={{ fontSize: '1.1rem', fontWeight: 600 }}
             description="Nenhum treino ativo ou em edição foi encontrado."
             actionLabel="Voltar ao Histórico"
-            onAction={onCancel}
+            onAction={cancelActiveWorkout}
           />
         </div>
       </main>
@@ -91,8 +84,6 @@ export function ActiveWorkoutView({
         session={session}
         isEditing={isEditing}
         durationStopwatch={durationStopwatch}
-        onCancel={onCancel}
-        onSaveOrFinish={onSaveOrFinish}
       />
 
       <main style={{ paddingBottom: currentExerciseId ? '20px' : '120px' }}>
@@ -145,7 +136,7 @@ export function ActiveWorkoutView({
 
                 return uniqueNames
                   .filter((name) => name.toLowerCase().includes(query.toLowerCase()))
-                  .map((name) => ({ id: name, name }));
+                  .map((name: string) => ({ id: name, name }));
               }}
             />
           </>

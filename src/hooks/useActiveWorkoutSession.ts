@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import type { WorkoutSession, WorkoutExercise } from '../types/workout';
 import { useStopwatch } from './useStopwatch';
 

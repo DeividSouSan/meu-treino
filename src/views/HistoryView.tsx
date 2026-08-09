@@ -1,5 +1,5 @@
-import type { WorkoutSession } from '../types/workout';
 import packageInfo from '../../package.json';
+import { useContextWorkout } from '../hooks';
 import { useHistoryFormatters } from '../hooks/useHistoryFormatters';
 import { useHistoryActions } from '../hooks/useHistoryActions';
 import { 
@@ -10,29 +10,22 @@ import {
   VersionInfo 
 } from '../components/history';
 
-export interface HistoryViewProps {
-  workoutHistory: WorkoutSession[];
-  activeSession: WorkoutSession | null;
-  startNewWorkout: (templateSession?: WorkoutSession | null) => void;
-  startEditingWorkout: (workoutSession: WorkoutSession) => void;
-  deleteSession: (sessionId: string) => void;
-  onResumeActiveWorkout: () => void;
-}
+export function HistoryView() {
+  const {
+    workoutHistory,
+    activeSession,
+    startNewWorkout,
+    startEditingWorkout,
+    deleteSession,
+    navigateToHistory,
+  } = useContextWorkout();
 
-export function HistoryView({
-  workoutHistory,
-  activeSession,
-  startNewWorkout,
-  startEditingWorkout,
-  deleteSession,
-  onResumeActiveWorkout,
-}: HistoryViewProps) {
   const { formatWorkoutDate, formatWorkoutDuration } = useHistoryFormatters();
 
   const { handleSessionTap, handleSessionLongPress, handleImportSuccess, handleCreateNewWorkout } = useHistoryActions({
     startEditingWorkout,
     deleteSession,
-    onResumeActiveWorkout,
+    onResumeActiveWorkout: navigateToHistory,
     startNewWorkout,
   });
 
@@ -51,7 +44,7 @@ export function HistoryView({
         {activeSession && (
           <ActiveWorkoutCard 
             activeSession={activeSession}
-            onResume={onResumeActiveWorkout}
+            onResume={navigateToHistory}
             formatWorkoutDate={formatWorkoutDate}
           />
         )}

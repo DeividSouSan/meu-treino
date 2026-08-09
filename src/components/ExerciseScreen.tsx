@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
-import type { WorkoutExercise, AdvancedTechnique } from '../types/workout';
+import type { WorkoutExercise } from '../types/workout';
 import { useExerciseForm } from '../hooks/useExerciseForm';
 import { useStopwatch } from '../hooks/useStopwatch';
 import { RestTimer } from './RestTimer';
