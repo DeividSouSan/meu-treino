@@ -7,6 +7,7 @@ export interface MtFieldProps {
   placeholder?: string;
   type?: 'text' | 'number';
   step?: string;
+  required?: boolean;
   style?: CSSProperties;
   labelStyle?: CSSProperties;
 }
@@ -18,6 +19,7 @@ export function MtField({
   placeholder = '',
   type = 'text',
   step,
+  required,
   style,
   labelStyle,
 }: MtFieldProps) {
@@ -30,6 +32,7 @@ export function MtField({
         onChange={onChange}
         placeholder={placeholder}
         step={step}
+        required={required}
       />
     </div>
   );

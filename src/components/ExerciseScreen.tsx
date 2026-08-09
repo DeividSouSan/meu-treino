@@ -209,38 +209,38 @@ export function ExerciseScreen({
           </div>
 
           <div style={{ display: 'flex', gap: 'var(--spacing-xs)', alignItems: 'flex-end' }}>
-            <div style={{ flex: 1 }}>
-              <label style={{ fontSize: '0.75rem' }}>Reps</label>
-              <input
-                type="number"
-                value={repetitionsInput}
-                onChange={(e) => setRepetitionsInput(e.target.value)}
-                placeholder="Reps"
-                required
-              />
-            </div>
-            <div style={{ flex: 1 }}>
-              <label style={{ fontSize: '0.75rem' }}>Carga</label>
-              <input
-                type="number"
-                step="any"
-                value={weightInput}
-                onChange={(e) => setWeightInput(e.target.value)}
-                placeholder="kg"
-              />
-            </div>
-            <div style={{ flex: 1 }}>
-              <label style={{ fontSize: '0.75rem' }}>Descanso</label>
-              <input
-                type="number"
-                value={restInput}
-                onChange={(e) => setRestInput(e.target.value)}
-                placeholder="s"
-              />
-            </div>
-            <button
+            <MtField
+              label="Reps"
+              labelStyle={{ fontSize: '0.75rem' }}
+              value={repetitionsInput}
+              onChange={(event) => setRepetitionsInput(event.target.value)}
+              type="number"
+              placeholder="Reps"
+              required
+              style={{ flex: 1 }}
+            />
+            <MtField
+              label="Carga"
+              labelStyle={{ fontSize: '0.75rem' }}
+              value={weightInput}
+              onChange={(event) => setWeightInput(event.target.value)}
+              type="number"
+              step="any"
+              placeholder="kg"
+              style={{ flex: 1 }}
+            />
+            <MtField
+              label="Descanso"
+              labelStyle={{ fontSize: '0.75rem' }}
+              value={restInput}
+              onChange={(event) => setRestInput(event.target.value)}
+              type="number"
+              placeholder="s"
+              style={{ flex: 1 }}
+            />
+            <MtButton
               type="submit"
-              className="primary"
+              variant="primary"
               style={{
                 height: '42px',
                 width: '42px',
@@ -250,7 +250,7 @@ export function ExerciseScreen({
               title="Adicionar série"
             >
               +
-            </button>
+            </MtButton>
           </div>
 
           <div style={{ marginTop: 'var(--spacing-sm)' }}>
