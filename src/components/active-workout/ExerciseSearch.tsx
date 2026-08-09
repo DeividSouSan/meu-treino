@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { MtInput, MtButton, MtSuggestionDropdown } from '../ui';
 import { Plus } from 'lucide-react';
 
@@ -7,20 +8,28 @@ export interface ExerciseSuggestion {
 }
 
 export interface ExerciseSearchProps {
-  searchInput: string;
-  onSearchInputChange: (value: string) => void;
   onAddExercise: (name: string) => void;
-  suggestions: ExerciseSuggestion[];
+  getSuggestions: (query: string) => ExerciseSuggestion[];
 }
 
 export function ExerciseSearch({
-  searchInput,
-  onSearchInputChange,
   onAddExercise,
-  suggestions,
+  getSuggestions,
 }: ExerciseSearchProps) {
+  const [searchInput, setSearchInput] = useState<string>('');
+  const [suggestions, setSuggestions] = useState<ExerciseSuggestion[]>([]);
+
+  useEffect(() => {
+    if (searchInput.trim() === '') {
+      setSuggestions([]);
+    } else {
+      setSuggestions(getSuggestions(searchInput));
+    }
+  }, [searchInput, getSuggestions]);
+
   const handleSelectSuggestion = (suggestion: { id: string; label: string }) => {
     onAddExercise(suggestion.id);
+    setSearchInput('');
   };
 
   const suggestionItems = suggestions.map((suggestion) => ({
@@ -28,23 +37,28 @@ export function ExerciseSearch({
     label: suggestion.name,
   }));
 
+  const handleAddExercise = () => {
+    onAddExercise(searchInput);
+    setSearchInput('');
+  };
+
   return (
     <section className="card" style={{ marginTop: 'var(--spacing-md)' }}>
       <h2>Adicionar Exercício</h2>
       <div style={{ display: 'flex', gap: 'var(--spacing-xs)', marginTop: 'var(--spacing-xs)', position: 'relative' }}>
         <MtInput
           value={searchInput}
-          onChange={(event) => onSearchInputChange(event.target.value)}
+          onChange={(event) => setSearchInput(event.target.value)}
           placeholder="Buscar ou digitar nome do exercício..."
           onKeyDown={(event) => {
             if (event.key === 'Enter') {
-              onAddExercise(searchInput);
+              handleAddExercise();
             }
           }}
         />
         <MtButton
           size="small"
-          onClick={() => onAddExercise(searchInput)}
+          onClick={handleAddExercise}
           style={{
             width: '42px',
             borderColor: 'var(--accent-color)',

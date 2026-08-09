@@ -26,6 +26,19 @@ export function useStopwatch(initialSeconds: number = 0, autoStart: boolean = fa
   const startTimeRef = useRef<number | null>(null);
   const intervalRef = useRef<number | null>(null);
 
+  // Reset stopwatch when initialSeconds or autoStart changes
+  useEffect(() => {
+    accumulatedSecondsRef.current = initialSeconds;
+    setSecondsState(initialSeconds);
+    if (autoStart) {
+      setIsRunning(true);
+      startTimeRef.current = performance.now();
+    } else {
+      setIsRunning(false);
+      startTimeRef.current = null;
+    }
+  }, [initialSeconds, autoStart]);
+
   const updateTime = () => {
     if (startTimeRef.current !== null) {
       const elapsedMs = performance.now() - startTimeRef.current;

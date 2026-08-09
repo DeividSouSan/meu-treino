@@ -1,8 +1,8 @@
-import { useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import type { WorkoutExercise, AdvancedTechnique } from '../types/workout';
 import { useExerciseForm } from '../hooks/useExerciseForm';
-import type { UseStopwatchResult } from '../hooks/useStopwatch';
+import { useStopwatch } from '../hooks/useStopwatch';
 import { RestTimer } from './RestTimer';
 import { MtButton, MtEmptyState, MtField } from './ui';
 import { ExerciseSetItem } from './ExerciseSetItem';
@@ -11,29 +11,28 @@ import { ArrowLeft, ChevronLeft, ChevronRight, Trash2, Copy, Minus, Plus } from 
 
 export interface ExerciseScreenProps {
   exercise: WorkoutExercise;
-  onUpdate: (updatedExercise: WorkoutExercise) => void;
-  onDelete: () => void;
+  onUpdateExercise: (updatedExercise: WorkoutExercise) => void;
+  onDeleteExercise: () => void;
   onSetAdded: (restTimeInSeconds: number) => void;
   onBack: () => void;
   onNavigatePrevious: () => void;
   onNavigateNext: () => void;
   hasPrevious: boolean;
   hasNext: boolean;
-  restStopwatch: UseStopwatchResult;
 }
 
 export function ExerciseScreen({
   exercise,
-  onUpdate,
-  onDelete,
+  onUpdateExercise,
+  onDeleteExercise,
   onSetAdded,
   onBack,
   onNavigatePrevious,
   onNavigateNext,
   hasPrevious,
   hasNext,
-  restStopwatch,
 }: ExerciseScreenProps) {
+  const localRestStopwatch = useStopwatch(0, false);
   const {
     repetitionsInput,
     weightInput,
@@ -53,44 +52,57 @@ export function ExerciseScreen({
     handleCopyLastSetReps,
   } = useExerciseForm(exercise);
 
+  const [localExercise, setLocalExercise] = useState<WorkoutExercise>(exercise);
+
+  // Sync with parent exercise prop changes
+  if (exercise.id !== localExercise.id || exercise.sets.length !== localExercise.sets.length) {
+    setLocalExercise(exercise);
+  }
+
   const handleNameChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const updated = handleUpdateName(event);
-    onUpdate(updated);
-  }, [handleUpdateName, onUpdate]);
+    setLocalExercise(updated);
+  }, [handleUpdateName]);
 
   const handleNotesChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const updated = handleUpdateNotes(event);
-    onUpdate(updated);
-  }, [handleUpdateNotes, onUpdate]);
+    setLocalExercise(updated);
+  }, [handleUpdateNotes]);
 
   const handleWeightChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const updated = handleUpdateReferenceWeight(event);
-    onUpdate(updated);
-  }, [handleUpdateReferenceWeight, onUpdate]);
+    setLocalExercise(updated);
+  }, [handleUpdateReferenceWeight]);
 
   const handleFormSubmit = useCallback((event: FormEvent) => {
     event.preventDefault();
     const result = handleAddSet();
     if (result.newSet) {
-      onUpdate({
-        ...exercise,
-        sets: [...exercise.sets, result.newSet],
-      });
+      const updated = {
+        ...localExercise,
+        sets: [...localExercise.sets, result.newSet],
+      };
+      setLocalExercise(updated);
+      onUpdateExercise(updated);
       onSetAdded(result.rest);
       setRepetitionsInput('');
       setSelectedTechniques([]);
+      // Reset rest stopwatch when new set is added
+      localRestStopwatch.reset();
     }
-  }, [handleAddSet, exercise, onUpdate, onSetAdded, setRepetitionsInput, setSelectedTechniques]);
+  }, [handleAddSet, localExercise, onUpdateExercise, onSetAdded, setRepetitionsInput, setSelectedTechniques, localRestStopwatch]);
 
   const handleDeleteSetClick = useCallback((setIndexToDelete: number) => {
     const deletedSet = handleDeleteSet(setIndexToDelete);
     if (deletedSet) {
-      onUpdate({
-        ...exercise,
-        sets: exercise.sets.filter((_, index) => index !== setIndexToDelete),
-      });
+      const updated = {
+        ...localExercise,
+        sets: localExercise.sets.filter((_, index) => index !== setIndexToDelete),
+      };
+      setLocalExercise(updated);
+      onUpdateExercise(updated);
     }
-  }, [handleDeleteSet, exercise, onUpdate]);
+  }, [handleDeleteSet, localExercise, onUpdateExercise]);
 
   const handleQuickAdjust = useCallback((delta: number) => {
     handleQuickAdjustReps(delta);
@@ -124,7 +136,7 @@ export function ExerciseScreen({
               <ChevronRight size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
             </MtButton>
         </div>
-        <MtButton variant="danger" size="small" onClick={onDelete} title="Excluir exercício">
+        <MtButton variant="danger" size="small" onClick={onDeleteExercise} title="Excluir exercício">
           <Trash2 size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
         </MtButton>
       </div>
@@ -132,7 +144,7 @@ export function ExerciseScreen({
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
         <MtField
           label="Nome do Exercício"
-          value={exercise.name}
+          value={localExercise.name}
           onChange={handleNameChange}
           placeholder="Ex: Supino Reto"
         />
@@ -149,7 +161,7 @@ export function ExerciseScreen({
           />
           <MtField
             label="Notas"
-            value={exercise.notes}
+            value={localExercise.notes}
             onChange={handleNotesChange}
             placeholder="Ex: Pegada aberta"
             style={{ flex: 2 }}
@@ -158,14 +170,14 @@ export function ExerciseScreen({
 
         <div>
           <label style={{ marginBottom: 'var(--spacing-xs)' }}>Séries</label>
-          {exercise.sets.length === 0 ? (
+          {localExercise.sets.length === 0 ? (
             <MtEmptyState
               size="small"
               title="Nenhuma série registrada"
             />
           ) : (
             <ol style={{ paddingLeft: 'var(--spacing-md)', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
-              {exercise.sets.map((set, index) => (
+              {localExercise.sets.map((set, index) => (
                 <ExerciseSetItem
                   key={index}
                   set={set}
@@ -184,7 +196,7 @@ export function ExerciseScreen({
               size="small"
               style={{ flex: 1 }}
               onClick={handleCopyLastSet}
-              disabled={exercise.sets.length === 0}
+              disabled={localExercise.sets.length === 0}
               title="Copiar reps da última série"
             >
               <Copy size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
@@ -263,8 +275,8 @@ export function ExerciseScreen({
       </div>
 
       <RestTimer
-        stopwatch={restStopwatch}
-        targetSeconds={exercise.sets.length > 0 ? exercise.sets[exercise.sets.length - 1].restTimeInSeconds : 0}
+        stopwatch={localRestStopwatch}
+        targetSeconds={localExercise.sets.length > 0 ? localExercise.sets[localExercise.sets.length - 1].restTimeInSeconds : 0}
       />
     </div>
   );

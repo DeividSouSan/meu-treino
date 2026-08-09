@@ -1,23 +1,23 @@
+import { useState } from 'react';
 import { MtInputForm, EditableList } from '../ui';
 import { Plus } from 'lucide-react';
 
 export interface CueManagerProps {
   cues: string[];
-  cueInput: string;
-  onCueInputChange: (value: string) => void;
   onAddCue: (cue: string) => void;
   onRemoveCue: (cueIndex: number) => void;
 }
 
 export function CueManager({
   cues,
-  cueInput,
-  onCueInputChange,
   onAddCue,
   onRemoveCue,
 }: CueManagerProps) {
+  const [cueInput, setCueInput] = useState<string>('');
+
   const handleAddCue = (value: string) => {
     onAddCue(value);
+    setCueInput('');
   };
 
   const cueItems = cues.map((cue, index) => ({
@@ -35,7 +35,7 @@ export function CueManager({
       <h2>Cues da Sessão (Lembretes)</h2>
       <MtInputForm
         value={cueInput}
-        onChange={(event) => onCueInputChange(event.target.value)}
+        onChange={(event) => setCueInput(event.target.value)}
         onSubmit={handleAddCue}
         placeholder="Ex: Controlar a descida no agachamento"
         submitButtonContent={<Plus size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />}

@@ -1,11 +1,12 @@
 import type { WorkoutSession } from '../../types/workout';
+import type { UseStopwatchResult } from '../../hooks/useStopwatch';
 import { MtButton } from '../ui';
 import { X, Check } from 'lucide-react';
 
 export interface ActiveWorkoutHeaderProps {
   session: WorkoutSession;
   isEditing: boolean;
-  formattedDate: string;
+  durationStopwatch: UseStopwatchResult;
   onCancel: () => void;
   onSaveOrFinish: () => void;
 }
@@ -13,10 +14,18 @@ export interface ActiveWorkoutHeaderProps {
 export function ActiveWorkoutHeader({
   session,
   isEditing,
-  formattedDate,
+  durationStopwatch,
   onCancel,
   onSaveOrFinish,
 }: ActiveWorkoutHeaderProps) {
+  const formattedDate = new Date(session.date).toLocaleDateString('pt-BR', {
+    weekday: 'short',
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
   return (
     <header>
       <div>
@@ -24,7 +33,7 @@ export function ActiveWorkoutHeader({
           {formattedDate}
         </h1>
         <span className="text-secondary" style={{ fontSize: '0.8rem', display: 'block' }}>
-          {isEditing ? 'Modo Edição' : `Duração: ${formatTimerValue(session.durationInSeconds)}`}
+          {isEditing ? 'Modo Edição' : `Duração: ${formatTimerValue(durationStopwatch.seconds)}`}
         </span>
       </div>
       <div style={{ display: 'flex', gap: 'var(--spacing-xs)' }}>
