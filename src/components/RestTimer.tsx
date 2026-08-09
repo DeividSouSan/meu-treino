@@ -7,7 +7,7 @@ export interface RestTimerProps {
 }
 
 export function RestTimer({ stopwatch, targetSeconds }: RestTimerProps) {
-  const { seconds, isRunning } = stopwatch;
+  const { seconds } = stopwatch;
 
   const formatTime = (totalSeconds: number) => {
     const minutes = Math.floor(totalSeconds / 60);
