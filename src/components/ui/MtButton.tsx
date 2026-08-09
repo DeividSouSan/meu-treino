@@ -5,7 +5,7 @@ export type MtButtonSize = 'small' | 'medium';
 
 export interface MtButtonProps {
   children: ReactNode;
-  onClick: () => void;
+  onClick?: () => void;
   variant?: MtButtonVariant;
   size?: MtButtonSize;
   style?: CSSProperties;
