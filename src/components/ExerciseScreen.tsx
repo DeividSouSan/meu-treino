@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
-import type { WorkoutExercise } from '../types/workout';
+import type { WorkoutExercise, ExerciseSet } from '../types/workout';
 import { useExerciseForm } from '../hooks/useExerciseForm';
 import { useStopwatch } from '../hooks/useStopwatch';
 import { RestTimer } from './RestTimer';
@@ -104,6 +104,17 @@ export function ExerciseScreen({
     }
   }, [handleDeleteSet, localExercise, onUpdateExercise]);
 
+  // Atualiza uma série existente sem resetar o cronômetro.
+  // O cronômetro (localRestStopwatch) continua com o tempo acumulado.
+  const handleUpdateSet = useCallback((setIndex: number, updatedSet: ExerciseSet) => {
+    const updatedExercise = {
+      ...localExercise,
+      sets: localExercise.sets.map((s, i) => (i === setIndex ? updatedSet : s)),
+    };
+    setLocalExercise(updatedExercise);
+    onUpdateExercise(updatedExercise);
+  }, [localExercise, onUpdateExercise]);
+
   const handleQuickAdjust = useCallback((delta: number) => {
     handleQuickAdjustReps(delta);
   }, [handleQuickAdjustReps]);
@@ -183,6 +194,7 @@ export function ExerciseScreen({
                   set={set}
                   index={index}
                   onDelete={handleDeleteSetClick}
+                  onUpdate={handleUpdateSet}
                 />
               ))}
             </ol>
