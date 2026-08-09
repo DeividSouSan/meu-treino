@@ -15,3 +15,6 @@ export type { MtAlertVariant, MtAlertProps } from './MtAlert';
 
 export { MtSectionTitle } from './MtSectionTitle';
 export type { MtSectionTitleProps } from './MtSectionTitle';
+
+export { MtButton } from './MtButton';
+export type { MtButtonProps, MtButtonVariant, MtButtonSize } from './MtButton';
