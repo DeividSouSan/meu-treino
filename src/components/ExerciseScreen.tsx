@@ -4,6 +4,7 @@ import type { WorkoutExercise, AdvancedTechnique } from '../types/workout';
 import { useExerciseForm } from '../hooks/useExerciseForm';
 import type { UseStopwatchResult } from '../hooks/useStopwatch';
 import { RestTimer } from './RestTimer';
+import { MtEmptyState } from './ui';
 import { ArrowLeft, ChevronLeft, ChevronRight, Trash2, X, Copy, Minus, Plus } from 'lucide-react';
 
 export interface ExerciseScreenProps {
@@ -164,9 +165,10 @@ export function ExerciseScreen({
         <div>
           <label style={{ marginBottom: 'var(--spacing-xs)' }}>Séries</label>
           {exercise.sets.length === 0 ? (
-            <p className="text-secondary" style={{ fontSize: '0.85rem', fontStyle: 'italic' }}>
-              Nenhuma série registrada
-            </p>
+            <MtEmptyState
+              size="small"
+              title="Nenhuma série registrada"
+            />
           ) : (
             <ol style={{ paddingLeft: 'var(--spacing-md)', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
               {exercise.sets.map((set, index) => (

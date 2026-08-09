@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { WorkoutExercise, ExerciseSet, AdvancedTechnique } from '../types/workout';
+import { MtEmptyState } from './ui';
 
 /**
  * Interface de propriedades para o componente ExerciseCard.
@@ -192,9 +193,10 @@ export function ExerciseCard({
           <div>
             <label style={{ marginBottom: 'var(--spacing-xs)' }}>Séries Registradas</label>
             {exercise.sets.length === 0 ? (
-              <p className="text-secondary" style={{ fontSize: '0.85rem', fontStyle: 'italic' }}>
-                Nenhuma série registrada ainda. Adicione abaixo.
-              </p>
+              <MtEmptyState
+                size="small"
+                title="Nenhuma série registrada ainda. Adicione abaixo."
+              />
             ) : (
               <ol style={{ paddingLeft: 'var(--spacing-md)', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
                 {exercise.sets.map((set, index) => (

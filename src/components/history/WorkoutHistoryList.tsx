@@ -1,5 +1,6 @@
 import type { WorkoutSession } from '../../types/workout';
 import { WorkoutHistoryItem } from './WorkoutHistoryItem';
+import { MtEmptyState } from '../ui';
 import { Sun } from 'lucide-react';
 
 export interface WorkoutHistoryListProps {
@@ -21,20 +22,14 @@ export function WorkoutHistoryList({
 }: WorkoutHistoryListProps) {
   if (sessions.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: 'var(--spacing-lg) 0' }}>
-        <Sun
-          size={48}
-          strokeWidth={1.5}
-          color="var(--text-light)"
-          style={{ marginBottom: 'var(--spacing-md)', opacity: 0.5 }}
-        />
-        <p className="text-secondary" style={{ fontSize: '0.95rem', marginBottom: 'var(--spacing-md)', fontWeight: 500 }}>
-          Nenhum treino registrado
-        </p>
-        <button className="primary" onClick={onCreateFirstWorkout}>
-          Criar primeiro treino
-        </button>
-      </div>
+      <MtEmptyState
+        icon={
+          <Sun size={48} strokeWidth={1.5} color="var(--text-light)" />
+        }
+        title="Nenhum treino registrado"
+        actionLabel="Criar primeiro treino"
+        onAction={onCreateFirstWorkout}
+      />
     );
   }
 

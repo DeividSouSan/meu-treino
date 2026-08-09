@@ -8,7 +8,7 @@ import {
   CueManager,
   ExerciseSearch,
 } from '../components/active-workout';
-import { MtSectionTitle } from '../components';
+import { MtEmptyState, MtSectionTitle } from '../components';
 import { Dumbbell } from 'lucide-react';
 
 export interface ActiveWorkoutViewProps {
@@ -205,11 +205,14 @@ export function ActiveWorkoutView({
     return (
       <main>
         <div className="card">
-          <h2>Erro de Sessão</h2>
-          <p className="text-secondary">Nenhum treino ativo ou em edição foi encontrado.</p>
-          <button className="primary" onClick={onCancelActiveWorkout}>
-            Voltar ao Histórico
-          </button>
+          <MtEmptyState
+            align="left"
+            title="Erro de Sessão"
+            titleStyle={{ fontSize: '1.1rem', fontWeight: 600 }}
+            description="Nenhum treino ativo ou em edição foi encontrado."
+            actionLabel="Voltar ao Histórico"
+            onAction={onCancelActiveWorkout}
+          />
         </div>
       </main>
     );
