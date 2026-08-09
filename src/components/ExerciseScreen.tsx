@@ -4,7 +4,7 @@ import type { WorkoutExercise, AdvancedTechnique } from '../types/workout';
 import { useExerciseForm } from '../hooks/useExerciseForm';
 import type { UseStopwatchResult } from '../hooks/useStopwatch';
 import { RestTimer } from './RestTimer';
-import { MtButton, MtEmptyState } from './ui';
+import { MtButton, MtEmptyState, MtField } from './ui';
 import { ArrowLeft, ChevronLeft, ChevronRight, Trash2, X, Copy, Minus, Plus } from 'lucide-react';
 
 export interface ExerciseScreenProps {
@@ -128,36 +128,30 @@ export function ExerciseScreen({
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-        <div>
-          <label>Nome do Exercício</label>
-          <input
-            type="text"
-            value={exercise.name}
-            onChange={handleNameChange}
-            placeholder="Ex: Supino Reto"
-          />
-        </div>
+        <MtField
+          label="Nome do Exercício"
+          value={exercise.name}
+          onChange={handleNameChange}
+          placeholder="Ex: Supino Reto"
+        />
 
         <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
-          <div style={{ flex: 1 }}>
-            <label>Carga (kg)</label>
-            <input
-              type="number"
-              step="any"
-              value={weightInput}
-              onChange={handleWeightChange}
-              placeholder="Ex: 30"
-            />
-          </div>
-          <div style={{ flex: 2 }}>
-            <label>Notas</label>
-            <input
-              type="text"
-              value={exercise.notes}
-              onChange={handleNotesChange}
-              placeholder="Ex: Pegada aberta"
-            />
-          </div>
+          <MtField
+            label="Carga (kg)"
+            value={weightInput}
+            onChange={handleWeightChange}
+            placeholder="Ex: 30"
+            type="number"
+            step="any"
+            style={{ flex: 1 }}
+          />
+          <MtField
+            label="Notas"
+            value={exercise.notes}
+            onChange={handleNotesChange}
+            placeholder="Ex: Pegada aberta"
+            style={{ flex: 2 }}
+          />
         </div>
 
         <div>

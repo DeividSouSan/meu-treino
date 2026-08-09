@@ -1,10 +1,10 @@
-import type { ReactNode, FormEvent } from 'react';
+import type { ReactNode, FormEvent, ChangeEvent } from 'react';
 import { MtInput } from './MtInput';
 import { MtButton } from './MtButton';
 
 export interface MtInputFormProps {
   value: string;
-  onChange: (value: string) => void;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (value: string) => void;
   placeholder?: string;
   inputType?: 'text' | 'number';

@@ -2,7 +2,7 @@ import type { ChangeEvent, CSSProperties, KeyboardEvent } from 'react';
 
 export interface MtInputProps {
   value: string;
-  onChange: (value: string) => void;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   type?: 'text' | 'number';
   style?: CSSProperties;
@@ -17,15 +17,11 @@ export function MtInput({
   style,
   onKeyDown,
 }: MtInputProps) {
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onChange(event.target.value);
-  };
-
   return (
     <input
       type={type}
       value={value}
-      onChange={handleChange}
+      onChange={onChange}
       placeholder={placeholder}
       style={style}
       onKeyDown={onKeyDown}

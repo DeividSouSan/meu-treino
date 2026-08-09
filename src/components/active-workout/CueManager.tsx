@@ -35,7 +35,7 @@ export function CueManager({
       <h2>Cues da Sessão (Lembretes)</h2>
       <MtInputForm
         value={cueInput}
-        onChange={onCueInputChange}
+        onChange={(event) => onCueInputChange(event.target.value)}
         onSubmit={handleAddCue}
         placeholder="Ex: Controlar a descida no agachamento"
         submitButtonContent={<Plus size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />}

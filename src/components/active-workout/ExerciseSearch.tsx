@@ -34,7 +34,7 @@ export function ExerciseSearch({
       <div style={{ display: 'flex', gap: 'var(--spacing-xs)', marginTop: 'var(--spacing-xs)', position: 'relative' }}>
         <MtInput
           value={searchInput}
-          onChange={onSearchInputChange}
+          onChange={(event) => onSearchInputChange(event.target.value)}
           placeholder="Buscar ou digitar nome do exercício..."
           onKeyDown={(event) => {
             if (event.key === 'Enter') {

@@ -4,6 +4,9 @@ export type { EditableListProps, EditableListItem } from './EditableList';
 export { MtEmptyState } from './MtEmptyState';
 export type { MtEmptyStateProps, MtEmptyStateSize, MtEmptyStateAlign } from './MtEmptyState';
 
+export { MtField } from './MtField';
+export type { MtFieldProps } from './MtField';
+
 export { MtAlert } from './MtAlert';
 export type { MtAlertVariant, MtAlertProps } from './MtAlert';
 
