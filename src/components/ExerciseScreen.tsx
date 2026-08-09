@@ -5,7 +5,8 @@ import { useExerciseForm } from '../hooks/useExerciseForm';
 import type { UseStopwatchResult } from '../hooks/useStopwatch';
 import { RestTimer } from './RestTimer';
 import { MtButton, MtEmptyState, MtField } from './ui';
-import { ArrowLeft, ChevronLeft, ChevronRight, Trash2, X, Copy, Minus, Plus } from 'lucide-react';
+import { ExerciseSetItem } from './ExerciseSetItem';
+import { ArrowLeft, ChevronLeft, ChevronRight, Trash2, Copy, Minus, Plus } from 'lucide-react';
 
 export interface ExerciseScreenProps {
   exercise: WorkoutExercise;
@@ -164,42 +165,12 @@ export function ExerciseScreen({
           ) : (
             <ol style={{ paddingLeft: 'var(--spacing-md)', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
               {exercise.sets.map((set, index) => (
-                <li key={index} style={{ fontSize: '0.95rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span>
-                      <strong>{set.repetitions} reps</strong> @ {set.weightInKg}kg 
-                      {set.restTimeInSeconds > 0 && ` - ${set.restTimeInSeconds}s`}
-                      {set.advancedTechniques.length > 0 && (
-                        <span style={{ marginLeft: 'var(--spacing-sm)' }}>
-                          {set.advancedTechniques.map((tech) => (
-                            <span
-                              key={tech}
-                              className="badge completed"
-                              style={{
-                                fontSize: '0.7rem',
-                                padding: '2px 4px',
-                                marginRight: '2px',
-                                backgroundColor: 'var(--accent-light)',
-                                color: 'var(--accent-color)',
-                                borderColor: 'var(--accent-color)',
-                              }}
-                            >
-                              {tech}
-                            </span>
-                          ))}
-                        </span>
-                      )}
-                    </span>
-                      <button
-                        className="text text-danger"
-                        style={{ padding: '2px 6px', fontSize: '0.8rem' }}
-                        onClick={() => handleDeleteSetClick(index)}
-                        title="Excluir série"
-                      >
-                        <X size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-                      </button>
-                  </div>
-                </li>
+                <ExerciseSetItem
+                  key={index}
+                  set={set}
+                  index={index}
+                  onDelete={handleDeleteSetClick}
+                />
               ))}
             </ol>
           )}
