@@ -249,7 +249,7 @@ export function ExerciseScreen({
               }}
               title="Adicionar série"
             >
-              +
+              <Plus size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
             </MtButton>
           </div>
 
