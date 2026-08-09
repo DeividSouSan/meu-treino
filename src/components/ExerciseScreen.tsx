@@ -178,34 +178,34 @@ export function ExerciseScreen({
 
         <form onSubmit={handleFormSubmit} style={{ borderTop: '1px solid var(--border-color)', paddingTop: 'var(--spacing-md)' }}>
           <div style={{ display: 'flex', gap: 'var(--spacing-xs)', marginBottom: 'var(--spacing-sm)' }}>
-              <button
-                type="button"
-                className="small"
-                style={{ flex: 1 }}
-                onClick={handleCopyLastSet}
-                disabled={exercise.sets.length === 0}
-                title="Copiar reps da última série"
-              >
-                <Copy size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-              </button>
-              <button
-                type="button"
-                className="small"
-                style={{ flex: 1 }}
-                onClick={() => handleQuickAdjust(-1)}
-                title="Diminuir 1 repetição"
-              >
-                <Minus size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-              </button>
-              <button
-                type="button"
-                className="small"
-                style={{ flex: 1 }}
-                onClick={() => handleQuickAdjust(1)}
-                title="Aumentar 1 repetição"
-              >
-                <Plus size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-              </button>
+            <MtButton
+              type="button"
+              size="small"
+              style={{ flex: 1 }}
+              onClick={handleCopyLastSet}
+              disabled={exercise.sets.length === 0}
+              title="Copiar reps da última série"
+            >
+              <Copy size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+            </MtButton>
+            <MtButton
+              type="button"
+              size="small"
+              style={{ flex: 1 }}
+              onClick={() => handleQuickAdjust(-1)}
+              title="Diminuir 1 repetição"
+            >
+              <Minus size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+            </MtButton>
+            <MtButton
+              type="button"
+              size="small"
+              style={{ flex: 1 }}
+              onClick={() => handleQuickAdjust(1)}
+              title="Aumentar 1 repetição"
+            >
+              <Plus size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+            </MtButton>
           </div>
 
           <div style={{ display: 'flex', gap: 'var(--spacing-xs)', alignItems: 'flex-end' }}>
