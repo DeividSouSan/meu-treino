@@ -1,5 +1,6 @@
 import { useCallback, useRef } from 'react';
 import type { WorkoutSession } from '../../types/workout';
+import { Clock } from 'lucide-react';
 
 export interface WorkoutHistoryItemProps {
   session: WorkoutSession;
@@ -61,10 +62,7 @@ export function WorkoutHistoryItem({
         </span>
       </div>
       <div className="workout-history-item__date">
-        <svg className="workout-history-item__date-icon" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 6 12 12 16 14" />
-        </svg>
+        <Clock size={12} strokeWidth={2} className="workout-history-item__date-icon" />
         {formatWorkoutDate(session.date)}
       </div>
     </div>
