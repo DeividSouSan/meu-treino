@@ -1,6 +1,3 @@
-export { IconButton } from './IconButton';
-export type { IconButtonProps } from './IconButton';
-
 export { EditableList } from './EditableList';
 export type { EditableListProps, EditableListItem } from './EditableList';
 

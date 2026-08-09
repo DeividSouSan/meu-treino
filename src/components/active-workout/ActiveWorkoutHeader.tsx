@@ -1,5 +1,5 @@
 import type { WorkoutSession } from '../../types/workout';
-import { IconButton } from '../ui/IconButton';
+import { MtButton } from '../ui';
 import { X, Check } from 'lucide-react';
 
 export interface ActiveWorkoutHeaderProps {
@@ -28,20 +28,22 @@ export function ActiveWorkoutHeader({
         </span>
       </div>
       <div style={{ display: 'flex', gap: 'var(--spacing-xs)' }}>
-        <IconButton 
-          onClick={onCancel}
+        <MtButton
+          size="small"
           variant="danger"
+          onClick={onCancel}
         >
           <X size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
           Cancelar
-        </IconButton>
-        <IconButton 
-          onClick={onSaveOrFinish}
+        </MtButton>
+        <MtButton
+          size="small"
           variant="primary"
+          onClick={onSaveOrFinish}
         >
           <Check size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
           {isEditing ? 'Salvar' : 'Encerrar'}
-        </IconButton>
+        </MtButton>
       </div>
     </header>
   );
