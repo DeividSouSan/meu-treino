@@ -1,7 +1,7 @@
 import React, { useRef, useState, useCallback } from 'react';
 import { exportWorkoutBackup, importWorkoutBackup } from '../../services/backupService';
 import { getLastBackupWorkoutCount, getWorkoutHistory } from '../../services/storageService';
-import { MtAlert, MtSectionTitle } from '../ui';
+import { MtAlert, MtSectionTitle, MtButton } from '../ui';
 import { CloudUpload, Download, Upload } from 'lucide-react';
 
 export interface BackupSectionProps {
@@ -55,34 +55,14 @@ export function BackupSection({ onImportSuccess, workoutHistoryLength }: BackupS
         Backup
       </MtSectionTitle>
       <div style={{ display: 'flex', gap: 'var(--spacing-sm)', marginTop: 'var(--spacing-xs)' }}>
-        <button 
-          className="small" 
-          onClick={handleExportBackup}
-          style={{ 
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '6px'
-          }}
-        >
+        <MtButton size="small" onClick={handleExportBackup} style={{ flex: 1 }}>
           <Download size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
           Exportar
-        </button>
-        <button 
-          className="small" 
-          onClick={handleTriggerFileInput}
-          style={{ 
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '6px'
-          }}
-        >
+        </MtButton>
+        <MtButton size="small" onClick={handleTriggerFileInput} style={{ flex: 1 }}>
           <Upload size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
           Importar
-        </button>
+        </MtButton>
         <input
           type="file"
           ref={fileInputRef}
