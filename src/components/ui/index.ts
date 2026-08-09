@@ -9,3 +9,6 @@ export type { EditableListProps, EditableListItem } from './EditableList';
 
 export { SuggestionDropdown } from './SuggestionDropdown';
 export type { SuggestionDropdownProps, SuggestionItem } from './SuggestionDropdown';
+
+export { MtAlert } from './MtAlert';
+export type { MtAlertVariant, MtAlertProps } from './MtAlert';
