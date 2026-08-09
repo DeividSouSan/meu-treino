@@ -1,6 +1,7 @@
-import { useCallback } from 'react';
 import type { WorkoutSession } from '../types/workout';
 import packageInfo from '../../package.json';
+import { useHistoryFormatters } from '../hooks/useHistoryFormatters';
+import { useHistoryActions } from '../hooks/useHistoryActions';
 import { 
   BackupSection, 
   ActiveWorkoutCard, 
@@ -26,36 +27,14 @@ export function HistoryView({
   deleteSession,
   onResumeActiveWorkout,
 }: HistoryViewProps) {
-  const formatWorkoutDate = (dateString: string) => {
-    const parsedDate = new Date(dateString);
-    return parsedDate.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  const { formatWorkoutDate, formatWorkoutDuration } = useHistoryFormatters();
 
-  const formatWorkoutDuration = (durationInSeconds: number) => {
-    const durationInMinutes = Math.round(durationInSeconds / 60);
-    return `${durationInMinutes} min`;
-  };
-
-  const handleSessionTap = useCallback((session: WorkoutSession) => {
-    startEditingWorkout(session);
-  }, [startEditingWorkout]);
-
-  const handleSessionLongPress = useCallback((sessionId: string) => {
-    const userConfirmed = window.confirm('Deseja realmente excluir este treino do histórico?');
-    if (userConfirmed) {
-      deleteSession(sessionId);
-    }
-  }, [deleteSession]);
-
-  const handleImportSuccess = useCallback(() => {
-    onResumeActiveWorkout();
-  }, [onResumeActiveWorkout]);
+  const { handleSessionTap, handleSessionLongPress, handleImportSuccess, handleCreateNewWorkout } = useHistoryActions({
+    startEditingWorkout,
+    deleteSession,
+    onResumeActiveWorkout,
+    startNewWorkout,
+  });
 
   return (
     <div>
@@ -85,12 +64,12 @@ export function HistoryView({
             onSessionLongPress={handleSessionLongPress}
             formatWorkoutDate={formatWorkoutDate}
             formatWorkoutDuration={formatWorkoutDuration}
-            onCreateFirstWorkout={() => startNewWorkout(null)}
+            onCreateFirstWorkout={handleCreateNewWorkout}
           />
         </section>
       </main>
 
-      <FloatingActionButton onClick={() => startNewWorkout(null)}>
+      <FloatingActionButton onClick={handleCreateNewWorkout}>
         +
       </FloatingActionButton>
       
