@@ -1,4 +1,5 @@
 import type { UseStopwatchResult } from '../hooks/useStopwatch';
+import { Clock, RotateCcw } from 'lucide-react';
 
 export interface RestTimerProps {
   stopwatch: UseStopwatchResult;
@@ -28,10 +29,7 @@ export function RestTimer({ stopwatch, targetSeconds }: RestTimerProps) {
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-xs)' }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 6 12 12 16 14" />
-        </svg>
+        <Clock size={16} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
         <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Descanso</span>
       </div>
 
@@ -59,10 +57,7 @@ export function RestTimer({ stopwatch, targetSeconds }: RestTimerProps) {
           title="Resetar"
           style={{ padding: '4px 8px' }}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12" />
-            <path d="M3 5v7h7" />
-          </svg>
+          <RotateCcw size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
         </button>
       </div>
     </div>
