@@ -1,5 +1,4 @@
-import { InputForm } from '../ui/InputForm';
-import { EditableList } from '../ui/EditableList';
+import { MtInputForm, EditableList } from '../ui';
 import { Plus } from 'lucide-react';
 
 export interface CueManagerProps {
@@ -34,7 +33,7 @@ export function CueManager({
   return (
     <section className="card">
       <h2>Cues da Sessão (Lembretes)</h2>
-      <InputForm
+      <MtInputForm
         value={cueInput}
         onChange={onCueInputChange}
         onSubmit={handleAddCue}

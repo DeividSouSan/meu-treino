@@ -1,4 +1,4 @@
-import { SuggestionDropdown } from '../ui/SuggestionDropdown';
+import { MtInput, MtButton, MtSuggestionDropdown } from '../ui';
 import { Plus } from 'lucide-react';
 
 export interface ExerciseSuggestion {
@@ -32,10 +32,9 @@ export function ExerciseSearch({
     <section className="card" style={{ marginTop: 'var(--spacing-md)' }}>
       <h2>Adicionar Exercício</h2>
       <div style={{ display: 'flex', gap: 'var(--spacing-xs)', marginTop: 'var(--spacing-xs)', position: 'relative' }}>
-        <input
-          type="text"
+        <MtInput
           value={searchInput}
-          onChange={(event) => onSearchInputChange(event.target.value)}
+          onChange={onSearchInputChange}
           placeholder="Buscar ou digitar nome do exercício..."
           onKeyDown={(event) => {
             if (event.key === 'Enter') {
@@ -43,8 +42,8 @@ export function ExerciseSearch({
             }
           }}
         />
-        <button
-          className="small"
+        <MtButton
+          size="small"
           onClick={() => onAddExercise(searchInput)}
           style={{
             width: '42px',
@@ -53,10 +52,10 @@ export function ExerciseSearch({
           }}
         >
           <Plus size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-        </button>
+        </MtButton>
       </div>
 
-      <SuggestionDropdown
+      <MtSuggestionDropdown
         suggestions={suggestionItems}
         onSelect={handleSelectSuggestion}
       />
