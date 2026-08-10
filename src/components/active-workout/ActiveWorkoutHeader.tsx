@@ -25,14 +25,25 @@ export function ActiveWorkoutHeader({
   });
 
   const handleCancel = () => {
-    cancelActiveWorkout();
+    const confirmado = window.confirm(
+      'Tem certeza de que deseja cancelar este treino? O progresso não será salvo.'
+    );
+    if (confirmado) {
+      cancelActiveWorkout();
+    }
   };
 
   const handleSaveOrFinish = () => {
     if (isEditing) {
-      saveEditedWorkout();
+      const confirmado = window.confirm('Tem certeza de que deseja salvar este treino?');
+      if (confirmado) {
+        saveEditedWorkout();
+      }
     } else {
-      finishActiveWorkout();
+      const confirmado = window.confirm('Tem certeza de que deseja encerrar este treino?');
+      if (confirmado) {
+        finishActiveWorkout();
+      }
     }
   };
 
@@ -51,17 +62,19 @@ export function ActiveWorkoutHeader({
           size="small"
           variant="danger"
           onClick={handleCancel}
+          title="Cancelar treino"
+          style={{ minWidth: '40px', minHeight: '40px' }}
         >
-          <X size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-          Cancelar
+          <X size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
         </MtButton>
         <MtButton
           size="small"
           variant="primary"
           onClick={handleSaveOrFinish}
+          title={isEditing ? 'Salvar alterações' : 'Encerrar treino'}
+          style={{ minWidth: '40px', minHeight: '40px' }}
         >
-          <Check size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-          {isEditing ? 'Salvar' : 'Encerrar'}
+          <Check size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
         </MtButton>
       </div>
     </header>

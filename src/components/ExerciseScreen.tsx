@@ -4,7 +4,7 @@ import type { WorkoutExercise, ExerciseSet } from '../types/workout';
 import { useExerciseForm } from '../hooks/useExerciseForm';
 import { useStopwatch } from '../hooks/useStopwatch';
 import { RestTimer } from './RestTimer';
-import { MtButton, MtEmptyState, MtField } from './ui';
+import { MtButton, MtEmptyState, MtField, MtLastWorkoutSets } from './ui';
 import { ExerciseSetItem } from './ExerciseSetItem';
 import { ExerciseTechniquePills } from './ExerciseTechniquePills';
 import { ArrowLeft, ChevronLeft, ChevronRight, Trash2, Copy, Minus, Plus } from 'lucide-react';
@@ -178,6 +178,9 @@ export function ExerciseScreen({
             style={{ flex: 2 }}
           />
         </div>
+
+        {/* Visualização rápida das séries do último treino deste exercício */}
+        <MtLastWorkoutSets exerciseName={localExercise.name} />
 
         <div>
           <label style={{ marginBottom: 'var(--spacing-xs)' }}>Séries</label>
