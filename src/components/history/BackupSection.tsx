@@ -1,18 +1,31 @@
-import React, { useRef, useState, useCallback } from 'react';
-import { exportWorkoutBackup, importWorkoutBackup } from '../../services/backupService';
-import { getLastBackupWorkoutCount, getWorkoutHistory } from '../../services/storageService';
+import React, { useRef, useCallback } from 'react';
+import { useBackupSection } from './useBackupSection';
 import { MtAlert, MtSectionTitle, MtButton } from '../ui';
 import { CloudUpload, Download, Upload } from 'lucide-react';
 
 export interface BackupSectionProps {
+  /**
+   * Disparado após uma importação bem-sucedida, para que a View recarregue
+   * (ex.: voltar ao histórico).
+   */
   onImportSuccess: () => void;
+  /**
+   * Quantidade atual de treinos no histórico. Serve para calcular quantos
+   * treinos novos existem desde o último backup.
+   */
   workoutHistoryLength: number;
 }
 
+/**
+ * BackupSection é a seção de exportação/importação de dados.
+ *
+ * É puramente apresentacional: toda a lógica de backup (serviços, contagem)
+ * está no container useBackupSection. Aqui só orquestramos a UI de input de
+ * arquivo (FileReader) e os alertas de feedback ao usuário.
+ */
 export function BackupSection({ onImportSuccess, workoutHistoryLength }: BackupSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [lastBackupCount, setLastBackupCount] = useState<number>(getLastBackupWorkoutCount());
-  const workoutsSinceLastBackup = Math.max(0, workoutHistoryLength - lastBackupCount);
+  const { workoutsSinceLastBackup, exportBackup, importBackup } = useBackupSection(workoutHistoryLength);
 
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files;
@@ -22,14 +35,13 @@ export function BackupSection({ onImportSuccess, workoutHistoryLength }: BackupS
 
     const selectedFile = fileList[0];
     const fileReader = new FileReader();
-    
+
     fileReader.onload = (fileEvent) => {
       const fileContent = fileEvent.target?.result;
       if (typeof fileContent === 'string') {
-        const importSuccess = importWorkoutBackup(fileContent);
-        if (importSuccess) {
+        const importSucceeded = importBackup(fileContent);
+        if (importSucceeded) {
           onImportSuccess();
-          setLastBackupCount(getWorkoutHistory().length);
           alert('Dados importados com sucesso!');
         } else {
           alert('Erro ao importar. Verifique se o arquivo JSON está no formato correto.');
@@ -38,12 +50,11 @@ export function BackupSection({ onImportSuccess, workoutHistoryLength }: BackupS
     };
 
     fileReader.readAsText(selectedFile);
-  }, [onImportSuccess]);
+  }, [importBackup, onImportSuccess]);
 
   const handleExportBackup = useCallback(() => {
-    exportWorkoutBackup();
-    setLastBackupCount(workoutHistoryLength);
-  }, [workoutHistoryLength]);
+    exportBackup();
+  }, [exportBackup]);
 
   const handleTriggerFileInput = useCallback(() => {
     fileInputRef.current?.click();
@@ -54,7 +65,7 @@ export function BackupSection({ onImportSuccess, workoutHistoryLength }: BackupS
       <MtSectionTitle icon={<CloudUpload size={18} strokeWidth={2} color="var(--accent-color)" />}>
         Backup
       </MtSectionTitle>
-      <div style={{ display: 'flex', gap: 'var(--spacing-sm)', marginTop: 'var(--spacing-xs)' }}>
+      <div style={{ display: 'flex', gap: 'var(--spacing-xs)', marginTop: 'var(--spacing-xs)' }}>
         <MtButton size="small" onClick={handleExportBackup} style={{ flex: 1 }}>
           <Download size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
           Exportar

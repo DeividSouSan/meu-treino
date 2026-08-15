@@ -1,33 +1,33 @@
-import packageInfo from '../../package.json';
-import { useContextWorkout } from '../hooks';
-import { useHistoryFormatters } from '../hooks/useHistoryFormatters';
-import { useHistoryActions } from '../hooks/useHistoryActions';
-import { 
-  BackupSection, 
-  ActiveWorkoutCard, 
-  WorkoutHistoryList, 
-  FloatingActionButton, 
-  VersionInfo 
-} from '../components/history';
+import packageInfo from '../../../package.json';
+import { useHistoryView } from './useHistoryView';
+import {
+  BackupSection,
+  ActiveWorkoutCard,
+  WorkoutHistoryList,
+  FloatingActionButton,
+  VersionInfo,
+} from '../../components/history';
 
+/**
+ * HistoryView é a tela apresentacional do histórico de treinos.
+ *
+ * Ela não contém lógica: toda ação e formatação vem do container useHistoryView.
+ * Seu único trabalho é organizar os blocos visuais (backup, treino ativo,
+ * lista de histórico, FAB e versão) e repassar as informações para os
+ * componentes filhos.
+ */
 export function HistoryView() {
   const {
     workoutHistory,
     activeSession,
-    startNewWorkout,
-    startEditingWorkout,
-    deleteSession,
-    navigateToHistory,
-  } = useContextWorkout();
-
-  const { formatWorkoutDate, formatWorkoutDuration } = useHistoryFormatters();
-
-  const { handleSessionTap, handleSessionLongPress, handleImportSuccess, handleCreateNewWorkout } = useHistoryActions({
-    startEditingWorkout,
-    deleteSession,
-    onResumeActiveWorkout: navigateToHistory,
-    startNewWorkout,
-  });
+    resumeActiveWorkout,
+    handleSessionTap,
+    handleSessionLongPress,
+    handleImportSuccess,
+    handleCreateNewWorkout,
+    formatWorkoutDate,
+    formatWorkoutDuration,
+  } = useHistoryView();
 
   return (
     <div>
@@ -36,15 +36,15 @@ export function HistoryView() {
       </header>
 
       <main>
-        <BackupSection 
+        <BackupSection
           onImportSuccess={handleImportSuccess}
           workoutHistoryLength={workoutHistory.length}
         />
 
         {activeSession && (
-          <ActiveWorkoutCard 
+          <ActiveWorkoutCard
             activeSession={activeSession}
-            onResume={navigateToHistory}
+            onResume={resumeActiveWorkout}
             formatWorkoutDate={formatWorkoutDate}
           />
         )}
@@ -65,7 +65,7 @@ export function HistoryView() {
       <FloatingActionButton onClick={handleCreateNewWorkout}>
         +
       </FloatingActionButton>
-      
+
       <VersionInfo version={packageInfo.version} />
     </div>
   );

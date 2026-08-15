@@ -3,14 +3,14 @@ import { HistoryView } from './views/HistoryView';
 import { ActiveWorkoutView } from './views/ActiveWorkoutView';
 
 function AppContent() {
-  const { currentView, workoutHistory } = useContextWorkout();
+  const { currentView } = useContextWorkout();
 
   return (
     <div>
       {currentView === 'history' ? (
         <HistoryView />
       ) : (
-        <ActiveWorkoutView workoutHistory={workoutHistory} />
+        <ActiveWorkoutView />
       )}
     </div>
   );

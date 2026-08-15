@@ -1,21 +1,46 @@
 import type { WorkoutSession } from '../../types/workout';
 import type { UseStopwatchResult } from '../../hooks/useStopwatch';
-import { useContextWorkout } from '../../hooks';
 import { MtButton } from '../ui';
 import { X, Check } from 'lucide-react';
 
 export interface ActiveWorkoutHeaderProps {
+  /**
+   * A sessão atualmente em exibição (ativa ou em edição).
+   */
   session: WorkoutSession;
+  /**
+   * Verdadeiro quando está editando uma sessão já salva.
+   */
   isEditing: boolean;
+  /**
+   * Cronômetro de duração da sessão, exibido na barra de cabeçalho.
+   */
   durationStopwatch: UseStopwatchResult;
+  /**
+   * Ação disparada pelo botão de confirmar (salvar edição ou encerrar treino).
+   * A confirmação do usuário é feita aqui, antes de chamar o callback.
+   */
+  onSaveOrFinish: () => void;
+  /**
+   * Ação disparada pelo botão de cancelar. Também exige confirmação.
+   */
+  onCancel: () => void;
 }
 
+/**
+ * ActiveWorkoutHeader é o cabeçalho fixo da tela de treino ativo.
+ *
+ * É autocontido quanto à interação: ele pergunta confirmação ao usuário
+ * (Salvar/Encerrar e Cancelar) antes de delegar para os callbacks recebidos.
+ * Assim a única regra de "ação acidental precisa de confirmação" vive aqui.
+ */
 export function ActiveWorkoutHeader({
   session,
   isEditing,
   durationStopwatch,
+  onSaveOrFinish,
+  onCancel,
 }: ActiveWorkoutHeaderProps) {
-  const { cancelActiveWorkout, finishActiveWorkout, saveEditedWorkout } = useContextWorkout();
   const formattedDate = new Date(session.date).toLocaleDateString('pt-BR', {
     weekday: 'short',
     day: '2-digit',
@@ -29,21 +54,17 @@ export function ActiveWorkoutHeader({
       'Tem certeza de que deseja cancelar este treino? O progresso não será salvo.'
     );
     if (confirmado) {
-      cancelActiveWorkout();
+      onCancel();
     }
   };
 
   const handleSaveOrFinish = () => {
-    if (isEditing) {
-      const confirmado = window.confirm('Tem certeza de que deseja salvar este treino?');
-      if (confirmado) {
-        saveEditedWorkout();
-      }
-    } else {
-      const confirmado = window.confirm('Tem certeza de que deseja encerrar este treino?');
-      if (confirmado) {
-        finishActiveWorkout();
-      }
+    const confirmMessage = isEditing
+      ? 'Tem certeza de que deseja salvar este treino?'
+      : 'Tem certeza de que deseja encerrar este treino?';
+    const confirmado = window.confirm(confirmMessage);
+    if (confirmado) {
+      onSaveOrFinish();
     }
   };
 
@@ -81,6 +102,9 @@ export function ActiveWorkoutHeader({
   );
 }
 
+/**
+ * Formata o tempo total em segundos para o formato MM:SS (ou HH:MM:SS).
+ */
 function formatTimerValue(totalSeconds: number): string {
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);

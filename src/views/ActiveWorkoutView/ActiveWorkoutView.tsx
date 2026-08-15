@@ -1,54 +1,43 @@
 import { useState, useCallback } from 'react';
-import type { WorkoutSession } from '../types/workout';
-import { useContextWorkout } from '../hooks';
-import { useActiveWorkoutSession } from '../hooks/useActiveWorkoutSession';
-import { useExerciseNavigation } from '../hooks/useExerciseNavigation';
-import { ExerciseList } from '../components/ExerciseList';
-import { ExerciseScreen } from '../components/ExerciseScreen';
+import { useActiveWorkoutScreen } from './useActiveWorkoutScreen';
+import { useExerciseNavigation } from '../../hooks/useExerciseNavigation';
+import { ExerciseList } from '../../components/ExerciseList';
+import { ExerciseScreen } from '../../components/ExerciseScreen';
 import {
   ActiveWorkoutHeader,
   CueManager,
   ExerciseSearch,
-} from '../components/active-workout';
-import { MtEmptyState, MtSectionTitle } from '../components';
+} from '../../components/active-workout';
+import { MtEmptyState, MtSectionTitle } from '../../components';
 import { Dumbbell } from 'lucide-react';
 
-export interface ActiveWorkoutViewProps {
-  workoutHistory: WorkoutSession[];
-}
-
-export function ActiveWorkoutView({
-  workoutHistory,
-}: ActiveWorkoutViewProps) {
-  const {
-    activeSession,
-    editingSession,
-    updateActiveSession,
-    updateEditingSession,
-    finishActiveWorkout,
-    saveEditedWorkout,
-    cancelActiveWorkout,
-  } = useContextWorkout();
-
+/**
+ * ActiveWorkoutView é a tela apresentacional do treino ativo.
+ *
+ * Ela não recebe props: toda a informação vem do container useActiveWorkoutScreen,
+ * que por sua vez lê o contexto de treino. Isso mantém a view enxuta e sem
+ * prop-drilling — nenhum callback é repassado em cascade.
+ */
+export function ActiveWorkoutView() {
   const {
     session,
     isEditing,
     durationStopwatch,
+    workoutHistory,
     addCue,
     removeCue,
     addExercise,
     updateExercise,
     deleteExercise,
-  } = useActiveWorkoutSession({
-    activeSession,
-    editingSession,
-    onUpdateActiveSession: updateActiveSession,
-    onUpdateEditingSession: updateEditingSession,
-    onFinishActiveWorkout: finishActiveWorkout,
-    onSaveEditedWorkout: saveEditedWorkout,
-    onCancelActiveWorkout: cancelActiveWorkout,
-  });
+    saveOrFinish,
+    cancel,
+  } = useActiveWorkoutScreen();
 
+  /**
+   * Controle interno de qual exercício está sendo visualizado/editado.
+   * Quando é nulo, mostra a lista de exercícios; caso contrário, abre a tela
+   * de edição (ExerciseScreen) do exercício selecionado.
+   */
   const [currentExerciseId, setCurrentExerciseId] = useState<string | null>(null);
 
   const handleSelectExercise = useCallback((exerciseId: string) => {
@@ -59,7 +48,11 @@ export function ActiveWorkoutView({
     setCurrentExerciseId(null);
   }, []);
 
-  const navigation = useExerciseNavigation(session.exercises, currentExerciseId, handleSelectExercise);
+  const navigation = useExerciseNavigation(
+    session.exercises,
+    currentExerciseId,
+    handleSelectExercise
+  );
 
   if (!session) {
     return (
@@ -71,7 +64,7 @@ export function ActiveWorkoutView({
             titleStyle={{ fontSize: '1.1rem', fontWeight: 600 }}
             description="Nenhum treino ativo ou em edição foi encontrado."
             actionLabel="Voltar ao Histórico"
-            onAction={cancelActiveWorkout}
+            onAction={cancel}
           />
         </div>
       </main>
@@ -84,6 +77,8 @@ export function ActiveWorkoutView({
         session={session}
         isEditing={isEditing}
         durationStopwatch={durationStopwatch}
+        onSaveOrFinish={saveOrFinish}
+        onCancel={cancel}
       />
 
       <main style={{ paddingBottom: currentExerciseId ? '20px' : '120px' }}>
@@ -95,12 +90,13 @@ export function ActiveWorkoutView({
               deleteExercise(navigation.selectedExercise!.id);
               handleBackToList();
             }}
-            onSetAdded={() => {}}
-            onBack={handleBackToList}
-            onNavigatePrevious={navigation.navigatePrevious}
-            onNavigateNext={navigation.navigateNext}
-            hasPrevious={navigation.hasPrevious}
-            hasNext={navigation.hasNext}
+            exerciseNavigation={{
+              onBack: handleBackToList,
+              onNavigatePrevious: navigation.navigatePrevious,
+              onNavigateNext: navigation.navigateNext,
+              hasPrevious: navigation.hasPrevious,
+              hasNext: navigation.hasNext,
+            }}
           />
         ) : (
           <>
@@ -111,7 +107,12 @@ export function ActiveWorkoutView({
             />
 
             <section style={{ marginTop: 'var(--spacing-md)' }}>
-              <MtSectionTitle icon={<Dumbbell size={18} />} style={{ fontSize: '1.1rem', marginBottom: 'var(--spacing-sm)' }}>Exercícios</MtSectionTitle>
+              <MtSectionTitle
+                icon={<Dumbbell size={18} />}
+                style={{ fontSize: '1.1rem', marginBottom: 'var(--spacing-sm)' }}
+              >
+                Exercícios
+              </MtSectionTitle>
               <ExerciseList
                 exercises={session.exercises}
                 selectedExerciseId={currentExerciseId}
@@ -122,10 +123,10 @@ export function ActiveWorkoutView({
             <ExerciseSearch
               onAddExercise={addExercise}
               getSuggestions={(query: string) => {
-                const uniqueNames = Array.from(
+                const uniqueExerciseNames = Array.from(
                   new Set(
-                    workoutHistory.flatMap((s) =>
-                      s.exercises.map((e) => e.name)
+                    workoutHistory.flatMap((sessionItem) =>
+                      sessionItem.exercises.map((exercise) => exercise.name)
                     )
                   )
                 );
@@ -134,7 +135,7 @@ export function ActiveWorkoutView({
                   return [];
                 }
 
-                return uniqueNames
+                return uniqueExerciseNames
                   .filter((name) => name.toLowerCase().includes(query.toLowerCase()))
                   .map((name: string) => ({ id: name, name }));
               }}

@@ -1,5 +1,6 @@
-export { ActiveWorkoutHeader } from './ActiveWorkoutHeader';
 export type { ActiveWorkoutHeaderProps } from './ActiveWorkoutHeader';
+
+export { ActiveWorkoutHeader } from './ActiveWorkoutHeader';
 
 export { CueManager } from './CueManager';
 export type { CueManagerProps } from './CueManager';

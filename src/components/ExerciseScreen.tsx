@@ -1,19 +1,17 @@
-import { useState, useCallback } from 'react';
-import type { ChangeEvent, FormEvent } from 'react';
-import type { WorkoutExercise, ExerciseSet } from '../types/workout';
-import { useExerciseForm } from '../hooks/useExerciseForm';
-import { useStopwatch } from '../hooks/useStopwatch';
+import type { FormEvent } from 'react';
+import type { WorkoutExercise } from '../types/workout';
+import { useExerciseScreen } from './useExerciseScreen';
 import { RestTimer } from './RestTimer';
 import { MtButton, MtEmptyState, MtField, MtLastWorkoutSets } from './ui';
 import { ExerciseSetItem } from './ExerciseSetItem';
 import { ExerciseTechniquePills } from './ExerciseTechniquePills';
 import { ArrowLeft, ChevronLeft, ChevronRight, Trash2, Copy, Minus, Plus } from 'lucide-react';
 
-export interface ExerciseScreenProps {
-  exercise: WorkoutExercise;
-  onUpdateExercise: (updatedExercise: WorkoutExercise) => void;
-  onDeleteExercise: () => void;
-  onSetAdded: (restTimeInSeconds: number) => void;
+/**
+ * Navegação entre exercícios dentro da tela de edição.
+ * Agrupada em um único objeto para evitar muitos callbacks soltos.
+ */
+export interface ExerciseNavigationProps {
   onBack: () => void;
   onNavigatePrevious: () => void;
   onNavigateNext: () => void;
@@ -21,131 +19,85 @@ export interface ExerciseScreenProps {
   hasNext: boolean;
 }
 
+export interface ExerciseScreenProps {
+  /**
+   * O exercício atualmente selecionado — a entidade manipulada nesta tela.
+   */
+  exercise: WorkoutExercise;
+  /**
+   * Notifica o pai (sessão) sobre qualquer alteração neste exercício.
+   */
+  onUpdateExercise: (updatedExercise: WorkoutExercise) => void;
+  /**
+   * Remove este exercício da sessão — já com confirmação interna no hook da sessão.
+   */
+  onDeleteExercise: () => void;
+  /**
+   * Ações de navegação entre exercícios, fornecidas pelo container da tela.
+   */
+  exerciseNavigation: ExerciseNavigationProps;
+}
+
+/**
+ * ExerciseScreen é a tela apresentacional de edição de um exercício.
+ *
+ * Ela não gerencia estado: toda a lógica (formulário, séries, cronômetro de
+ * descanso, técnicas avançadas) está no container useExerciseScreen, co-locado
+ * neste mesmo diretório. O componente apenas lê o resultado do hook e renderiza.
+ *
+ * Props recebidas (intencionalmente enxutas):
+ *  - exercise ............. a entidade (estado atual do exercício)
+ *  - onUpdateExercise ....... delega mutações de volta para a sessão
+ *  - onDeleteExercise ...... delega a remoção do exercício (já confirmada)
+ *  - exerciseNavigation .... ações de navegação (voltar / anterior / próximo)
+ */
 export function ExerciseScreen({
   exercise,
   onUpdateExercise,
   onDeleteExercise,
-  onSetAdded,
-  onBack,
-  onNavigatePrevious,
-  onNavigateNext,
-  hasPrevious,
-  hasNext,
+  exerciseNavigation,
 }: ExerciseScreenProps) {
-  const localRestStopwatch = useStopwatch(0, false);
-  const {
-    repetitionsInput,
-    weightInput,
-    restInput,
-    selectedTechniques,
-    setRepetitionsInput,
-    setWeightInput,
-    setRestInput,
-    setSelectedTechniques,
-    handleUpdateName,
-    handleUpdateNotes,
-    handleUpdateReferenceWeight,
-    handleToggleTechnique,
-    handleAddSet,
-    handleDeleteSet,
-    handleQuickAdjustReps,
-    handleCopyLastSetReps,
-  } = useExerciseForm(exercise);
+  const form = useExerciseScreen({ initialExercise: exercise, onUpdateExercise });
 
-  const [localExercise, setLocalExercise] = useState<WorkoutExercise>(exercise);
-
-  // Sync with parent exercise prop changes
-  if (exercise.id !== localExercise.id || exercise.sets.length !== localExercise.sets.length) {
-    setLocalExercise(exercise);
-  }
-
-  const handleNameChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    const updated = handleUpdateName(event);
-    setLocalExercise(updated);
-  }, [handleUpdateName]);
-
-  const handleNotesChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    const updated = handleUpdateNotes(event);
-    setLocalExercise(updated);
-  }, [handleUpdateNotes]);
-
-  const handleWeightChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    const updated = handleUpdateReferenceWeight(event);
-    setLocalExercise(updated);
-  }, [handleUpdateReferenceWeight]);
-
-  const handleFormSubmit = useCallback((event: FormEvent) => {
+  const handleFormSubmit = (event: FormEvent) => {
     event.preventDefault();
-    const result = handleAddSet();
-    if (result.newSet) {
-      const updated = {
-        ...localExercise,
-        sets: [...localExercise.sets, result.newSet],
-      };
-      setLocalExercise(updated);
-      onUpdateExercise(updated);
-      onSetAdded(result.rest);
-      setRepetitionsInput('');
-      setSelectedTechniques([]);
-      // Reset rest stopwatch when new set is added
-      localRestStopwatch.reset();
-    }
-  }, [handleAddSet, localExercise, onUpdateExercise, onSetAdded, setRepetitionsInput, setSelectedTechniques, localRestStopwatch]);
-
-  const handleDeleteSetClick = useCallback((setIndexToDelete: number) => {
-    const deletedSet = handleDeleteSet(setIndexToDelete);
-    if (deletedSet) {
-      const updated = {
-        ...localExercise,
-        sets: localExercise.sets.filter((_, index) => index !== setIndexToDelete),
-      };
-      setLocalExercise(updated);
-      onUpdateExercise(updated);
-    }
-  }, [handleDeleteSet, localExercise, onUpdateExercise]);
-
-  // Atualiza uma série existente sem resetar o cronômetro.
-  // O cronômetro (localRestStopwatch) continua com o tempo acumulado.
-  const handleUpdateSet = useCallback((setIndex: number, updatedSet: ExerciseSet) => {
-    const updatedExercise = {
-      ...localExercise,
-      sets: localExercise.sets.map((s, i) => (i === setIndex ? updatedSet : s)),
-    };
-    setLocalExercise(updatedExercise);
-    onUpdateExercise(updatedExercise);
-  }, [localExercise, onUpdateExercise]);
-
-  const handleQuickAdjust = useCallback((delta: number) => {
-    handleQuickAdjustReps(delta);
-  }, [handleQuickAdjustReps]);
-
-  const handleCopyLastSet = useCallback(() => {
-    handleCopyLastSetReps();
-  }, [handleCopyLastSetReps]);
+    form.handleAddSet();
+  };
 
   return (
     <div className="card" style={{ padding: 'var(--spacing-md)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-md)' }}>
-        <MtButton size="small" onClick={onBack} title="Voltar para lista">
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 'var(--spacing-md)',
+        }}
+      >
+        <MtButton
+          size="small"
+          onClick={exerciseNavigation.onBack}
+          title="Voltar para lista"
+        >
           <ArrowLeft size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
         </MtButton>
         <div style={{ display: 'flex', gap: 'var(--spacing-xs)' }}>
-            <MtButton
-              size="small"
-              onClick={onNavigatePrevious}
-              disabled={!hasPrevious}
-              title="Exercício anterior"
-            >
-              <ChevronLeft size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-            </MtButton>
-            <MtButton
-              size="small"
-              onClick={onNavigateNext}
-              disabled={!hasNext}
-              title="Próximo exercício"
-            >
-              <ChevronRight size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-            </MtButton>
+          <MtButton
+            size="small"
+            onClick={exerciseNavigation.onNavigatePrevious}
+            disabled={!exerciseNavigation.hasPrevious}
+            title="Exercício anterior"
+          >
+            <ChevronLeft size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+          </MtButton>
+          <MtButton
+            size="small"
+            onClick={exerciseNavigation.onNavigateNext}
+            disabled={!exerciseNavigation.hasNext}
+            title="Próximo exercício"
+          >
+            <ChevronRight size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+          </MtButton>
         </div>
         <MtButton variant="danger" size="small" onClick={onDeleteExercise} title="Excluir exercício">
           <Trash2 size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
@@ -155,16 +107,16 @@ export function ExerciseScreen({
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
         <MtField
           label="Nome do Exercício"
-          value={localExercise.name}
-          onChange={handleNameChange}
+          value={form.exercise.name}
+          onChange={form.handleUpdateName}
           placeholder="Ex: Supino Reto"
         />
 
         <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
           <MtField
             label="Carga (kg)"
-            value={weightInput}
-            onChange={handleWeightChange}
+            value={form.weightInput}
+            onChange={form.handleUpdateReferenceWeight}
             placeholder="Ex: 30"
             type="number"
             step="any"
@@ -172,46 +124,59 @@ export function ExerciseScreen({
           />
           <MtField
             label="Notas"
-            value={localExercise.notes}
-            onChange={handleNotesChange}
+            value={form.exercise.notes}
+            onChange={form.handleUpdateNotes}
             placeholder="Ex: Pegada aberta"
             style={{ flex: 2 }}
           />
         </div>
 
         {/* Visualização rápida das séries do último treino deste exercício */}
-        <MtLastWorkoutSets exerciseName={localExercise.name} />
+        <MtLastWorkoutSets exerciseName={form.exercise.name} />
 
         <div>
           <label style={{ marginBottom: 'var(--spacing-xs)' }}>Séries</label>
-          {localExercise.sets.length === 0 ? (
+          {form.exercise.sets.length === 0 ? (
             <MtEmptyState
               size="small"
               title="Nenhuma série registrada"
             />
           ) : (
-            <ol style={{ paddingLeft: 'var(--spacing-md)', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
-              {localExercise.sets.map((set, index) => (
+            <ol
+              style={{
+                paddingLeft: 'var(--spacing-md)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 'var(--spacing-xs)',
+              }}
+            >
+              {form.exercise.sets.map((set, index) => (
                 <ExerciseSetItem
                   key={index}
                   set={set}
                   index={index}
-                  onDelete={handleDeleteSetClick}
-                  onUpdate={handleUpdateSet}
+                  onDelete={form.handleDeleteSet}
+                  onUpdate={form.handleUpdateSet}
                 />
               ))}
             </ol>
           )}
         </div>
 
-        <form onSubmit={handleFormSubmit} style={{ borderTop: '1px solid var(--border-color)', paddingTop: 'var(--spacing-md)' }}>
+        <form
+          onSubmit={handleFormSubmit}
+          style={{
+            borderTop: '1px solid var(--border-color)',
+            paddingTop: 'var(--spacing-md)',
+          }}
+        >
           <div style={{ display: 'flex', gap: 'var(--spacing-xs)', marginBottom: 'var(--spacing-sm)' }}>
             <MtButton
               type="button"
               size="small"
               style={{ flex: 1 }}
-              onClick={handleCopyLastSet}
-              disabled={localExercise.sets.length === 0}
+              onClick={form.handleCopyLastSetReps}
+              disabled={form.exercise.sets.length === 0}
               title="Copiar reps da última série"
             >
               <Copy size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
@@ -220,7 +185,7 @@ export function ExerciseScreen({
               type="button"
               size="small"
               style={{ flex: 1 }}
-              onClick={() => handleQuickAdjust(-1)}
+              onClick={() => form.handleQuickAdjustReps(-1)}
               title="Diminuir 1 repetição"
             >
               <Minus size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
@@ -229,19 +194,25 @@ export function ExerciseScreen({
               type="button"
               size="small"
               style={{ flex: 1 }}
-              onClick={() => handleQuickAdjust(1)}
+              onClick={() => form.handleQuickAdjustReps(1)}
               title="Aumentar 1 repetição"
             >
               <Plus size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
             </MtButton>
           </div>
 
-          <div style={{ display: 'flex', gap: 'var(--spacing-xs)', alignItems: 'flex-end' }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: 'var(--spacing-xs)',
+              alignItems: 'flex-end',
+            }}
+          >
             <MtField
               label="Reps"
               labelStyle={{ fontSize: '0.75rem' }}
-              value={repetitionsInput}
-              onChange={(event) => setRepetitionsInput(event.target.value)}
+              value={form.repetitionsInput}
+              onChange={(event) => form.setRepetitionsInput(event.target.value)}
               type="number"
               placeholder="Reps"
               required
@@ -250,8 +221,8 @@ export function ExerciseScreen({
             <MtField
               label="Carga"
               labelStyle={{ fontSize: '0.75rem' }}
-              value={weightInput}
-              onChange={(event) => setWeightInput(event.target.value)}
+              value={form.weightInput}
+              onChange={(event) => form.setWeightInput(event.target.value)}
               type="number"
               step="any"
               placeholder="kg"
@@ -260,8 +231,8 @@ export function ExerciseScreen({
             <MtField
               label="Descanso"
               labelStyle={{ fontSize: '0.75rem' }}
-              value={restInput}
-              onChange={(event) => setRestInput(event.target.value)}
+              value={form.restInput}
+              onChange={(event) => form.setRestInput(event.target.value)}
               type="number"
               placeholder="s"
               style={{ flex: 1 }}
@@ -283,15 +254,15 @@ export function ExerciseScreen({
 
           <ExerciseTechniquePills
             label="Técnicas"
-            selectedTechniques={selectedTechniques}
-            onToggle={handleToggleTechnique}
+            selectedTechniques={form.selectedTechniques}
+            onToggle={form.handleToggleTechnique}
           />
         </form>
       </div>
 
       <RestTimer
-        stopwatch={localRestStopwatch}
-        targetSeconds={localExercise.sets.length > 0 ? localExercise.sets[localExercise.sets.length - 1].restTimeInSeconds : 0}
+        stopwatch={form.restStopwatch}
+        targetSeconds={form.restTargetSeconds}
       />
     </div>
   );

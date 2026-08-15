@@ -22,8 +22,8 @@ export interface UseWorkoutResult {
   cancelActiveWorkout: () => void;
   updateActiveSession: (updatedSession: WorkoutSession) => void;
   updateEditingSession: (updatedSession: WorkoutSession) => void;
-  finishActiveWorkout: () => void;
-  saveEditedWorkout: () => void;
+  finishActiveWorkout: (sessionToComplete?: WorkoutSession) => void;
+  saveEditedWorkout: (sessionToSave?: WorkoutSession) => void;
   deleteSession: (sessionId: string) => void;
   reloadAllData: () => void;
 }
@@ -107,13 +107,16 @@ export function useWorkout(): UseWorkoutResult {
     setEditingSession(updatedSession);
   };
 
-  const finishActiveWorkout = () => {
-    if (!activeSession) {
+  const finishActiveWorkout = (sessionToComplete?: WorkoutSession) => {
+    // Usa a sessão informada quando disponível (já com a duração atualizada
+    // pelo cronômetro), evitando ler o estado que ainda não foi atualizado.
+    const sessionToClose = sessionToComplete ?? activeSession;
+    if (!sessionToClose) {
       return;
     }
 
     const completedSession: WorkoutSession = {
-      ...activeSession,
+      ...sessionToClose,
       status: 'completed',
     };
 
@@ -125,12 +128,15 @@ export function useWorkout(): UseWorkoutResult {
     setCurrentView('history');
   };
 
-  const saveEditedWorkout = () => {
-    if (!editingSession) {
+  const saveEditedWorkout = (sessionToSave?: WorkoutSession) => {
+    // Usa a sessão informada quando disponível (já com a duração atualizada),
+    // evitando ler o estado que ainda não foi atualizado.
+    const sessionToPersist = sessionToSave ?? editingSession;
+    if (!sessionToPersist) {
       return;
     }
 
-    saveWorkoutSession(editingSession);
+    saveWorkoutSession(sessionToPersist);
     setEditingSession(null);
     setWorkoutHistory(getWorkoutHistory());
     setCurrentView('history');

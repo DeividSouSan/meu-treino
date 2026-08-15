@@ -14,10 +14,5 @@ Nunca faça:
 - Não altere o esquema do banco de dados sem sugerir uma migração.
 - Não faça prop-drilling em nenhuma circuância.
 
-APRENDIZADOS DO AGENTE (insira aqui o que foi aprendido):
-- O item de uma série de exercício não deve ser expansível por toque (não use toggle tipo acordeão). A interação de toque deve abrir apenas o modo de edição inline do set, mantendo a visualização normal sempre fixa.
-- Destructive actions confirmation: sempre peça confirmação antes de apagar uma série.
-- Confirmação em ações acidentais: ações como Salvar e Encerrar o treino ativo também devem pedir confirmação, pois podem ser acionadas por acidente e atrapalhar o progresso do usuário.
-- Mobile-first: priorize toques grandes e evite interações de clique que não têm um destino claro.
-- Exercícios são identificados pelo nome, não pelo ID, pois os IDs (UUID) são regenerados a cada nova sessão a partir de um template. A correspondência por nome (case-insensitive e sem espaços) permite localizar o mesmo exercício em treinos anteriores.
-- Visualizações rápidas de histórico (como as séries do último treino) devem ser exibidas fixas e sempre visíveis, sem interações de toque ou toggles, mantendo a informação disponível para referência durante o treino.
+
+
