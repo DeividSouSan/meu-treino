@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
@@ -33,6 +33,19 @@ export default defineConfig({
         ]
       }
     })
-  ]
+  ],
+  test: {
+    // Ambiente jsdom simula o DOM do navegador para testes de componentes React.
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['./src/vitest-setup.ts'],
+    // Arquivos de teste seguem o padrão *.test.tsx/ts
+    include: ['src/**/*.test.{ts,tsx}'],
+    // Coleta cobertura de código para identificar lacunas.
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+    },
+  }
 })
 
