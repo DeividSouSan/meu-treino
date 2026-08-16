@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { MtButton } from './MtButton';
 
@@ -49,7 +50,7 @@ export function MtModal({
     }
   };
 
-  return (
+  const modalContent = (
     <div
       className="mt-modal-overlay"
       onClick={handleBackdropClick}
@@ -78,4 +79,6 @@ export function MtModal({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
