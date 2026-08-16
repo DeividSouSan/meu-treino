@@ -4,6 +4,7 @@ import {
   getWorkoutHistory,
   deleteWorkoutSession,
 } from '../../services/storageService';
+import { useNavigation } from '../navigation';
 import { HistoryContext } from './HistoryContext';
 
 export interface HistoryProviderProps {
@@ -12,10 +13,13 @@ export interface HistoryProviderProps {
 
 export function HistoryProvider({ children }: HistoryProviderProps) {
   const [workoutHistory, setWorkoutHistory] = useState<WorkoutSession[]>([]);
+  const { currentView } = useNavigation();
 
   useEffect(() => {
-    setWorkoutHistory(getWorkoutHistory());
-  }, []);
+    if (currentView === 'history') {
+      setWorkoutHistory(getWorkoutHistory());
+    }
+  }, [currentView]);
 
   const reloadAllData = useCallback(() => {
     setWorkoutHistory(getWorkoutHistory());

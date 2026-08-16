@@ -51,7 +51,7 @@ export interface UseHistoryViewResult {
  * declarativa para a View.
  */
 export function useHistoryView(): UseHistoryViewResult {
-  const { workoutHistory, deleteSession } = useHistory();
+  const { workoutHistory, deleteSession, reloadAllData } = useHistory();
   const { activeSession, startNewWorkout, startEditingWorkout } = useSession();
   const { navigateToHistory, navigateToActiveWorkout } = useNavigation();
 
@@ -59,7 +59,8 @@ export function useHistoryView(): UseHistoryViewResult {
 
   const handleSessionTap = useCallback((session: WorkoutSession) => {
     startEditingWorkout(session);
-  }, [startEditingWorkout]);
+    navigateToActiveWorkout();
+  }, [startEditingWorkout, navigateToActiveWorkout]);
 
   const handleSessionLongPress = useCallback((sessionId: string) => {
     const userConfirmed = window.confirm(
@@ -71,12 +72,14 @@ export function useHistoryView(): UseHistoryViewResult {
   }, [deleteSession]);
 
   const handleImportSuccess = useCallback(() => {
+    reloadAllData();
     navigateToHistory();
-  }, [navigateToHistory]);
+  }, [reloadAllData, navigateToHistory]);
 
   const handleCreateNewWorkout = useCallback(() => {
     startNewWorkout(null);
-  }, [startNewWorkout]);
+    navigateToActiveWorkout();
+  }, [startNewWorkout, navigateToActiveWorkout]);
 
   return {
     workoutHistory,

@@ -50,9 +50,10 @@ export function ActiveWorkoutHeader({
   });
 
   const handleCancel = () => {
-    const confirmado = window.confirm(
-      'Tem certeza de que deseja cancelar este treino? O progresso não será salvo.'
-    );
+    const cancelMessage = isEditing
+      ? 'Deseja descartar as alterações deste treino?'
+      : 'Tem certeza de que deseja cancelar este treino? O progresso não será salvo.';
+    const confirmado = window.confirm(cancelMessage);
     if (confirmado) {
       onCancel();
     }
