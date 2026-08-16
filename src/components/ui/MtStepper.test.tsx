@@ -71,4 +71,63 @@ describe('MtStepper', () => {
 
     expect(handleChange).toHaveBeenCalledWith('45');
   });
+
+  it('não deve permitir incrementar acima do máximo configurado', () => {
+    const handleChange = vi.fn();
+    render(<MtStepper label="Reps" value="10" max={10} onChange={handleChange} />);
+
+    const plusButton = screen.getByLabelText('Aumentar Reps');
+    expect(plusButton).toBeDisabled();
+    fireEvent.click(plusButton);
+
+    expect(handleChange).not.toHaveBeenCalled();
+  });
+
+  it('desabilita todos os botões e inputs se disabled = true', () => {
+    const handleChange = vi.fn();
+    render(<MtStepper label="Reps" value="10" disabled onChange={handleChange} quickIncrements={[5]} />);
+
+    const input = screen.getByRole('spinbutton');
+    const plusButton = screen.getByLabelText('Aumentar Reps');
+    const minusButton = screen.getByLabelText('Diminuir Reps');
+    const quickBtn = screen.getByText('+5');
+
+    expect(input).toBeDisabled();
+    expect(plusButton).toBeDisabled();
+    expect(minusButton).toBeDisabled();
+    expect(quickBtn).toBeDisabled();
+
+    // Tentar ajustar via botão QuickIncrement também não deve disparar
+    fireEvent.click(quickBtn);
+    expect(handleChange).not.toHaveBeenCalled();
+  });
+
+  it('renderiza chips de incremento rápido negativo (exibe o número sem "+" adicional)', () => {
+    const handleChange = vi.fn();
+    render(
+      <MtStepper
+        label="Carga"
+        value="20"
+        quickIncrements={[-5]}
+        onChange={handleChange}
+      />
+    );
+
+    const chipMinus5 = screen.getByText('-5');
+    expect(chipMinus5).toBeInTheDocument();
+
+    fireEvent.click(chipMinus5);
+    expect(handleChange).toHaveBeenCalledWith('15');
+  });
+
+  it('utiliza fallback para 0 caso value seja string não numérica no handleAdjust', () => {
+    const handleChange = vi.fn();
+    render(<MtStepper label="Reps" value="inválido" step={1} onChange={handleChange} />);
+
+    const plusButton = screen.getByLabelText('Aumentar Reps');
+    fireEvent.click(plusButton);
+
+    // Como "inválido" vira 0, 0 + 1 = 1
+    expect(handleChange).toHaveBeenCalledWith('1');
+  });
 });
