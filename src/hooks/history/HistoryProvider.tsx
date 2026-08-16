@@ -2,7 +2,6 @@ import { useCallback, useContext, useEffect, useState, type ReactNode } from 're
 import type { WorkoutSession } from '../../types/workout';
 import {
   getWorkoutHistory,
-  getActiveWorkoutSession,
   deleteWorkoutSession,
 } from '../../services/storageService';
 import { HistoryContext } from './HistoryContext';

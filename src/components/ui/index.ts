@@ -1,6 +1,12 @@
 export { EditableList } from './EditableList';
 export type { EditableListProps, EditableListItem } from './EditableList';
 
+export { MtCard } from './MtCard';
+export type { MtCardProps } from './MtCard';
+
+export { MtPill } from './MtPill';
+export type { MtPillProps } from './MtPill';
+
 export { MtEmptyState } from './MtEmptyState';
 export type { MtEmptyStateProps, MtEmptyStateSize, MtEmptyStateAlign } from './MtEmptyState';
 
