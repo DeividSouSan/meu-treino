@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import type { WorkoutSession } from '../../types/workout';
 import { useHistory, useSession, useNavigation } from '../../hooks';
 import { useHistoryFormatters } from '../../hooks/useHistoryFormatters';
@@ -13,6 +13,10 @@ export interface UseHistoryViewResult {
    */
   activeSession: WorkoutSession | null;
   /**
+   * ID da sessão selecionada para exclusão (abre o diálogo de confirmação).
+   */
+  sessionToDeleteId: string | null;
+  /**
    * Navega para a tela de treino ativo para retomar uma sessão em andamento.
    */
   resumeActiveWorkout: () => void;
@@ -21,9 +25,17 @@ export interface UseHistoryViewResult {
    */
   handleSessionTap: (session: WorkoutSession) => void;
   /**
-   * Toque longo em uma sessão do histórico: exclui após confirmação.
+   * Toque longo em uma sessão do histórico: abre confirmação de exclusão.
    */
   handleSessionLongPress: (sessionId: string) => void;
+  /**
+   * Executa a exclusão da sessão selecionada após confirmação.
+   */
+  confirmDeleteSession: () => void;
+  /**
+   * Cancela a exclusão da sessão selecionada.
+   */
+  cancelDeleteSession: () => void;
   /**
    * Disparado após uma importação bem-sucedida de backup: volta para o histórico.
    */
@@ -51,6 +63,7 @@ export interface UseHistoryViewResult {
  * declarativa para a View.
  */
 export function useHistoryView(): UseHistoryViewResult {
+  const [sessionToDeleteId, setSessionToDeleteId] = useState<string | null>(null);
   const { workoutHistory, deleteSession, reloadAllData } = useHistory();
   const { activeSession, startNewWorkout, startEditingWorkout } = useSession();
   const { navigateToHistory, navigateToActiveWorkout } = useNavigation();
@@ -63,13 +76,19 @@ export function useHistoryView(): UseHistoryViewResult {
   }, [startEditingWorkout, navigateToActiveWorkout]);
 
   const handleSessionLongPress = useCallback((sessionId: string) => {
-    const userConfirmed = window.confirm(
-      'Deseja realmente excluir este treino do histórico?'
-    );
-    if (userConfirmed) {
-      deleteSession(sessionId);
+    setSessionToDeleteId(sessionId);
+  }, []);
+
+  const confirmDeleteSession = useCallback(() => {
+    if (sessionToDeleteId) {
+      deleteSession(sessionToDeleteId);
+      setSessionToDeleteId(null);
     }
-  }, [deleteSession]);
+  }, [deleteSession, sessionToDeleteId]);
+
+  const cancelDeleteSession = useCallback(() => {
+    setSessionToDeleteId(null);
+  }, []);
 
   const handleImportSuccess = useCallback(() => {
     reloadAllData();
@@ -84,9 +103,12 @@ export function useHistoryView(): UseHistoryViewResult {
   return {
     workoutHistory,
     activeSession,
+    sessionToDeleteId,
     resumeActiveWorkout: navigateToActiveWorkout,
     handleSessionTap,
     handleSessionLongPress,
+    confirmDeleteSession,
+    cancelDeleteSession,
     handleImportSuccess,
     handleCreateNewWorkout,
     formatWorkoutDate,

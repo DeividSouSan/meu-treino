@@ -1,8 +1,8 @@
-import type { FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import type { WorkoutExercise } from '../types/workout';
 import { useExerciseScreen } from './useExerciseScreen';
 import { RestTimer } from './RestTimer';
-import { MtButton, MtEmptyState, MtField, MtCard } from './ui';
+import { MtButton, MtEmptyState, MtField, MtCard, MtConfirmDialog } from './ui';
 import { ExerciseSetItem } from './ExerciseSetItem';
 import { ExerciseTechniquePills } from './ExerciseTechniquePills';
 import { ArrowLeft, ChevronLeft, ChevronRight, Trash2, Copy, Minus, Plus } from 'lucide-react';
@@ -29,6 +29,7 @@ export function ExerciseScreen({
   onDeleteExercise,
   exerciseNavigation,
 }: ExerciseScreenProps) {
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const form = useExerciseScreen({ initialExercise: exercise, onUpdateExercise });
 
   const handleFormSubmit = (event: FormEvent) => {
@@ -71,7 +72,12 @@ export function ExerciseScreen({
             <ChevronRight size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
           </MtButton>
         </div>
-        <MtButton variant="danger" size="small" onClick={onDeleteExercise} title="Excluir exercício">
+        <MtButton
+          variant="danger"
+          size="small"
+          onClick={() => setIsConfirmDeleteOpen(true)}
+          title="Excluir exercício"
+        >
           <Trash2 size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
         </MtButton>
       </div>
@@ -235,6 +241,19 @@ export function ExerciseScreen({
       <RestTimer
         stopwatch={form.restStopwatch}
         targetSeconds={form.restTargetSeconds}
+      />
+
+      <MtConfirmDialog
+        isOpen={isConfirmDeleteOpen}
+        title="Remover Exercício"
+        message={`Deseja realmente remover o exercício "${form.exercise.name || 'Sem nome'}" e todas as suas séries?`}
+        confirmVariant="danger"
+        confirmText="Remover"
+        onConfirm={() => {
+          setIsConfirmDeleteOpen(false);
+          onDeleteExercise();
+        }}
+        onCancel={() => setIsConfirmDeleteOpen(false)}
       />
     </MtCard>
   );

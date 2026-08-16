@@ -138,8 +138,6 @@ export function useActiveWorkoutScreen(): UseActiveWorkoutScreenResult {
   const deleteExercise = useCallback((exerciseId: string) => {
     const currentSession = session;
     if (!currentSession) return;
-    const userConfirmed = window.confirm('Deseja realmente remover este exercício do treino?');
-    if (!userConfirmed) return;
 
     updateSession({
       ...currentSession,

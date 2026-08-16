@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react';
 import type { ExerciseSet, AdvancedTechnique } from '../types/workout';
 import { X, Edit2, Save, Trash2 } from 'lucide-react';
 import { ExerciseTechniquePills } from './ExerciseTechniquePills';
-import { MtField, MtButton } from './ui';
+import { MtField, MtButton, MtConfirmDialog } from './ui';
 
 export interface ExerciseSetItemProps {
   set: ExerciseSet;
@@ -28,6 +28,7 @@ export function ExerciseSetItem({
   style,
 }: ExerciseSetItemProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [localReps, setLocalReps] = useState(set.repetitions);
   const [localWeight, setLocalWeight] = useState(set.weightInKg);
   const [localRest, setLocalRest] = useState(set.restTimeInSeconds);
@@ -63,14 +64,9 @@ export function ExerciseSetItem({
     setIsEditing(false);
   };
 
-  const handleDelete = () => {
-    // O usuário precisa confirmar antes de apagar a série
-    const confirmou = window.confirm(
-      `Tem certeza que deseja apagar a série #${index + 1}? Esta ação não pode ser desfeita.`
-    );
-    if (confirmou) {
-      onDelete(index);
-    }
+  const handleConfirmDelete = () => {
+    setIsConfirmDeleteOpen(false);
+    onDelete(index);
   };
 
   // Técnicas avançadas realmente selecionadas neste set (dados reais do estado da entidade)
@@ -147,7 +143,7 @@ export function ExerciseSetItem({
               variant="danger"
               size="small"
               style={{ padding: '4px 8px', fontSize: '0.75rem' }}
-              onClick={handleDelete}
+              onClick={() => setIsConfirmDeleteOpen(true)}
               title="Excluir série"
             >
               <Trash2 size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
@@ -215,6 +211,16 @@ export function ExerciseSetItem({
           onToggle={toggleTechnique}
         />
       </div>
+
+      <MtConfirmDialog
+        isOpen={isConfirmDeleteOpen}
+        title="Excluir Série"
+        message={`Tem certeza que deseja apagar a série #${index + 1}? Esta ação não pode ser desfeita.`}
+        confirmVariant="danger"
+        confirmText="Excluir"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setIsConfirmDeleteOpen(false)}
+      />
     </li>
   );
 }

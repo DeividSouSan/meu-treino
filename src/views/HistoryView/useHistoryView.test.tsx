@@ -122,7 +122,6 @@ describe('useHistoryView', () => {
 
   it('ao confirmar exclusão com long press, remove a sessão do histórico', () => {
     storageService.saveWorkoutSession(mockSession);
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
 
     const { result } = renderHook(() => useHistoryView(), {
       wrapper: createWrapper(),
@@ -131,13 +130,18 @@ describe('useHistoryView', () => {
     act(() => {
       result.current.handleSessionLongPress(mockSession.id);
     });
+    expect(result.current.sessionToDeleteId).toBe(mockSession.id);
 
+    act(() => {
+      result.current.confirmDeleteSession();
+    });
+
+    expect(result.current.sessionToDeleteId).toBeNull();
     expect(result.current.workoutHistory).toEqual([]);
   });
 
   it('ao cancelar exclusão com long press, mantém a sessão no histórico', () => {
     storageService.saveWorkoutSession(mockSession);
-    vi.spyOn(window, 'confirm').mockReturnValue(false);
 
     const { result } = renderHook(() => useHistoryView(), {
       wrapper: createWrapper(),
@@ -146,7 +150,13 @@ describe('useHistoryView', () => {
     act(() => {
       result.current.handleSessionLongPress(mockSession.id);
     });
+    expect(result.current.sessionToDeleteId).toBe(mockSession.id);
 
+    act(() => {
+      result.current.cancelDeleteSession();
+    });
+
+    expect(result.current.sessionToDeleteId).toBeNull();
     expect(result.current.workoutHistory.length).toBe(1);
   });
 

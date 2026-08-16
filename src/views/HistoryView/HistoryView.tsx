@@ -6,7 +6,7 @@ import {
   WorkoutHistoryList,
   VersionInfo,
 } from '../../components/history';
-import { MtCard, MtFloatingActionButton, MtSectionTitle } from '../../components/ui';
+import { MtCard, MtFloatingActionButton, MtSectionTitle, MtConfirmDialog } from '../../components/ui';
 import { Calendar } from 'lucide-react';
 
 /**
@@ -21,9 +21,12 @@ export function HistoryView() {
   const {
     workoutHistory,
     activeSession,
+    sessionToDeleteId,
     resumeActiveWorkout,
     handleSessionTap,
     handleSessionLongPress,
+    confirmDeleteSession,
+    cancelDeleteSession,
     handleImportSuccess,
     handleCreateNewWorkout,
     formatWorkoutDate,
@@ -70,6 +73,16 @@ export function HistoryView() {
       </MtFloatingActionButton>
 
       <VersionInfo version={packageInfo.version} />
+
+      <MtConfirmDialog
+        isOpen={sessionToDeleteId !== null}
+        title="Excluir Treino"
+        message="Deseja realmente excluir este treino do histórico? Esta ação não pode ser desfeita."
+        confirmVariant="danger"
+        confirmText="Excluir"
+        onConfirm={confirmDeleteSession}
+        onCancel={cancelDeleteSession}
+      />
     </div>
   );
 }
