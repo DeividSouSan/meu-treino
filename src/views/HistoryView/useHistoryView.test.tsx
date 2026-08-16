@@ -183,6 +183,46 @@ describe('useHistoryView', () => {
     expect(result.current.workoutHistory.length).toBe(1);
   });
 
+  it('ao selecionar editar no menu de ações, edita a sessão e fecha o menu', () => {
+    storageService.saveWorkoutSession(mockSession);
+    const { result } = renderHook(
+      () => ({
+        history: useHistoryView(),
+        nav: useNavigation(),
+      }),
+      { wrapper: createWrapper() }
+    );
+
+    act(() => {
+      result.current.history.handleSessionLongPress(mockSession.id);
+    });
+
+    act(() => {
+      result.current.history.handleEditFromActionMenu();
+    });
+
+    expect(result.current.history.selectedSessionForActions).toBeNull();
+    expect(result.current.nav.currentView).toBe('active_workout');
+  });
+
+  it('ao selecionar exportar no menu de ações, fecha o menu', () => {
+    storageService.saveWorkoutSession(mockSession);
+    const { result } = renderHook(() => useHistoryView(), {
+      wrapper: createWrapper(),
+    });
+
+    act(() => {
+      result.current.handleSessionLongPress(mockSession.id);
+    });
+
+    act(() => {
+      // Como exportSingleWorkoutSession é importado via modulo, apenas garantimos que a chamada nao quebre e o menu feche
+      result.current.handleExportFromActionMenu();
+    });
+
+    expect(result.current.selectedSessionForActions).toBeNull();
+  });
+
   it('ao importar backup com sucesso, recarrega os dados e navega para histórico', () => {
     const { result } = renderHook(() => useHistoryView(), {
       wrapper: createWrapper(),

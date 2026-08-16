@@ -171,4 +171,89 @@ describe('useActiveWorkoutScreen — renameSession com sessão ativa', () => {
     });
     expect(result.current.screen.session?.name).toBe('Nome Final');
   });
+
+  it('saveOrFinish deve chamar finishActiveWorkout se a sessão não for edição', () => {
+    const { result } = renderHook(
+      () => ({
+        screen: useActiveWorkoutScreen(),
+        session: useSession(),
+      }),
+      { wrapper: createWrapper() }
+    );
+
+    act(() => {
+      result.current.session.startNewWorkout(null);
+    });
+
+    expect(result.current.screen.isEditing).toBe(false);
+
+    act(() => {
+      result.current.screen.saveOrFinish();
+    });
+
+    // Se encerrou, activeSession fica nula
+    expect(result.current.session.activeSession).toBeNull();
+  });
+
+  it('saveOrFinish deve chamar saveEditedWorkout se a sessão for edição', () => {
+    const { result } = renderHook(
+      () => ({
+        screen: useActiveWorkoutScreen(),
+        session: useSession(),
+      }),
+      { wrapper: createWrapper() }
+    );
+
+    act(() => {
+      // Começamos uma sessão nova apenas para ter uma mockada
+      result.current.session.startNewWorkout(null);
+    });
+    const mockSession = result.current.session.activeSession!;
+
+    act(() => {
+      // Ao editar, activeSession vira null e editingSession recebe a mockSession
+      result.current.session.startEditingWorkout(mockSession);
+    });
+
+    expect(result.current.screen.isEditing).toBe(true);
+
+    act(() => {
+      result.current.screen.saveOrFinish();
+    });
+
+    // Se salvou edição, editingSession fica nula
+    expect(result.current.session.editingSession).toBeNull();
+  });
+
+  it('cancel deve chamar cancelActiveWorkout', () => {
+    const { result } = renderHook(
+      () => ({
+        screen: useActiveWorkoutScreen(),
+        session: useSession(),
+      }),
+      { wrapper: createWrapper() }
+    );
+
+    act(() => {
+      result.current.session.startNewWorkout(null);
+    });
+
+    expect(result.current.session.activeSession).not.toBeNull();
+
+    act(() => {
+      result.current.screen.cancel();
+    });
+
+    expect(result.current.session.activeSession).toBeNull();
+  });
+
+  it('ignora saveOrFinish quando não há sessão', () => {
+    const { result } = renderHook(() => useActiveWorkoutScreen(), {
+      wrapper: createWrapper(),
+    });
+
+    act(() => {
+      expect(() => result.current.saveOrFinish()).not.toThrow();
+    });
+  });
 });
