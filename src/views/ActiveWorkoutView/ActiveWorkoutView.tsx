@@ -32,6 +32,7 @@ export function ActiveWorkoutView() {
     deleteExercise,
     saveOrFinish,
     cancel,
+    renameSession,
   } = useActiveWorkoutScreen();
 
   /**
@@ -89,6 +90,7 @@ export function ActiveWorkoutView() {
           cancel();
           navigateToHistory();
         }}
+        onRenameSession={renameSession}
       />
 
       <main style={{ paddingBottom: currentExerciseId ? '20px' : '120px' }}>

@@ -50,6 +50,11 @@ export interface UseActiveWorkoutScreenResult {
    * Cancela a sessão atual, descartando alterações não salvas.
    */
   cancel: () => void;
+  /**
+   * Atualiza o nome da sessão ativa ou em edição.
+   * O valor é trimado internamente; se vazio, a chamada é ignorada.
+   */
+  renameSession: (newName: string) => void;
 }
 
 /**
@@ -168,6 +173,17 @@ export function useActiveWorkoutScreen(): UseActiveWorkoutScreenResult {
     cancelActiveWorkout();
   }, [cancelActiveWorkout]);
 
+  /**
+   * Atualiza o nome da sessão ativa ou em edição.
+   * Ignora valores vazios ou compostos apenas por espaços.
+   */
+  const renameSession = useCallback((newName: string) => {
+    if (!session) return;
+    const trimmedName = newName.trim();
+    if (!trimmedName) return;
+    updateSession({ ...session, name: trimmedName });
+  }, [session, updateSession]);
+
   return useMemo(() => ({
     session: session!,
     isEditing,
@@ -180,6 +196,7 @@ export function useActiveWorkoutScreen(): UseActiveWorkoutScreenResult {
     deleteExercise,
     saveOrFinish,
     cancel,
+    renameSession,
   }), [
     session,
     isEditing,
@@ -192,5 +209,6 @@ export function useActiveWorkoutScreen(): UseActiveWorkoutScreenResult {
     deleteExercise,
     saveOrFinish,
     cancel,
+    renameSession,
   ]);
 }

@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { WorkoutSession } from '../../types/workout';
 import type { UseStopwatchResult } from '../../hooks/useStopwatch';
 import { MtButton, MtConfirmDialog } from '../ui';
-import { X, Check } from 'lucide-react';
+import { X, Check, Pencil } from 'lucide-react';
 
 export interface ActiveWorkoutHeaderProps {
   /**
@@ -26,6 +26,11 @@ export interface ActiveWorkoutHeaderProps {
    * Ação disparada pelo botão de cancelar. Também exige confirmação.
    */
   onCancel: () => void;
+  /**
+   * Chamado quando o usuário confirma a edição do nome (blur ou Enter).
+   * O header garante que o valor enviado não é vazio antes de chamar.
+   */
+  onRenameSession: (newName: string) => void;
 }
 
 /**
@@ -33,7 +38,10 @@ export interface ActiveWorkoutHeaderProps {
  *
  * É autocontido quanto à interação: ele pergunta confirmação ao usuário
  * (Salvar/Encerrar e Cancelar) antes de delegar para os callbacks recebidos.
- * Assim a única regra de "ação acidental precisa de confirmação" vive aqui.
+ * O nome do treino é editável inline — tocar no título ou no ícone de lápis
+ * ativa um input. Ao perder o foco (blur) ou pressionar Enter, o nome é salvo;
+ * se ficar vazio, o último nome válido é restaurado silenciosamente.
+ * Escape descarta a edição sem salvar.
  */
 export function ActiveWorkoutHeader({
   session,
@@ -41,17 +49,44 @@ export function ActiveWorkoutHeader({
   durationStopwatch,
   onSaveOrFinish,
   onCancel,
+  onRenameSession,
 }: ActiveWorkoutHeaderProps) {
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [draftName, setDraftName] = useState(session.name);
 
-  const formattedDate = new Date(session.date).toLocaleDateString('pt-BR', {
-    weekday: 'short',
-    day: '2-digit',
-    month: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  /**
+   * Sincroniza o rascunho do nome quando a sessão muda externamente
+   * (ex: ao abrir um treino salvo no modo de edição).
+   */
+  useEffect(() => {
+    setDraftName(session.name);
+  }, [session.name]);
+
+
+  /**
+   * Valida e persiste o nome rascunho ao sair do campo.
+   * Se o valor trimado for vazio, restaura silenciosamente o último nome válido.
+   */
+  const commitName = () => {
+    const trimmedName = draftName.trim();
+    if (trimmedName === '') {
+      setDraftName(session.name);
+    } else if (trimmedName !== session.name) {
+      onRenameSession(trimmedName);
+    }
+    setIsEditingName(false);
+  };
+
+  const handleNameKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      commitName();
+    } else if (event.key === 'Escape') {
+      setDraftName(session.name);
+      setIsEditingName(false);
+    }
+  };
 
   const handleConfirmCancel = () => {
     setIsCancelDialogOpen(false);
@@ -76,15 +111,35 @@ export function ActiveWorkoutHeader({
   return (
     <>
       <header>
-        <div>
-          <h1 style={{ fontSize: '1.1rem' }}>
-            {formattedDate}
-          </h1>
+        <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+          {isEditingName ? (
+            <input
+              className="workout-name-input"
+              value={draftName}
+              onChange={(event) => setDraftName(event.target.value)}
+              onBlur={commitName}
+              onKeyDown={handleNameKeyDown}
+              maxLength={40}
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus
+              aria-label="Nome do treino"
+            />
+          ) : (
+            <h1
+              className="workout-name-display"
+              onClick={() => setIsEditingName(true)}
+              title="Tocar para renomear"
+              style={{ fontSize: '1.1rem' }}
+            >
+              {session.name}
+              <Pencil size={12} style={{ marginLeft: '5px', opacity: 0.45, flexShrink: 0 }} />
+            </h1>
+          )}
           <span className="text-secondary" style={{ fontSize: '0.8rem', display: 'block' }}>
             {isEditing ? 'Modo Edição' : `Duração: ${formatTimerValue(durationStopwatch.seconds)}`}
           </span>
         </div>
-        <div style={{ display: 'flex', gap: 'var(--spacing-xs)' }}>
+        <div style={{ display: 'flex', gap: 'var(--spacing-xs)', flexShrink: 0 }}>
           <MtButton
             size="small"
             variant="danger"
@@ -147,3 +202,4 @@ function formatTimerValue(totalSeconds: number): string {
   }
   return `${paddedMinutes}:${paddedSeconds}`;
 }
+
