@@ -1,7 +1,7 @@
 import type { ReactNode, CSSProperties, MouseEvent } from 'react';
 
 export type MtButtonVariant = 'default' | 'primary' | 'danger' | 'text';
-export type MtButtonSize = 'small' | 'medium';
+export type MtButtonSize = 'small' | 'medium' | 'large';
 
 export interface MtButtonProps {
   children: ReactNode;
@@ -27,7 +27,7 @@ export function MtButton({
   'aria-label': ariaLabel,
 }: MtButtonProps) {
   const variantClass = variant === 'default' ? '' : ` ${variant}`;
-  const sizeClass = size === 'small' ? ' small' : '';
+  const sizeClass = size === 'small' ? ' small' : size === 'large' ? ' large' : '';
 
   return (
     <button

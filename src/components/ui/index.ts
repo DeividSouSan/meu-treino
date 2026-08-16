@@ -40,3 +40,6 @@ export type { MtModalProps } from './MtModal';
 
 export { MtConfirmDialog } from './MtConfirmDialog';
 export type { MtConfirmDialogProps } from './MtConfirmDialog';
+
+export { MtStepper } from './MtStepper';
+export type { MtStepperProps } from './MtStepper';
