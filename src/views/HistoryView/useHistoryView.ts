@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import type { WorkoutSession } from '../../types/workout';
-import { useContextWorkout } from '../../hooks';
+import { useHistory, useSession, useNavigation } from '../../hooks';
 import { useHistoryFormatters } from '../../hooks/useHistoryFormatters';
 
 export interface UseHistoryViewResult {
@@ -45,19 +45,15 @@ export interface UseHistoryViewResult {
 /**
  * useHistoryView é o CONTÊINER da tela de histórico.
  *
- * Ele consolidou a lógica que antes vivia espalhada em useHistoryActions e
- * useHistoryFormatters. É o único ponto que conversa com o contexto de treino
- * para a tela de histórico, expondo uma API declarativa para a View.
+ * Ele consolida a lógica que antes vivia espalhada em useHistoryActions e
+ * useHistoryFormatters. É o único ponto que conversa com os contextos de
+ * histórico, sessão e navegação para a tela de histórico, expondo uma API
+ * declarativa para a View.
  */
 export function useHistoryView(): UseHistoryViewResult {
-  const {
-    workoutHistory,
-    activeSession,
-    startNewWorkout,
-    startEditingWorkout,
-    deleteSession,
-    navigateToHistory,
-  } = useContextWorkout();
+  const { workoutHistory, deleteSession } = useHistory();
+  const { activeSession, startNewWorkout, startEditingWorkout } = useSession();
+  const { navigateToHistory, navigateToActiveWorkout } = useNavigation();
 
   const { formatWorkoutDate, formatWorkoutDuration } = useHistoryFormatters();
 
@@ -85,7 +81,7 @@ export function useHistoryView(): UseHistoryViewResult {
   return {
     workoutHistory,
     activeSession,
-    resumeActiveWorkout: navigateToHistory,
+    resumeActiveWorkout: navigateToActiveWorkout,
     handleSessionTap,
     handleSessionLongPress,
     handleImportSuccess,

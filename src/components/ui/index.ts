@@ -24,6 +24,3 @@ export type { MtSuggestionDropdownProps, MtSuggestionItem } from './MtSuggestion
 
 export { MtInputForm } from './MtInputForm';
 export type { MtInputFormProps } from './MtInputForm';
-
-export { MtLastWorkoutSets } from './MtLastWorkoutSets';
-export type { MtLastWorkoutSetsProps } from './MtLastWorkoutSets';

@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import type { WorkoutSession, WorkoutExercise } from '../../types/workout';
 import { useStopwatch } from '../../hooks/useStopwatch';
 import type { UseStopwatchResult } from '../../hooks/useStopwatch';
-import { useContextWorkout } from '../../hooks';
+import { useSession, useHistory } from '../../hooks';
 
 export interface UseActiveWorkoutScreenResult {
   /**
@@ -61,20 +61,20 @@ export interface UseActiveWorkoutScreenResult {
  *  - aplicar mutações (cues, exercícios) no estado global do contexto
  *  - persistir o encerramento, o salvamento e o cancelamento
  *
- * Não recebe callbacks de fora: tudo vem do contexto de treino.
+ * Não recebe callbacks de fora: tudo vem dos contextos de sessão e histórico.
  * Assim a View (ActiveWorkoutView) não repassa props em cascade.
  */
 export function useActiveWorkoutScreen(): UseActiveWorkoutScreenResult {
   const {
     activeSession,
     editingSession,
-    workoutHistory,
     updateActiveSession,
     updateEditingSession,
     finishActiveWorkout,
     saveEditedWorkout,
     cancelActiveWorkout,
-  } = useContextWorkout();
+  } = useSession();
+  const { workoutHistory } = useHistory();
 
   const session = editingSession || activeSession;
   const isEditing = editingSession !== null;
@@ -96,17 +96,20 @@ export function useActiveWorkoutScreen(): UseActiveWorkoutScreenResult {
   }, [isEditing, updateActiveSession, updateEditingSession]);
 
   const addCue = useCallback((cue: string) => {
-    if (!session) return;
-    updateSession({ ...session, cues: [...session.cues, cue] });
+    const currentSession = session;
+    if (!currentSession) return;
+    updateSession({ ...currentSession, cues: [...currentSession.cues, cue] });
   }, [session, updateSession]);
 
   const removeCue = useCallback((cueIndex: number) => {
-    if (!session) return;
-    updateSession({ ...session, cues: session.cues.filter((_, index) => index !== cueIndex) });
+    const currentSession = session;
+    if (!currentSession) return;
+    updateSession({ ...currentSession, cues: currentSession.cues.filter((_: string, index: number) => index !== cueIndex) });
   }, [session, updateSession]);
 
   const addExercise = useCallback((exerciseName: string) => {
-    if (!session) return;
+    const currentSession = session;
+    if (!currentSession) return;
     const trimmedName = exerciseName.trim();
     if (trimmedName === '') return;
 
@@ -118,27 +121,29 @@ export function useActiveWorkoutScreen(): UseActiveWorkoutScreenResult {
       sets: [],
     };
 
-    updateSession({ ...session, exercises: [...session.exercises, newExercise] });
+    updateSession({ ...currentSession, exercises: [...currentSession.exercises, newExercise] });
   }, [session, updateSession]);
 
   const updateExercise = useCallback((updatedExercise: WorkoutExercise) => {
-    if (!session) return;
+    const currentSession = session;
+    if (!currentSession) return;
     updateSession({
-      ...session,
-      exercises: session.exercises.map((exercise) =>
+      ...currentSession,
+      exercises: currentSession.exercises.map((exercise: WorkoutExercise) =>
         exercise.id === updatedExercise.id ? updatedExercise : exercise
       ),
     });
   }, [session, updateSession]);
 
   const deleteExercise = useCallback((exerciseId: string) => {
-    if (!session) return;
+    const currentSession = session;
+    if (!currentSession) return;
     const userConfirmed = window.confirm('Deseja realmente remover este exercício do treino?');
     if (!userConfirmed) return;
 
     updateSession({
-      ...session,
-      exercises: session.exercises.filter((exercise) => exercise.id !== exerciseId),
+      ...currentSession,
+      exercises: currentSession.exercises.filter((exercise: WorkoutExercise) => exercise.id !== exerciseId),
     });
   }, [session, updateSession]);
 

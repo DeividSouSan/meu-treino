@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 import { History } from 'lucide-react';
-import type { WorkoutSession } from '../../types/workout';
-import { useContextWorkout } from '../../hooks';
-import { MtSectionTitle } from './MtSectionTitle';
+import type { WorkoutSession, WorkoutExercise, ExerciseSet } from '../types/workout';
+import { useHistory } from '../hooks';
+import { MtSectionTitle } from './ui/MtSectionTitle';
 
-export interface MtLastWorkoutSetsProps {
+export interface LastWorkoutSetsProps {
   /**
    * Nome do exercício que o usuário está treinando neste momento.
    * Serve para localizar o mesmo exercício nos treinos anteriores.
@@ -13,7 +13,7 @@ export interface MtLastWorkoutSetsProps {
 }
 
 /**
- * MtLastWorkoutSets mostra de forma resumida as séries do último treino
+ * LastWorkoutSets mostra de forma resumida as séries do último treino
  * em que o usuário realizou este mesmo exercício.
  *
  * O componente é autocontido: toda a lógica de busca está dentro dele.
@@ -22,8 +22,8 @@ export interface MtLastWorkoutSetsProps {
  *
  * O único dado recebido via props é o nome do exercício atual.
  */
-export function MtLastWorkoutSets({ exerciseName }: MtLastWorkoutSetsProps) {
-  const { workoutHistory } = useContextWorkout();
+export function LastWorkoutSets({ exerciseName }: LastWorkoutSetsProps) {
+  const { workoutHistory } = useHistory();
 
   /**
    * Procura no histórico a última sessão concluída que contenha
@@ -40,7 +40,7 @@ export function MtLastWorkoutSets({ exerciseName }: MtLastWorkoutSetsProps) {
     const sessaoEncontrada = workoutHistory.find(
       (session: WorkoutSession) => {
         const contemExercicio = session.exercises.some(
-          (exercise) => exercise.name.trim().toLowerCase() === nomeNormalizado
+          (exercise: WorkoutExercise) => exercise.name.trim().toLowerCase() === nomeNormalizado
         );
         return session.status === 'completed' && contemExercicio;
       }
@@ -51,7 +51,7 @@ export function MtLastWorkoutSets({ exerciseName }: MtLastWorkoutSetsProps) {
     }
 
     const exercicioDoUltimoTreino = sessaoEncontrada.exercises.find(
-      (exercise) => exercise.name.trim().toLowerCase() === nomeNormalizado
+      (exercise: WorkoutExercise) => exercise.name.trim().toLowerCase() === nomeNormalizado
     );
 
     if (!exercicioDoUltimoTreino || exercicioDoUltimoTreino.sets.length === 0) {
@@ -125,7 +125,7 @@ export function MtLastWorkoutSets({ exerciseName }: MtLastWorkoutSetsProps) {
               gap: 'var(--spacing-xs)',
             }}
           >
-            {ultimoTreino.series.map((set, index) => (
+            {ultimoTreino.series.map((set: ExerciseSet, index: number) => (
               <li
                 key={index}
                 style={{

@@ -1,9 +1,9 @@
-import { WorkoutProvider, useContextWorkout } from './hooks/index';
+import { NavigationProvider, SessionProvider, HistoryProvider, useNavigation } from './hooks';
 import { HistoryView } from './views/HistoryView';
 import { ActiveWorkoutView } from './views/ActiveWorkoutView';
 
 function AppContent() {
-  const { currentView } = useContextWorkout();
+  const { currentView } = useNavigation();
 
   return (
     <div>
@@ -18,9 +18,13 @@ function AppContent() {
 
 function App() {
   return (
-    <WorkoutProvider>
-      <AppContent />
-    </WorkoutProvider>
+    <NavigationProvider>
+      <SessionProvider>
+        <HistoryProvider>
+          <AppContent />
+        </HistoryProvider>
+      </SessionProvider>
+    </NavigationProvider>
   );
 }
 

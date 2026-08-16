@@ -10,6 +10,7 @@ import {
 } from '../../components/active-workout';
 import { MtEmptyState, MtSectionTitle } from '../../components';
 import { Dumbbell } from 'lucide-react';
+import { useNavigation } from '../../hooks';
 
 /**
  * ActiveWorkoutView é a tela apresentacional do treino ativo.
@@ -54,6 +55,8 @@ export function ActiveWorkoutView() {
     handleSelectExercise
   );
 
+  const { navigateToHistory } = useNavigation();
+
   if (!session) {
     return (
       <main>
@@ -77,8 +80,15 @@ export function ActiveWorkoutView() {
         session={session}
         isEditing={isEditing}
         durationStopwatch={durationStopwatch}
-        onSaveOrFinish={saveOrFinish}
-        onCancel={cancel}
+        onSaveOrFinish={ () => {
+          saveOrFinish();
+          navigateToHistory();
+        }
+        }
+        onCancel={() => {
+          cancel();
+          navigateToHistory();
+        }}
       />
 
       <main style={{ paddingBottom: currentExerciseId ? '20px' : '120px' }}>

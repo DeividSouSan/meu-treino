@@ -2,15 +2,12 @@ import type { FormEvent } from 'react';
 import type { WorkoutExercise } from '../types/workout';
 import { useExerciseScreen } from './useExerciseScreen';
 import { RestTimer } from './RestTimer';
-import { MtButton, MtEmptyState, MtField, MtLastWorkoutSets } from './ui';
+import { MtButton, MtEmptyState, MtField } from './ui';
 import { ExerciseSetItem } from './ExerciseSetItem';
 import { ExerciseTechniquePills } from './ExerciseTechniquePills';
 import { ArrowLeft, ChevronLeft, ChevronRight, Trash2, Copy, Minus, Plus } from 'lucide-react';
+import { LastWorkoutSets } from './LastWorkoutSets';
 
-/**
- * Navegação entre exercícios dentro da tela de edição.
- * Agrupada em um único objeto para evitar muitos callbacks soltos.
- */
 export interface ExerciseNavigationProps {
   onBack: () => void;
   onNavigatePrevious: () => void;
@@ -20,37 +17,12 @@ export interface ExerciseNavigationProps {
 }
 
 export interface ExerciseScreenProps {
-  /**
-   * O exercício atualmente selecionado — a entidade manipulada nesta tela.
-   */
   exercise: WorkoutExercise;
-  /**
-   * Notifica o pai (sessão) sobre qualquer alteração neste exercício.
-   */
   onUpdateExercise: (updatedExercise: WorkoutExercise) => void;
-  /**
-   * Remove este exercício da sessão — já com confirmação interna no hook da sessão.
-   */
   onDeleteExercise: () => void;
-  /**
-   * Ações de navegação entre exercícios, fornecidas pelo container da tela.
-   */
   exerciseNavigation: ExerciseNavigationProps;
 }
 
-/**
- * ExerciseScreen é a tela apresentacional de edição de um exercício.
- *
- * Ela não gerencia estado: toda a lógica (formulário, séries, cronômetro de
- * descanso, técnicas avançadas) está no container useExerciseScreen, co-locado
- * neste mesmo diretório. O componente apenas lê o resultado do hook e renderiza.
- *
- * Props recebidas (intencionalmente enxutas):
- *  - exercise ............. a entidade (estado atual do exercício)
- *  - onUpdateExercise ....... delega mutações de volta para a sessão
- *  - onDeleteExercise ...... delega a remoção do exercício (já confirmada)
- *  - exerciseNavigation .... ações de navegação (voltar / anterior / próximo)
- */
 export function ExerciseScreen({
   exercise,
   onUpdateExercise,
@@ -132,7 +104,7 @@ export function ExerciseScreen({
         </div>
 
         {/* Visualização rápida das séries do último treino deste exercício */}
-        <MtLastWorkoutSets exerciseName={form.exercise.name} />
+        <LastWorkoutSets exerciseName={form.exercise.name} />
 
         <div>
           <label style={{ marginBottom: 'var(--spacing-xs)' }}>Séries</label>
