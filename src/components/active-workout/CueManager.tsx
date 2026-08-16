@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { MtInputForm, EditableList } from '../ui';
-import { Plus } from 'lucide-react';
+import { MtInputForm, MtEditableList, MtCard, MtSectionTitle } from '../ui';
+import { Plus, Bell } from 'lucide-react';
 
 export interface CueManagerProps {
   cues: string[];
@@ -31,8 +31,10 @@ export function CueManager({
   };
 
   return (
-    <section className="card">
-      <h2>Cues da Sessão (Lembretes)</h2>
+    <MtCard as="section" style={{ gap: 'var(--spacing-xs)' }}>
+      <MtSectionTitle icon={<Bell size={16} />}>
+        Cues da Sessão (Lembretes)
+      </MtSectionTitle>
       <MtInputForm
         value={cueInput}
         onChange={(event) => setCueInput(event.target.value)}
@@ -40,11 +42,11 @@ export function CueManager({
         placeholder="Ex: Controlar a descida no agachamento"
         submitButtonContent={<Plus size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />}
       />
-      <EditableList
+      <MtEditableList
         items={cueItems}
         onRemove={handleRemoveCue}
         emptyMessage="Nenhum lembrete adicionado"
       />
-    </section>
+    </MtCard>
   );
 }

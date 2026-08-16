@@ -4,9 +4,10 @@ import {
   BackupSection,
   ActiveWorkoutCard,
   WorkoutHistoryList,
-  FloatingActionButton,
   VersionInfo,
 } from '../../components/history';
+import { MtCard, MtFloatingActionButton, MtSectionTitle } from '../../components/ui';
+import { Calendar } from 'lucide-react';
 
 /**
  * HistoryView é a tela apresentacional do histórico de treinos.
@@ -49,8 +50,10 @@ export function HistoryView() {
           />
         )}
 
-        <section className="card" style={{ gap: 'var(--spacing-sm)' }}>
-          <h2 style={{ margin: 0 }}>Histórico</h2>
+        <MtCard as="section" style={{ gap: 'var(--spacing-sm)' }}>
+          <MtSectionTitle icon={<Calendar size={18} />}>
+            Histórico
+          </MtSectionTitle>
           <WorkoutHistoryList
             sessions={workoutHistory}
             onSessionTap={handleSessionTap}
@@ -59,12 +62,12 @@ export function HistoryView() {
             formatWorkoutDuration={formatWorkoutDuration}
             onCreateFirstWorkout={handleCreateNewWorkout}
           />
-        </section>
+        </MtCard>
       </main>
 
-      <FloatingActionButton onClick={handleCreateNewWorkout}>
+      <MtFloatingActionButton onClick={handleCreateNewWorkout}>
         +
-      </FloatingActionButton>
+      </MtFloatingActionButton>
 
       <VersionInfo version={packageInfo.version} />
     </div>

@@ -1,5 +1,9 @@
-export { EditableList } from './EditableList';
-export type { EditableListProps, EditableListItem } from './EditableList';
+export { MtEditableList } from './MtEditableList';
+export type { MtEditableListProps, MtEditableListItem } from './MtEditableList';
+
+export { MtFloatingActionButton } from './MtFloatingActionButton';
+export type { MtFloatingActionButtonProps } from './MtFloatingActionButton';
+
 
 export { MtCard } from './MtCard';
 export type { MtCardProps } from './MtCard';
