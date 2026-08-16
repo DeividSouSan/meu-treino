@@ -3,6 +3,7 @@ import type { ChangeEvent } from 'react';
 import type { WorkoutExercise, ExerciseSet, AdvancedTechnique } from '../types/workout';
 import { useStopwatch } from '../hooks/useStopwatch';
 import type { UseStopwatchResult } from '../hooks/useStopwatch';
+import { hapticService } from '../services/hapticService';
 
 export interface UseExerciseScreenProps {
   /**
@@ -152,6 +153,7 @@ export function useExerciseScreen({
     };
 
     updateExercise({ ...exercise, sets: [...exercise.sets, newSet] });
+    hapticService.success();
     setRepetitionsInput('');
     setSelectedTechniques([]);
     setRestInput('120');

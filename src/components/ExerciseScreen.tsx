@@ -2,10 +2,10 @@ import { useState, type FormEvent } from 'react';
 import type { WorkoutExercise } from '../types/workout';
 import { useExerciseScreen } from './useExerciseScreen';
 import { RestTimer } from './RestTimer';
-import { MtButton, MtEmptyState, MtField, MtCard, MtConfirmDialog } from './ui';
+import { MtButton, MtEmptyState, MtField, MtCard, MtConfirmDialog, MtStepper } from './ui';
 import { ExerciseSetItem } from './ExerciseSetItem';
 import { ExerciseTechniquePills } from './ExerciseTechniquePills';
-import { ArrowLeft, ChevronLeft, ChevronRight, Trash2, Copy, Minus, Plus } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Trash2, Copy, Plus } from 'lucide-react';
 import { LastWorkoutSets } from './LastWorkoutSets';
 
 export interface ExerciseNavigationProps {
@@ -39,6 +39,7 @@ export function ExerciseScreen({
 
   return (
     <MtCard style={{ padding: 'var(--spacing-md)' }}>
+      {/* Barra superior de navegação com hit targets generosos */}
       <div
         style={{
           display: 'flex',
@@ -51,34 +52,44 @@ export function ExerciseScreen({
           size="small"
           onClick={exerciseNavigation.onBack}
           title="Voltar para lista"
+          aria-label="Voltar para a lista de exercícios"
+          style={{ minWidth: '44px', minHeight: '44px', padding: '0' }}
         >
-          <ArrowLeft size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+          <ArrowLeft size={18} strokeWidth={2.25} />
         </MtButton>
+
         <div style={{ display: 'flex', gap: 'var(--spacing-xs)' }}>
           <MtButton
             size="small"
             onClick={exerciseNavigation.onNavigatePrevious}
             disabled={!exerciseNavigation.hasPrevious}
             title="Exercício anterior"
+            aria-label="Ir para exercício anterior"
+            style={{ minWidth: '44px', minHeight: '44px', padding: '0' }}
           >
-            <ChevronLeft size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+            <ChevronLeft size={20} strokeWidth={2.25} />
           </MtButton>
           <MtButton
             size="small"
             onClick={exerciseNavigation.onNavigateNext}
             disabled={!exerciseNavigation.hasNext}
             title="Próximo exercício"
+            aria-label="Ir para próximo exercício"
+            style={{ minWidth: '44px', minHeight: '44px', padding: '0' }}
           >
-            <ChevronRight size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+            <ChevronRight size={20} strokeWidth={2.25} />
           </MtButton>
         </div>
+
         <MtButton
           variant="danger"
           size="small"
           onClick={() => setIsConfirmDeleteOpen(true)}
           title="Excluir exercício"
+          aria-label="Excluir exercício atual"
+          style={{ minWidth: '44px', minHeight: '44px', padding: '0' }}
         >
-          <Trash2 size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+          <Trash2 size={18} strokeWidth={2.25} />
         </MtButton>
       </div>
 
@@ -92,7 +103,7 @@ export function ExerciseScreen({
 
         <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
           <MtField
-            label="Carga (kg)"
+            label="Carga Padrão (kg)"
             value={form.weightInput}
             onChange={form.handleUpdateReferenceWeight}
             placeholder="Ex: 30"
@@ -112,12 +123,13 @@ export function ExerciseScreen({
         {/* Visualização rápida das séries do último treino deste exercício */}
         <LastWorkoutSets exerciseName={form.exercise.name} />
 
+        {/* Lista de séries já registradas */}
         <div>
-          <label style={{ marginBottom: 'var(--spacing-xs)' }}>Séries</label>
+          <label style={{ marginBottom: 'var(--spacing-xs)', fontWeight: 700 }}>Séries Realizadas</label>
           {form.exercise.sets.length === 0 ? (
             <MtEmptyState
               size="small"
-              title="Nenhuma série registrada"
+              title="Nenhuma série registrada ainda"
             />
           ) : (
             <ol
@@ -141,100 +153,97 @@ export function ExerciseScreen({
           )}
         </div>
 
+        {/* Formulário de adição de série na Thumb Zone com Steppers */}
         <form
           onSubmit={handleFormSubmit}
           style={{
             borderTop: '1px solid var(--border-color)',
             paddingTop: 'var(--spacing-md)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'var(--spacing-sm)',
           }}
         >
-          <div style={{ display: 'flex', gap: 'var(--spacing-xs)', marginBottom: 'var(--spacing-sm)' }}>
-            <MtButton
-              type="button"
-              size="small"
-              style={{ flex: 1 }}
-              onClick={form.handleCopyLastSetReps}
-              disabled={form.exercise.sets.length === 0}
-              title="Copiar reps da última série"
-            >
-              <Copy size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-            </MtButton>
-            <MtButton
-              type="button"
-              size="small"
-              style={{ flex: 1 }}
-              onClick={() => form.handleQuickAdjustReps(-1)}
-              title="Diminuir 1 repetição"
-            >
-              <Minus size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-            </MtButton>
-            <MtButton
-              type="button"
-              size="small"
-              style={{ flex: 1 }}
-              onClick={() => form.handleQuickAdjustReps(1)}
-              title="Aumentar 1 repetição"
-            >
-              <Plus size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-            </MtButton>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+              Registrar Próxima Série
+            </span>
+            {form.exercise.sets.length > 0 && (
+              <MtButton
+                type="button"
+                variant="text"
+                size="small"
+                onClick={form.handleCopyLastSetReps}
+                title="Copiar repetições da última série"
+                style={{ padding: '4px 8px', fontSize: '0.8rem', minHeight: '36px' }}
+              >
+                <Copy size={15} strokeWidth={2.25} />
+                <span>Copiar Última</span>
+              </MtButton>
+            )}
           </div>
 
           <div
             style={{
-              display: 'flex',
-              gap: 'var(--spacing-xs)',
-              alignItems: 'flex-end',
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 'var(--spacing-sm)',
             }}
           >
-            <MtField
+            <MtStepper
               label="Reps"
-              labelStyle={{ fontSize: '0.75rem' }}
               value={form.repetitionsInput}
-              onChange={(event) => form.setRepetitionsInput(event.target.value)}
-              type="number"
-              placeholder="Reps"
-              required
-              style={{ flex: 1 }}
+              onChange={form.setRepetitionsInput}
+              step={1}
+              min={1}
+              quickIncrements={[1, 2, 5]}
+              placeholder="0"
             />
-            <MtField
+            <MtStepper
               label="Carga"
-              labelStyle={{ fontSize: '0.75rem' }}
+              unit="kg"
               value={form.weightInput}
-              onChange={(event) => form.setWeightInput(event.target.value)}
-              type="number"
-              step="any"
-              placeholder="kg"
-              style={{ flex: 1 }}
+              onChange={form.setWeightInput}
+              step={1}
+              min={0}
+              quickIncrements={[2.5, 5]}
+              placeholder="0"
             />
-            <MtField
-              label="Descanso"
-              labelStyle={{ fontSize: '0.75rem' }}
-              value={form.restInput}
-              onChange={(event) => form.setRestInput(event.target.value)}
-              type="number"
-              placeholder="s"
-              style={{ flex: 1 }}
-            />
-            <MtButton
-              type="submit"
-              variant="primary"
-              style={{
-                height: '42px',
-                width: '42px',
-                padding: '0',
-                borderRadius: 'var(--border-radius)',
-              }}
-              title="Adicionar série"
-            >
-              <Plus size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-            </MtButton>
           </div>
 
+          <MtStepper
+            label="Descanso"
+            unit="s"
+            value={form.restInput}
+            onChange={form.setRestInput}
+            step={15}
+            min={0}
+            quickIncrements={[60, 90, 120]}
+            placeholder="120"
+          />
+
           <ExerciseTechniquePills
-            label="Técnicas"
+            label="Técnicas Avançadas"
             selectedTechniques={form.selectedTechniques}
             onToggle={form.handleToggleTechnique}
           />
+
+          {/* Botão Primário Dominante na Thumb Zone */}
+          <MtButton
+            type="submit"
+            variant="primary"
+            size="large"
+            style={{
+              width: '100%',
+              marginTop: 'var(--spacing-xs)',
+              fontWeight: 700,
+              gap: '8px',
+            }}
+            title="Salvar série e iniciar descanso"
+          >
+            <Plus size={20} strokeWidth={2.5} />
+            <span>Adicionar Série</span>
+          </MtButton>
         </form>
       </div>
 

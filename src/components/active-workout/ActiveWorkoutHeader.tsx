@@ -90,18 +90,20 @@ export function ActiveWorkoutHeader({
             variant="danger"
             onClick={() => setIsCancelDialogOpen(true)}
             title="Cancelar treino"
-            style={{ minWidth: '40px', minHeight: '40px' }}
+            aria-label="Cancelar treino ativo"
+            style={{ minWidth: '44px', minHeight: '44px', padding: 0 }}
           >
-            <X size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+            <X size={18} strokeWidth={2.25} />
           </MtButton>
           <MtButton
             size="small"
             variant="primary"
             onClick={() => setIsSaveDialogOpen(true)}
             title={isEditing ? 'Salvar alterações' : 'Encerrar treino'}
-            style={{ minWidth: '40px', minHeight: '40px' }}
+            aria-label={isEditing ? 'Salvar alterações do treino' : 'Encerrar e registrar treino'}
+            style={{ minWidth: '44px', minHeight: '44px', padding: 0 }}
           >
-            <Check size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+            <Check size={18} strokeWidth={2.25} />
           </MtButton>
         </div>
       </header>

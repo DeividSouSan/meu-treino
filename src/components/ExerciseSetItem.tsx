@@ -3,7 +3,8 @@ import type { CSSProperties } from 'react';
 import type { ExerciseSet, AdvancedTechnique } from '../types/workout';
 import { X, Edit2, Save, Trash2 } from 'lucide-react';
 import { ExerciseTechniquePills } from './ExerciseTechniquePills';
-import { MtField, MtButton, MtConfirmDialog } from './ui';
+import { MtButton, MtConfirmDialog, MtStepper } from './ui';
+import { hapticService } from '../services/hapticService';
 
 export interface ExerciseSetItemProps {
   set: ExerciseSet;
@@ -52,6 +53,7 @@ export function ExerciseSetItem({
       advancedTechniques: localTechniques,
     };
     onUpdate(index, updatedSet);
+    hapticService.success();
     setIsEditing(false);
   };
 
@@ -81,29 +83,36 @@ export function ExerciseSetItem({
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            minHeight: '44px',
           }}
         >
           <span style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-              {/* Linha principal: "5 reps @ 10kg - 120" nunca deve quebrar a linha */}
+              {/* Linha principal com alto contraste operacional */}
               <span
                 style={{
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
+                  fontSize: '1rem',
                 }}
               >
-                <strong>{set.repetitions} reps</strong> @ {set.weightInKg}kg
-                {set.restTimeInSeconds > 0 && ` - ${set.restTimeInSeconds}s`}
+                <strong style={{ color: 'var(--text-primary)' }}>{set.repetitions} reps</strong> @ {set.weightInKg}kg
+                {set.restTimeInSeconds > 0 && (
+                  <span style={{ color: 'var(--text-secondary)', marginLeft: '4px' }}>
+                    - {set.restTimeInSeconds}s
+                  </span>
+                )}
               </span>
 
-              {/* Técnicas avançadas jogadas abaixo da linha principal (texto simples) */}
+              {/* Técnicas avançadas jogadas abaixo da linha principal */}
               {techniques.length > 0 && (
                 <span
                   style={{
-                    marginTop: 'var(--spacing-xs)',
+                    marginTop: '2px',
                     fontSize: '0.75rem',
-                    color: 'var(--text-secondary)',
+                    color: 'var(--accent-color)',
+                    fontWeight: 600,
                   }}
                 >
                   {techniques.join(', ')}
@@ -116,14 +125,16 @@ export function ExerciseSetItem({
             <MtButton
               variant="text"
               size="small"
-              style={{ padding: '2px 6px' }}
+              style={{ minWidth: '44px', minHeight: '44px', padding: '0' }}
               onClick={(event) => {
                 event.stopPropagation();
+                hapticService.lightTap();
                 setIsEditing(true);
               }}
               title="Editar série"
+              aria-label={`Editar série #${index + 1}`}
             >
-              <Edit2 size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+              <Edit2 size={16} strokeWidth={2.25} />
             </MtButton>
           </div>
         </div>
@@ -131,79 +142,86 @@ export function ExerciseSetItem({
     );
   }
 
-  // Tela de edição inline
+  // Tela de edição inline com Steppers e botões de toque generosos
   return (
-    <li style={{ fontSize: '0.9rem', ...style }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
+    <li
+      style={{
+        fontSize: '0.9rem',
+        backgroundColor: 'var(--background-color)',
+        padding: 'var(--spacing-sm)',
+        borderRadius: 'var(--border-radius)',
+        border: '1px solid var(--border-color)',
+        ...style,
+      }}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <strong>Série #{index + 1}</strong>
+          <strong style={{ fontSize: '0.95rem' }}>Série #{index + 1}</strong>
           <div style={{ display: 'flex', gap: 'var(--spacing-xs)' }}>
-            {/* O botão de apagar foi movido para dentro da edição para economizar espaço na linha principal */}
             <MtButton
               variant="danger"
               size="small"
-              style={{ padding: '4px 8px', fontSize: '0.75rem' }}
+              style={{ minWidth: '40px', minHeight: '40px', padding: '0' }}
               onClick={() => setIsConfirmDeleteOpen(true)}
               title="Excluir série"
+              aria-label={`Excluir série #${index + 1}`}
             >
-              <Trash2 size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+              <Trash2 size={16} strokeWidth={2.25} />
             </MtButton>
             <MtButton
+              variant="primary"
               size="small"
-              style={{ padding: '4px 8px', fontSize: '0.75rem' }}
+              style={{ minWidth: '40px', minHeight: '40px', padding: '0' }}
               onClick={handleSave}
               title="Salvar edição"
+              aria-label="Salvar alterações da série"
             >
-              <Save size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+              <Save size={16} strokeWidth={2.25} />
             </MtButton>
             <MtButton
               size="small"
-              style={{ padding: '4px 8px', fontSize: '0.75rem' }}
+              style={{ minWidth: '40px', minHeight: '40px', padding: '0' }}
               onClick={handleCancel}
               title="Cancelar"
+              aria-label="Cancelar edição da série"
             >
-              <X size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+              <X size={16} strokeWidth={2.25} />
             </MtButton>
           </div>
         </div>
 
-        {/* Campos Reps, Carga e Descanso na mesma linha (semelhante ao formulário de ExerciseScreen) */}
         <div
           style={{
-            display: 'flex',
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
             gap: 'var(--spacing-xs)',
-            alignItems: 'flex-end',
           }}
         >
-          <MtField
+          <MtStepper
             label="Reps"
-            labelStyle={{ fontSize: '0.75rem' }}
             value={String(localReps)}
-            onChange={(event) => setLocalReps(Number(event.target.value))}
-            type="number"
-            placeholder="Reps"
-            style={{ flex: 1 }}
+            onChange={(val) => setLocalReps(parseInt(val, 10) || 0)}
+            step={1}
+            min={1}
           />
-          <MtField
+          <MtStepper
             label="Carga"
-            labelStyle={{ fontSize: '0.75rem' }}
+            unit="kg"
             value={String(localWeight)}
-            onChange={(event) => setLocalWeight(Number(event.target.value))}
-            type="number"
-            step="any"
-            placeholder="kg"
-            style={{ flex: 1 }}
-          />
-          <MtField
-            label="Descanso"
-            labelStyle={{ fontSize: '0.75rem' }}
-            value={String(localRest)}
-            onChange={(event) => setLocalRest(Number(event.target.value))}
-            type="number"
-            placeholder="s"
-            style={{ flex: 1 }}
+            onChange={(val) => setLocalWeight(parseFloat(val) || 0)}
+            step={1}
+            min={0}
           />
         </div>
+
+        <MtStepper
+          label="Descanso"
+          unit="s"
+          value={String(localRest)}
+          onChange={(val) => setLocalRest(parseInt(val, 10) || 0)}
+          step={15}
+          min={0}
+        />
 
         <ExerciseTechniquePills
           label="Técnicas"
