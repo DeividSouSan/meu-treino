@@ -1,4 +1,5 @@
 import type { WorkoutSession } from '../../types/workout';
+import { MtCard, MtButton } from '../ui';
 
 export interface ActiveWorkoutCardProps {
   activeSession: WorkoutSession;
@@ -8,10 +9,12 @@ export interface ActiveWorkoutCardProps {
 
 export function ActiveWorkoutCard({ activeSession, onResume, formatWorkoutDate }: ActiveWorkoutCardProps) {
   return (
-    <div className="card" style={{ 
-      borderLeft: '4px solid var(--warning-color)',
-      marginBottom: 'var(--spacing-md)'
-    }}>
+    <MtCard
+      style={{
+        borderLeft: '4px solid var(--warning-color)',
+        marginBottom: 'var(--spacing-md)',
+      }}
+    >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h3 style={{ color: 'var(--warning-color)', marginBottom: '4px' }}>Treino em Andamento</h3>
@@ -19,10 +22,10 @@ export function ActiveWorkoutCard({ activeSession, onResume, formatWorkoutDate }
             Iniciado em: {formatWorkoutDate(activeSession.date)}
           </p>
         </div>
-        <button className="primary small" onClick={onResume}>
+        <MtButton variant="primary" size="small" onClick={onResume}>
           Retomar
-        </button>
+        </MtButton>
       </div>
-    </div>
+    </MtCard>
   );
 }

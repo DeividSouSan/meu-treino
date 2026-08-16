@@ -8,7 +8,7 @@ import {
   CueManager,
   ExerciseSearch,
 } from '../../components/active-workout';
-import { MtEmptyState, MtSectionTitle } from '../../components';
+import { MtEmptyState, MtSectionTitle, MtCard } from '../../components/ui';
 import { Dumbbell } from 'lucide-react';
 import { useNavigation } from '../../hooks';
 
@@ -60,7 +60,7 @@ export function ActiveWorkoutView() {
   if (!session) {
     return (
       <main>
-        <div className="card">
+        <MtCard>
           <MtEmptyState
             align="left"
             title="Erro de Sessão"
@@ -69,7 +69,7 @@ export function ActiveWorkoutView() {
             actionLabel="Voltar ao Histórico"
             onAction={cancel}
           />
-        </div>
+        </MtCard>
       </main>
     );
   }

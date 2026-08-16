@@ -1,17 +1,18 @@
-import type { ReactNode, CSSProperties } from 'react';
+import type { ReactNode, CSSProperties, MouseEvent } from 'react';
 
-export type MtButtonVariant = 'default' | 'primary' | 'danger';
+export type MtButtonVariant = 'default' | 'primary' | 'danger' | 'text';
 export type MtButtonSize = 'small' | 'medium';
 
 export interface MtButtonProps {
   children: ReactNode;
-  onClick?: () => void;
+  onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
   variant?: MtButtonVariant;
   size?: MtButtonSize;
   style?: CSSProperties;
   title?: string;
   disabled?: boolean;
   type?: 'button' | 'submit';
+  'aria-label'?: string;
 }
 
 export function MtButton({
@@ -23,6 +24,7 @@ export function MtButton({
   title,
   disabled = false,
   type = 'button',
+  'aria-label': ariaLabel,
 }: MtButtonProps) {
   const variantClass = variant === 'default' ? '' : ` ${variant}`;
   const sizeClass = size === 'small' ? ' small' : '';
@@ -33,6 +35,7 @@ export function MtButton({
       className={`${variantClass}${sizeClass}`.trim()}
       onClick={onClick}
       title={title}
+      aria-label={ariaLabel}
       disabled={disabled}
       style={{
         display: 'flex',

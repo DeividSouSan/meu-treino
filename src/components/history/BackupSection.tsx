@@ -1,6 +1,6 @@
 import React, { useRef, useCallback } from 'react';
 import { useBackupSection } from './useBackupSection';
-import { MtAlert, MtSectionTitle, MtButton } from '../ui';
+import { MtAlert, MtSectionTitle, MtButton, MtCard } from '../ui';
 import { CloudUpload, Download, Upload } from 'lucide-react';
 
 export interface BackupSectionProps {
@@ -61,7 +61,7 @@ export function BackupSection({ onImportSuccess, workoutHistoryLength }: BackupS
   }, []);
 
   return (
-    <section className="card" style={{ gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-md)' }}>
+    <MtCard as="section" style={{ gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-md)' }}>
       <MtSectionTitle icon={<CloudUpload size={18} strokeWidth={2} color="var(--accent-color)" />}>
         Backup
       </MtSectionTitle>
@@ -87,6 +87,6 @@ export function BackupSection({ onImportSuccess, workoutHistoryLength }: BackupS
           {workoutsSinceLastBackup} {workoutsSinceLastBackup === 1 ? 'treino novo' : 'treinos novos'} desde último backup
         </MtAlert>
       )}
-    </section>
+    </MtCard>
   );
 }

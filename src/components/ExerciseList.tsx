@@ -1,4 +1,5 @@
 import type { WorkoutExercise } from '../types/workout';
+import { MtCard } from './ui';
 
 export interface ExerciseListProps {
   exercises: WorkoutExercise[];
@@ -22,10 +23,10 @@ export function ExerciseList({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
       {exercises.map((exercise) => (
-        <div
+        <MtCard
           key={exercise.id}
-          className="card"
           onClick={() => onSelectExercise(exercise.id)}
+          role="button"
           style={{
             cursor: 'pointer',
             padding: 'var(--spacing-sm) var(--spacing-md)',
@@ -48,7 +49,7 @@ export function ExerciseList({
               ▶
             </span>
           </div>
-        </div>
+        </MtCard>
       ))}
     </div>
   );

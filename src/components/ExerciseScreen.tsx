@@ -2,7 +2,7 @@ import type { FormEvent } from 'react';
 import type { WorkoutExercise } from '../types/workout';
 import { useExerciseScreen } from './useExerciseScreen';
 import { RestTimer } from './RestTimer';
-import { MtButton, MtEmptyState, MtField } from './ui';
+import { MtButton, MtEmptyState, MtField, MtCard } from './ui';
 import { ExerciseSetItem } from './ExerciseSetItem';
 import { ExerciseTechniquePills } from './ExerciseTechniquePills';
 import { ArrowLeft, ChevronLeft, ChevronRight, Trash2, Copy, Minus, Plus } from 'lucide-react';
@@ -37,7 +37,7 @@ export function ExerciseScreen({
   };
 
   return (
-    <div className="card" style={{ padding: 'var(--spacing-md)' }}>
+    <MtCard style={{ padding: 'var(--spacing-md)' }}>
       <div
         style={{
           display: 'flex',
@@ -236,6 +236,6 @@ export function ExerciseScreen({
         stopwatch={form.restStopwatch}
         targetSeconds={form.restTargetSeconds}
       />
-    </div>
+    </MtCard>
   );
 }

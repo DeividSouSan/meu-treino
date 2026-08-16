@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { MtInput, MtButton, MtSuggestionDropdown } from '../ui';
-import { Plus } from 'lucide-react';
+import { MtInput, MtButton, MtSuggestionDropdown, MtCard, MtSectionTitle } from '../ui';
+import { Plus, Search } from 'lucide-react';
 
 export interface ExerciseSuggestion {
   id: string;
@@ -43,8 +43,10 @@ export function ExerciseSearch({
   };
 
   return (
-    <section className="card" style={{ marginTop: 'var(--spacing-md)' }}>
-      <h2>Adicionar Exercício</h2>
+    <MtCard as="section" style={{ marginTop: 'var(--spacing-md)' }}>
+      <MtSectionTitle icon={<Search size={16} />}>
+        Adicionar Exercício
+      </MtSectionTitle>
       <div style={{ display: 'flex', gap: 'var(--spacing-xs)', marginTop: 'var(--spacing-xs)', position: 'relative' }}>
         <MtInput
           value={searchInput}
@@ -73,6 +75,6 @@ export function ExerciseSearch({
         suggestions={suggestionItems}
         onSelect={handleSelectSuggestion}
       />
-    </section>
+    </MtCard>
   );
 }

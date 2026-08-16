@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { AdvancedTechnique } from '../types/workout';
+import { MtPill } from './ui';
 
 export interface ExerciseTechniquePillsProps {
   selectedTechniques: AdvancedTechnique[];
@@ -31,14 +32,14 @@ export function ExerciseTechniquePills({
         {TECHNIQUES.map((technique) => {
           const isActive = selectedTechniques.includes(technique);
           return (
-            <span
+            <MtPill
               key={technique}
-              className={`pill ${isActive ? 'active' : ''}`}
+              isActive={isActive}
               onClick={() => onToggle(technique)}
               style={itemStyle}
             >
               {technique}
-            </span>
+            </MtPill>
           );
         })}
       </div>
