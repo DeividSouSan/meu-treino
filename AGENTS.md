@@ -121,11 +121,20 @@ meu-treino/
 
 ---
 
-## 🚀 8. Protocolo de Deploy, Versionamento & Release Notes
+## 🚀 8. Protocolo de Deploy, Ambientes & Release Notes
 
+O projeto conta com dois ambientes de publicação isolados:
+
+### A. Ambiente de Homologação / Staging (`npm run deploy:staging`)
+- **Destino:** `https://meu-treino-staging.surge.sh` (Surge.sh).
+- **Propósito:** Validar alterações online no celular com `LocalStorage` e Service Worker isolados antes de atualizar a versão oficial.
+- **Execução:** Pode ser executado a qualquer momento para testes prévios.
+
+### B. Ambiente de Produção Oficial (`npm run deploy` ou `npm run deploy:prod`)
+- **Destino:** `https://deividsousan.github.io/meu-treino/` (GitHub Pages).
 - **Proibição de Deploy Automático:** **NUNCA** execute `npm run deploy` sem solicitação explícita e direta do usuário.
-- **Procedimento Obrigatório ao Rodar Deploy:**
-  Sempre que o usuário solicitar explicitamente o deploy (`npm run deploy`), o agente deve seguir rigorosamente estes passos:
+- **Procedimento Obrigatório ao Rodar Deploy de Produção:**
+  Sempre que o usuário solicitar explicitamente o deploy de produção, o agente deve seguir rigorosamente estes passos:
   1. **Atualizar Versão:** Incrementar a versão no `package.json` de acordo com o SemVer (`major`, `minor` ou `patch`).
   2. **Criar Release Notes:** Criar ou atualizar o arquivo de release notes para desenvolvedores em `docs/releases/vX.Y.Z.md`, documentando as novidades, correções e melhorias técnicas da versão.
   3. **Commitar Release:** Fazer o commit da versão e release notes (`git commit -m "docs: release notes vX.Y.Z"`).
