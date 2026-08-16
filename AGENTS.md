@@ -66,7 +66,7 @@ Qualquer novo componente deve ser classificado corretamente antes de ser criado:
 ```
 meu-treino/
 ├── .agents/                    # Skills e ferramentas especializadas para agentes de IA
-├── docs/                       # Documentação técnica, issues e notas de release
+├── docs/                       # Documentação técnica, relatórios e notas de release
 ├── src/
 │   ├── types/                  # Entidades de domínio (WorkoutSession, WorkoutExercise, ExerciseSet, etc.)
 │   ├── services/               # Persistência LocalStorage (storageService) e import/export JSON (backupService)
