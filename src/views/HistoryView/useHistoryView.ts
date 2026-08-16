@@ -17,9 +17,22 @@ export interface UseHistoryViewResult {
    */
   sessionToDeleteId: string | null;
   /**
+   * Estado de visibilidade do modal de Configurações & Backup.
+   */
+  isSettingsOpen: boolean;
+  /**
+   * Abre o modal de Configurações & Backup.
+   */
+  openSettings: () => void;
+  /**
+   * Fecha o modal de Configurações & Backup.
+   */
+  closeSettings: () => void;
+  /**
    * Navega para a tela de treino ativo para retomar uma sessão em andamento.
    */
   resumeActiveWorkout: () => void;
+
   /**
    * Toca uma sessão do histórico para editá-la.
    */
@@ -64,11 +77,20 @@ export interface UseHistoryViewResult {
  */
 export function useHistoryView(): UseHistoryViewResult {
   const [sessionToDeleteId, setSessionToDeleteId] = useState<string | null>(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const { workoutHistory, deleteSession, reloadAllData } = useHistory();
   const { activeSession, startNewWorkout, startEditingWorkout } = useSession();
   const { navigateToHistory, navigateToActiveWorkout } = useNavigation();
 
   const { formatWorkoutDate, formatWorkoutDuration } = useHistoryFormatters();
+
+  const openSettings = useCallback(() => {
+    setIsSettingsOpen(true);
+  }, []);
+
+  const closeSettings = useCallback(() => {
+    setIsSettingsOpen(false);
+  }, []);
 
   const handleSessionTap = useCallback((session: WorkoutSession) => {
     startEditingWorkout(session);
@@ -92,6 +114,7 @@ export function useHistoryView(): UseHistoryViewResult {
 
   const handleImportSuccess = useCallback(() => {
     reloadAllData();
+    setIsSettingsOpen(false);
     navigateToHistory();
   }, [reloadAllData, navigateToHistory]);
 
@@ -104,6 +127,9 @@ export function useHistoryView(): UseHistoryViewResult {
     workoutHistory,
     activeSession,
     sessionToDeleteId,
+    isSettingsOpen,
+    openSettings,
+    closeSettings,
     resumeActiveWorkout: navigateToActiveWorkout,
     handleSessionTap,
     handleSessionLongPress,

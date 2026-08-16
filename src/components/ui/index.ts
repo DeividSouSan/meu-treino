@@ -43,3 +43,7 @@ export type { MtConfirmDialogProps } from './MtConfirmDialog';
 
 export { MtStepper } from './MtStepper';
 export type { MtStepperProps } from './MtStepper';
+
+export { MtAlertDialog } from './MtAlertDialog';
+export type { MtAlertDialogProps } from './MtAlertDialog';
+

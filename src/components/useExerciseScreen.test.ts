@@ -43,15 +43,12 @@ function eventoComValor(valor: string): ChangeEvent<HTMLInputElement> {
 
 beforeEach(() => {
   espioncarDoStopwatch.reset.mockClear();
-  // jsdom não fornece window.alert; stub global para que a lógica de
-  // validação (alert de reps inválidas) não fique presa em um modal real.
-  vi.stubGlobal('alert', vi.fn());
 });
 
 afterEach(() => {
   vi.restoreAllMocks();
-  vi.unstubAllGlobals();
 });
+
 
 describe('useExerciseScreen — estado inicial', () => {
   it('inicia com lista de séries vazia, inputs zerados e técnicas vazias', () => {
@@ -127,8 +124,7 @@ describe('useExerciseScreen — handleAddSet', () => {
     expect(exercicioAtualizado.sets[0].advancedTechniques).toContain('FS');
   });
 
-  it('não registra série e emite alerta quando as repetições são inválidas', () => {
-    const alertaSpia = vi.mocked(globalThis.alert as unknown as ReturnType<typeof vi.fn>);
+  it('não registra série e define validationError quando as repetições são inválidas', () => {
     const notificarAlteracao = vi.fn();
     const { result } = renderHook(() =>
       useExerciseScreen({
@@ -141,11 +137,14 @@ describe('useExerciseScreen — handleAddSet', () => {
     act(() => result.current.handleAddSet());
 
     expect(notificarAlteracao).not.toHaveBeenCalled();
-    expect(alertaSpia).toHaveBeenCalled();
+    expect(result.current.validationError).toBe('Por favor, informe um número válido de repetições (maior que zero).');
     expect(result.current.exercise.sets).toHaveLength(0);
+
+    act(() => result.current.clearValidationError());
+    expect(result.current.validationError).toBeNull();
   });
 
-  it('não registra série e emite alerta quando as repetições são negativas', () => {
+  it('não registra série e define validationError quando as repetições são negativas', () => {
     const notificarAlteracao = vi.fn();
     const { result } = renderHook(() =>
       useExerciseScreen({
@@ -158,9 +157,11 @@ describe('useExerciseScreen — handleAddSet', () => {
     act(() => result.current.handleAddSet());
 
     expect(notificarAlteracao).not.toHaveBeenCalled();
+    expect(result.current.validationError).toBe('Por favor, informe um número válido de repetições (maior que zero).');
     expect(result.current.exercise.sets).toHaveLength(0);
   });
 });
+
 
 describe('useExerciseScreen — manipulação de séries', () => {
   it('remove uma série existente pelo índice', () => {

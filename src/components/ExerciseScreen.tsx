@@ -2,8 +2,9 @@ import { useState, type FormEvent } from 'react';
 import type { WorkoutExercise } from '../types/workout';
 import { useExerciseScreen } from './useExerciseScreen';
 import { RestTimer } from './RestTimer';
-import { MtButton, MtEmptyState, MtField, MtCard, MtConfirmDialog, MtStepper } from './ui';
+import { MtButton, MtEmptyState, MtField, MtCard, MtConfirmDialog, MtStepper, MtAlertDialog } from './ui';
 import { ExerciseSetItem } from './ExerciseSetItem';
+
 import { ExerciseTechniquePills } from './ExerciseTechniquePills';
 import { ArrowLeft, ChevronLeft, ChevronRight, Trash2, Copy, Plus } from 'lucide-react';
 import { LastWorkoutSets } from './LastWorkoutSets';
@@ -263,6 +264,15 @@ export function ExerciseScreen({
           onDeleteExercise();
         }}
         onCancel={() => setIsConfirmDeleteOpen(false)}
+      />
+
+      <MtAlertDialog
+        isOpen={Boolean(form.validationError)}
+        title="Atenção"
+        message={form.validationError || ''}
+        buttonText="Entendido"
+        variant="primary"
+        onClose={form.clearValidationError}
       />
     </MtCard>
   );

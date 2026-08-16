@@ -41,7 +41,12 @@ export interface UseExerciseScreenResult {
   /** Tempo de descanso do último set — meta para o cronômetro de descanso. */
   restTargetSeconds: number;
   restStopwatch: UseStopwatchResult;
+  /** Mensagem de erro de validação para exibição em modal. */
+  validationError: string | null;
+  /** Limpa o erro de validação ao fechar o diálogo. */
+  clearValidationError: () => void;
 }
+
 
 /**
  * useExerciseScreen é o CONTÊINER da tela de edição de um exercício.
@@ -66,8 +71,13 @@ export function useExerciseScreen({
   );
   const [restInput, setRestInput] = useState<string>('120');
   const [selectedTechniques, setSelectedTechniques] = useState<AdvancedTechnique[]>([]);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const restStopwatch = useStopwatch(0, false);
+
+  const clearValidationError = useCallback(() => {
+    setValidationError(null);
+  }, []);
 
   const restTargetSeconds =
     exercise.sets.length > 0
@@ -85,6 +95,7 @@ export function useExerciseScreen({
     setWeightInput(initialExercise.weightInKg > 0 ? String(initialExercise.weightInKg) : '');
     setRestInput('120');
     setSelectedTechniques([]);
+    setValidationError(null);
   }, [initialExercise.id, initialExercise.weightInKg]);
 
   /**
@@ -138,7 +149,7 @@ export function useExerciseScreen({
     const rest = parseInt(restInput, 10) || 0;
 
     if (isNaN(repetitions) || repetitions <= 0) {
-      alert('Por favor, informe um número válido de repetições.');
+      setValidationError('Por favor, informe um número válido de repetições (maior que zero).');
       return;
     }
 
@@ -159,6 +170,7 @@ export function useExerciseScreen({
     setRestInput('120');
     restStopwatch.reset();
   }, [repetitionsInput, weightInput, restInput, selectedTechniques, exercise, updateExercise, restStopwatch]);
+
 
   const handleDeleteSet = useCallback(
     (setIndexToDelete: number) => {
@@ -226,5 +238,8 @@ export function useExerciseScreen({
     resetForm,
     restTargetSeconds,
     restStopwatch,
+    validationError,
+    clearValidationError,
   };
 }
+

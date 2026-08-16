@@ -173,4 +173,23 @@ describe('useHistoryView', () => {
 
     expect(result.current.workoutHistory.length).toBe(1);
   });
+
+  it('controla a abertura e fechamento do modal de configurações', () => {
+    const { result } = renderHook(() => useHistoryView(), {
+      wrapper: createWrapper(),
+    });
+
+    expect(result.current.isSettingsOpen).toBe(false);
+
+    act(() => {
+      result.current.openSettings();
+    });
+    expect(result.current.isSettingsOpen).toBe(true);
+
+    act(() => {
+      result.current.closeSettings();
+    });
+    expect(result.current.isSettingsOpen).toBe(false);
+  });
 });
+

@@ -6,22 +6,31 @@ import {
   WorkoutHistoryList,
   VersionInfo,
 } from '../../components/history';
-import { MtCard, MtFloatingActionButton, MtSectionTitle, MtConfirmDialog } from '../../components/ui';
-import { Calendar } from 'lucide-react';
+import {
+  MtCard,
+  MtFloatingActionButton,
+  MtSectionTitle,
+  MtConfirmDialog,
+  MtButton,
+  MtModal,
+} from '../../components/ui';
+import { Calendar, Settings, Plus } from 'lucide-react';
 
 /**
  * HistoryView é a tela apresentacional do histórico de treinos.
  *
  * Ela não contém lógica: toda ação e formatação vem do container useHistoryView.
- * Seu único trabalho é organizar os blocos visuais (backup, treino ativo,
- * lista de histórico, FAB e versão) e repassar as informações para os
- * componentes filhos.
+ * Organiza o topo com o treino em andamento (se houver), a lista de histórico,
+ * o botão de configurações/backup no cabeçalho e o botão flutuante para novo treino.
  */
 export function HistoryView() {
   const {
     workoutHistory,
     activeSession,
     sessionToDeleteId,
+    isSettingsOpen,
+    openSettings,
+    closeSettings,
     resumeActiveWorkout,
     handleSessionTap,
     handleSessionLongPress,
@@ -37,14 +46,19 @@ export function HistoryView() {
     <div>
       <header>
         <h1>Histórico</h1>
+        <MtButton
+          variant="text"
+          size="small"
+          onClick={openSettings}
+          aria-label="Configurações e Backup"
+          title="Configurações e Backup"
+          style={{ padding: '6px 8px', minHeight: '40px' }}
+        >
+          <Settings size={20} strokeWidth={2.25} color="var(--text-secondary)" />
+        </MtButton>
       </header>
 
       <main>
-        <BackupSection
-          onImportSuccess={handleImportSuccess}
-          workoutHistoryLength={workoutHistory.length}
-        />
-
         {activeSession && (
           <ActiveWorkoutCard
             activeSession={activeSession}
@@ -68,11 +82,28 @@ export function HistoryView() {
         </MtCard>
       </main>
 
-      <MtFloatingActionButton onClick={handleCreateNewWorkout}>
-        +
-      </MtFloatingActionButton>
+      <MtFloatingActionButton
+        onClick={handleCreateNewWorkout}
+        icon={<Plus size={20} strokeWidth={2.5} />}
+        label="Novo Treino"
+        ariaLabel="Criar novo treino"
+      />
 
-      <VersionInfo version={packageInfo.version} />
+      <MtModal
+        isOpen={isSettingsOpen}
+        onClose={closeSettings}
+        title="Configurações & Backup"
+      >
+        <div className="mt-modal-body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+          <BackupSection
+            asCard={false}
+            onImportSuccess={handleImportSuccess}
+            workoutHistoryLength={workoutHistory.length}
+          />
+          <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: 'var(--spacing-xs) 0' }} />
+          <VersionInfo version={packageInfo.version} />
+        </div>
+      </MtModal>
 
       <MtConfirmDialog
         isOpen={sessionToDeleteId !== null}
@@ -86,3 +117,4 @@ export function HistoryView() {
     </div>
   );
 }
+

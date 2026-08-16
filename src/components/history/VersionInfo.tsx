@@ -1,23 +1,25 @@
+import React from 'react';
+
 export interface VersionInfoProps {
   version: string;
+  style?: React.CSSProperties;
 }
 
-export function VersionInfo({ version }: VersionInfoProps) {
+export function VersionInfo({ version, style }: VersionInfoProps) {
   return (
-    <span
+    <div
       style={{
-        position: 'fixed',
-        bottom: '24px',
-        left: '24px',
-        fontSize: '0.75rem',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        fontSize: '0.8rem',
         color: 'var(--text-secondary)',
-        opacity: 0.4,
         userSelect: 'none',
-        pointerEvents: 'none',
-        zIndex: 99,
+        ...style,
       }}
     >
-      v{version}
-    </span>
+      <span>Meu Treino (PWA)</span>
+      <span>v{version}</span>
+    </div>
   );
 }

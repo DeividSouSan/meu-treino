@@ -13,6 +13,7 @@ export interface MtButtonProps {
   disabled?: boolean;
   type?: 'button' | 'submit';
   'aria-label'?: string;
+  autoFocus?: boolean;
 }
 
 export function MtButton({
@@ -25,6 +26,7 @@ export function MtButton({
   disabled = false,
   type = 'button',
   'aria-label': ariaLabel,
+  autoFocus = false,
 }: MtButtonProps) {
   const variantClass = variant === 'default' ? '' : ` ${variant}`;
   const sizeClass = size === 'small' ? ' small' : size === 'large' ? ' large' : '';
@@ -32,7 +34,9 @@ export function MtButton({
   return (
     <button
       type={type}
+      autoFocus={autoFocus}
       className={`${variantClass}${sizeClass}`.trim()}
+
       onClick={onClick}
       title={title}
       aria-label={ariaLabel}

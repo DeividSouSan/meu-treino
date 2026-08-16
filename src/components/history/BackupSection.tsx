@@ -1,6 +1,6 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import { useBackupSection } from './useBackupSection';
-import { MtAlert, MtSectionTitle, MtButton, MtCard } from '../ui';
+import { MtAlert, MtSectionTitle, MtButton, MtCard, MtAlertDialog } from '../ui';
 import { CloudUpload, Download, Upload } from 'lucide-react';
 
 export interface BackupSectionProps {
@@ -14,6 +14,11 @@ export interface BackupSectionProps {
    * treinos novos existem desde o último backup.
    */
   workoutHistoryLength: number;
+  /**
+   * Se verdadeiro, renderiza dentro de um MtCard. Se falso, renderiza como container flexível simples.
+   * Padrão: true.
+   */
+  asCard?: boolean;
 }
 
 /**
@@ -23,9 +28,29 @@ export interface BackupSectionProps {
  * está no container useBackupSection. Aqui só orquestramos a UI de input de
  * arquivo (FileReader) e os alertas de feedback ao usuário.
  */
-export function BackupSection({ onImportSuccess, workoutHistoryLength }: BackupSectionProps) {
+export function BackupSection({
+  onImportSuccess,
+  workoutHistoryLength,
+  asCard = true,
+}: BackupSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [feedbackDialog, setFeedbackDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    variant: 'primary' | 'danger';
+    isSuccess: boolean;
+  } | null>(null);
+
   const { workoutsSinceLastBackup, exportBackup, importBackup } = useBackupSection(workoutHistoryLength);
+
+  const handleCloseFeedback = useCallback(() => {
+    const wasSuccess = feedbackDialog?.isSuccess;
+    setFeedbackDialog(null);
+    if (wasSuccess) {
+      onImportSuccess();
+    }
+  }, [feedbackDialog, onImportSuccess]);
 
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files;
@@ -41,16 +66,28 @@ export function BackupSection({ onImportSuccess, workoutHistoryLength }: BackupS
       if (typeof fileContent === 'string') {
         const importSucceeded = importBackup(fileContent);
         if (importSucceeded) {
-          onImportSuccess();
-          alert('Dados importados com sucesso!');
+          setFeedbackDialog({
+            isOpen: true,
+            title: 'Backup Importado',
+            message: 'Seus dados de treino foram importados com sucesso!',
+            variant: 'primary',
+            isSuccess: true,
+          });
         } else {
-          alert('Erro ao importar. Verifique se o arquivo JSON está no formato correto.');
+          setFeedbackDialog({
+            isOpen: true,
+            title: 'Erro na Importação',
+            message: 'Não foi possível importar os dados. Verifique se o arquivo JSON está no formato correto.',
+            variant: 'danger',
+            isSuccess: false,
+          });
         }
       }
     };
 
     fileReader.readAsText(selectedFile);
-  }, [importBackup, onImportSuccess]);
+  }, [importBackup]);
+
 
   const handleExportBackup = useCallback(() => {
     exportBackup();
@@ -60,19 +97,24 @@ export function BackupSection({ onImportSuccess, workoutHistoryLength }: BackupS
     fileInputRef.current?.click();
   }, []);
 
-  return (
-    <MtCard as="section" style={{ gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-md)' }}>
+  const content = (
+    <>
       <MtSectionTitle icon={<CloudUpload size={18} strokeWidth={2} color="var(--accent-color)" />}>
-        Backup
+        Backup de Treinos
       </MtSectionTitle>
+
+      <p className="text-secondary" style={{ fontSize: '0.85rem' }}>
+        Seus treinos são salvos exclusivamente neste navegador. Exporte regularmente para não perder seus dados.
+      </p>
+
       <div style={{ display: 'flex', gap: 'var(--spacing-xs)', marginTop: 'var(--spacing-xs)' }}>
         <MtButton size="small" onClick={handleExportBackup} style={{ flex: 1 }}>
           <Download size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-          Exportar
+          Exportar JSON
         </MtButton>
         <MtButton size="small" onClick={handleTriggerFileInput} style={{ flex: 1 }}>
           <Upload size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-          Importar
+          Importar JSON
         </MtButton>
         <input
           type="file"
@@ -82,11 +124,41 @@ export function BackupSection({ onImportSuccess, workoutHistoryLength }: BackupS
           style={{ display: 'none' }}
         />
       </div>
-      {workoutsSinceLastBackup > 0 && (
+
+      {workoutsSinceLastBackup > 0 ? (
         <MtAlert variant="warning" style={{ marginTop: 'var(--spacing-xs)' }}>
-          {workoutsSinceLastBackup} {workoutsSinceLastBackup === 1 ? 'treino novo' : 'treinos novos'} desde último backup
+          {workoutsSinceLastBackup} {workoutsSinceLastBackup === 1 ? 'treino novo não salvo' : 'treinos novos não salvos'} em arquivo. Exporte seu backup agora.
+        </MtAlert>
+      ) : (
+        <MtAlert variant="info" style={{ marginTop: 'var(--spacing-xs)' }}>
+          Todos os treinos registrados estão salvos no último arquivo exportado.
         </MtAlert>
       )}
-    </MtCard>
+    </>
+  );
+
+  return (
+    <>
+      {asCard ? (
+        <MtCard as="section" style={{ gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-md)' }}>
+          {content}
+        </MtCard>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
+          {content}
+        </div>
+      )}
+
+      <MtAlertDialog
+        isOpen={Boolean(feedbackDialog?.isOpen)}
+        title={feedbackDialog?.title || ''}
+        message={feedbackDialog?.message || ''}
+        variant={feedbackDialog?.variant || 'primary'}
+        buttonText="Entendido"
+        onClose={handleCloseFeedback}
+      />
+    </>
   );
 }
+
+

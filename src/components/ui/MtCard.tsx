@@ -25,6 +25,14 @@ export interface MtCardProps {
    * Papel de acessibilidade do elemento (ex: "button" quando clicável).
    */
   role?: string;
+  /**
+   * Ordem de foco para navegação por teclado.
+   */
+  tabIndex?: number;
+  /**
+   * Handler para eventos de teclado (ex: disparar Enter/Espaço quando o card for botão).
+   */
+  onKeyDown?: (event: React.KeyboardEvent<HTMLElement>) => void;
 }
 
 /**
@@ -38,6 +46,8 @@ export function MtCard({
   className = '',
   onClick,
   role,
+  tabIndex,
+  onKeyDown,
 }: MtCardProps) {
   const combinedClassName = `card ${className}`.trim();
 
@@ -47,8 +57,11 @@ export function MtCard({
       style={style}
       onClick={onClick}
       role={role}
+      tabIndex={tabIndex}
+      onKeyDown={onKeyDown}
     >
       {children}
     </Component>
   );
 }
+
