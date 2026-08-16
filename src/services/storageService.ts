@@ -17,7 +17,7 @@ export function getWorkoutHistory(): WorkoutSession[] {
     return workoutSessions.sort((firstSession, secondSession) => {
       return new Date(secondSession.date).getTime() - new Date(firstSession.date).getTime();
     });
-  } catch (error) {
+  } catch {
     return [];
   }
 }
@@ -61,7 +61,7 @@ export function getWorkoutTemplates(): WorkoutSession[] {
   }
   try {
     return JSON.parse(templatesJson) as WorkoutSession[];
-  } catch (error) {
+  } catch {
     return [];
   }
 }
@@ -105,7 +105,7 @@ export function getActiveWorkoutSession(): WorkoutSession | null {
   }
   try {
     return JSON.parse(activeWorkoutJson) as WorkoutSession;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

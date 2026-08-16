@@ -84,7 +84,7 @@ export function useExerciseScreen({
     setWeightInput(initialExercise.weightInKg > 0 ? String(initialExercise.weightInKg) : '');
     setRestInput('120');
     setSelectedTechniques([]);
-  }, [initialExercise.id]);
+  }, [initialExercise.id, initialExercise.weightInKg]);
 
   /**
    * Aplica uma modificação ao exercício: atualiza a cópia local e notifica

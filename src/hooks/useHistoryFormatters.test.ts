@@ -1,19 +1,16 @@
 import { describe, it, expect } from 'vitest';
+import { renderHook } from '@testing-library/react';
 import { useHistoryFormatters } from './useHistoryFormatters';
 
 /**
  * Testes para useHistoryFormatters.
  *
- * Este hook não contém estado nem efeitos colaterais do React — ele só
- * retorna duas funções puras. Por isso podemos chamá-lo diretamente,
- * sem precisar de renderHook nem de um provider de contexto.
- *
  * foco: proteger contra regressões na formatação que o usuário vê
  * (datas e duração) na tela de histórico.
  */
-const { formatWorkoutDate, formatWorkoutDuration } = useHistoryFormatters();
-
 describe('formatWorkoutDuration', () => {
+  const { result } = renderHook(() => useHistoryFormatters());
+  const { formatWorkoutDuration } = result.current;
   it('formata duração em minutos para o singular correto', () => {
     expect(formatWorkoutDuration(120)).toBe('2 min');
   });
@@ -38,6 +35,8 @@ describe('formatWorkoutDuration', () => {
 });
 
 describe('formatWorkoutDate', () => {
+  const { result } = renderHook(() => useHistoryFormatters());
+  const { formatWorkoutDate } = result.current;
   it('retorna uma string contendo o ano informado', () => {
     const resultado = formatWorkoutDate('2024-01-15T10:30:00.000Z');
     expect(typeof resultado).toBe('string');

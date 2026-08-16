@@ -89,7 +89,7 @@ export function importWorkoutBackup(jsonString: string): boolean {
     saveLastBackupWorkoutCount(validatedHistory.length);
 
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }

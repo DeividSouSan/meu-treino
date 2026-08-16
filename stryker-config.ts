@@ -1,4 +1,4 @@
-import { configDefaults, defineConfig } from '@stryker-mutator/api';
+import { defineConfig } from '@stryker-mutator/api';
 
 export default defineConfig({
   // Configuración general

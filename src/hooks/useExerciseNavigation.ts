@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import type { WorkoutExercise } from '../types/workout';
 
 export interface UseExerciseNavigationResult {
@@ -22,27 +22,27 @@ export function useExerciseNavigation(
   const selectedExercise = exercises.find((exercise) => exercise.id === selectedExerciseId) || null;
   const currentExerciseIndex = exercises.findIndex((exercise) => exercise.id === selectedExerciseId);
 
-  const selectExercise = (exerciseId: string) => {
+  const selectExercise = useCallback((exerciseId: string) => {
     onSelectExercise(exerciseId);
-  };
+  }, [onSelectExercise]);
 
-  const goBackToList = () => {
+  const goBackToList = useCallback(() => {
     onSelectExercise('');
-  };
+  }, [onSelectExercise]);
 
-  const navigatePrevious = () => {
+  const navigatePrevious = useCallback(() => {
     if (currentExerciseIndex > 0) {
       const previousExercise = exercises[currentExerciseIndex - 1];
       onSelectExercise(previousExercise.id);
     }
-  };
+  }, [currentExerciseIndex, exercises, onSelectExercise]);
 
-  const navigateNext = () => {
+  const navigateNext = useCallback(() => {
     if (currentExerciseIndex < exercises.length - 1) {
       const nextExercise = exercises[currentExerciseIndex + 1];
       onSelectExercise(nextExercise.id);
     }
-  };
+  }, [currentExerciseIndex, exercises, onSelectExercise]);
 
   return useMemo(() => ({
     selectedExercise,
@@ -54,5 +54,14 @@ export function useExerciseNavigation(
     goBackToList,
     navigatePrevious,
     navigateNext,
-  }), [selectedExercise, selectedExerciseId, currentExerciseIndex, exercises.length, onSelectExercise]);
+  }), [
+    selectedExercise,
+    selectedExerciseId,
+    currentExerciseIndex,
+    exercises.length,
+    selectExercise,
+    goBackToList,
+    navigatePrevious,
+    navigateNext,
+  ]);
 }
