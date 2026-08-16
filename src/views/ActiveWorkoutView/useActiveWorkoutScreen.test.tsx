@@ -256,4 +256,105 @@ describe('useActiveWorkoutScreen — renameSession com sessão ativa', () => {
       expect(() => result.current.saveOrFinish()).not.toThrow();
     });
   });
+
+  describe('mutações de sessão', () => {
+    it('adiciona e remove cues corretamente', () => {
+      const { result } = renderHook(
+        () => ({
+          screen: useActiveWorkoutScreen(),
+          session: useSession(),
+        }),
+        { wrapper: createWrapper() }
+      );
+
+      act(() => {
+        result.current.session.startNewWorkout(null);
+      });
+
+      act(() => {
+        result.current.screen.addCue('Lembrete 1');
+      });
+      expect(result.current.screen.session?.cues).toContain('Lembrete 1');
+
+      act(() => {
+        result.current.screen.removeCue(0);
+      });
+      expect(result.current.screen.session?.cues).not.toContain('Lembrete 1');
+    });
+
+    it('ignora addCue e removeCue quando não há sessão', () => {
+      const { result } = renderHook(() => useActiveWorkoutScreen(), {
+        wrapper: createWrapper(),
+      });
+
+      act(() => {
+        expect(() => result.current.addCue('Teste')).not.toThrow();
+        expect(() => result.current.removeCue(0)).not.toThrow();
+      });
+    });
+
+    it('adiciona, atualiza e remove exercícios', () => {
+      const { result } = renderHook(
+        () => ({
+          screen: useActiveWorkoutScreen(),
+          session: useSession(),
+        }),
+        { wrapper: createWrapper() }
+      );
+
+      act(() => {
+        result.current.session.startNewWorkout(null);
+      });
+
+      act(() => {
+        result.current.screen.addExercise('Supino');
+      });
+
+      expect(result.current.screen.session?.exercises.length).toBe(1);
+      const exercise = result.current.screen.session?.exercises[0]!;
+      expect(exercise.name).toBe('Supino');
+
+      act(() => {
+        result.current.screen.updateExercise({ ...exercise, name: 'Supino Inclinado' });
+      });
+      expect(result.current.screen.session?.exercises[0].name).toBe('Supino Inclinado');
+
+      act(() => {
+        result.current.screen.deleteExercise(exercise.id);
+      });
+      expect(result.current.screen.session?.exercises.length).toBe(0);
+    });
+
+    it('ignora adicionar exercício se o nome for vazio', () => {
+      const { result } = renderHook(
+        () => ({
+          screen: useActiveWorkoutScreen(),
+          session: useSession(),
+        }),
+        { wrapper: createWrapper() }
+      );
+
+      act(() => {
+        result.current.session.startNewWorkout(null);
+      });
+
+      act(() => {
+        result.current.screen.addExercise('   ');
+      });
+
+      expect(result.current.screen.session?.exercises.length).toBe(0);
+    });
+
+    it('ignora mutações de exercício se não houver sessão', () => {
+      const { result } = renderHook(() => useActiveWorkoutScreen(), {
+        wrapper: createWrapper(),
+      });
+
+      act(() => {
+        expect(() => result.current.addExercise('Supino')).not.toThrow();
+        expect(() => result.current.updateExercise({ id: '1', name: 'Supino', weightInKg: 0, notes: '', sets: [] })).not.toThrow();
+        expect(() => result.current.deleteExercise('1')).not.toThrow();
+      });
+    });
+  });
 });
