@@ -1,59 +1,146 @@
 # Diretrizes para Agentes de IA & Engenharia
 
-Este documento reúne os princípios arquiteturais, convenções de código e restrições obrigatórias para o desenvolvimento no projeto **Meu Treino**.
+Este documento é a referência oficial sobre os princípios arquiteturais, a filosofia do produto, as convenções de código, os padrões de qualidade e os processos de trabalho no projeto **Meu Treino**.
 
 ---
 
-## 🏛️ 1. Arquitetura & Componentização
+## 🏋️‍♂️ 1. Filosofia do Produto & Arquitetura
 
-- **Princípios SOLID & KISS:** Implemente soluções simples, diretas e modulares, evitando complexidade acidental.
-- **Componentes Autocontidos:** Sempre crie componentes autocontidos. Eles devem encapsular sua própria lógica interna e estado de interação, recebendo externamente apenas o estado atual da entidade manipulada.
-- **Sem Prop-Drilling:** É expressamente proibido fazer *prop-drilling* em qualquer circunstância. Utilize os contextos especializados (`SessionContext`, `HistoryContext`, `NavigationContext`) ou hooks dedicados.
-- **Mobile-First Rigoroso:** O aplicativo é desenhado e otimizado primordialmente para uso em smartphones no ambiente de treino. Priorize ergonomia touch, áreas de toque adequadas e layouts fluidos limitados à largura mobile.
+O **Meu Treino** é um rastreador de musculação progressivo (**PWA**), desenvolvido com foco em simplicidade, velocidade e funcionamento **offline-first**, desenhado para atuar como um **substituto direto do caderno físico de anotações**.
 
----
-
-## 🎨 2. Design System & Interface (`Mt*`)
-
-- **Adesão ao Design System:** Sempre que for inserir tags HTML, ou estiver revisitando um arquivo `.tsx`, verifique se já existe (ou deve ser criado) um componente do Design System (`MtComponent`, ex.: `MtButton`, `MtCard`, `MtField`, `MtPill`, `MtEmptyState`, `MtAlert`, `MtSectionTitle`, `MtEditableList`) para substituir a tag nativa.
-- **Preservação de Componentes Existentes:** Nunca apague nem renomeie componentes já existentes na base de código sem perguntar e confirmar previamente com o usuário.
+- **Notepad-Style (Sem Checkboxes):** Sem burocracia de marcação. Se uma série está listada na tela, ela já foi executada.
+- **Soberania dos Dados (Zero Bloat):** Todos os dados pertencem ao usuário e ficam armazenados localmente no navegador via `LocalStorage` e backups JSON limpos. Sem cadastro, sem anúncios, sem telemetria e sem servidores na nuvem.
+- **Mobile-First Rigoroso:** O app é desenhado primordialmente para uso com uma mão na academia. A interface é contida em largura máxima mobile (600px) com ergonomia touch em botões e controles.
+- **Arquitetura de Estado Modular:** É expressamente proibido fazer *prop-drilling*. O estado global é dividido em contextos especializados (`NavigationContext`, `SessionContext`, `HistoryContext`), consumidos por container hooks co-localizados (`useActiveWorkoutScreen`, `useHistoryView`, `useExerciseScreen`).
+- **SOLID & KISS:** Mantenha soluções simples, diretas e legíveis. Evite abstrações prematuras ou complexidade acidental.
 
 ---
 
-## 🛡️ 3. Segurança e Confirmação de Ações
+## 🧩 2. Componentes de UI (`Mt*`) vs. Componentes de Domínio
 
-- **Confirmação em Ações Destrutivas:** Ações destrutivas (como apagar uma série, remover um exercício, cancelar um treino ativo ou resetar dados) **sempre** exigem diálogo de confirmação explícita do usuário antes de serem executadas.
+Qualquer novo componente deve ser classificado corretamente antes de ser criado:
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                   Novo Componente                        │
+└────────────────────────────┬─────────────────────────────┘
+                             │
+            ¿Manipula entidades de treino como             │
+          WorkoutSession, ExerciseSet ou regras?           │
+               /                            \
+             NÃO                            SIM
+             /                                \
+┌───────────────────────────┐      ┌───────────────────────────┐
+│   Componente de UI (Mt*)  │      │   Componente de Domínio   │
+├───────────────────────────┤      ├───────────────────────────┤
+│ • Pasta: src/components/ui│      │ • Pasta: src/components/  │
+│ • Prefixo: "Mt" obrigatório│     │   (ou active-workout/     │
+│   (ex: MtButton, MtCard)  │      │    ou history/)           │
+│ • Agnóstico a regras de   │      │ • Nome semântico de treino│
+│   negócio e dados         │      │   (ex: ExerciseSetItem)   │
+│ • Exportado no index.ts   │      │ • Constrói visual usando  │
+│   de ui/                  │      │   MtComponents            │
+└───────────────────────────┘      └───────────────────────────┘
+```
+
+### A. Componentes de UI / Design System (`Mt*`)
+- **Localização:** `src/components/ui/`
+- **Nomenclatura:** **SEMPRE** prefixados com `Mt` (ex.: `MtButton`, `MtCard`, `MtField`, `MtInput`, `MtInputForm`, `MtPill`, `MtEmptyState`, `MtAlert`, `MtSectionTitle`, `MtEditableList`, `MtFloatingActionButton`, `MtSuggestionDropdown`).
+- **Responsabilidade:** Primitivos visuais puros, estilos, microinterações e acessibilidade.
+- **Restrição:** **NUNCA** devem importar tipos de domínio (`WorkoutSession`, `ExerciseSet`, etc.). Recebem apenas propriedades genéricas (`children`, `onClick`, `variant`, `style`, `label`).
+- **Exportação:** Sempre exportados no barrel `src/components/ui/index.ts`.
+
+### B. Componentes de Domínio
+- **Localização:**
+  - `src/components/`: Componentes compartilhados de domínio (`ExerciseScreen`, `ExerciseSetItem`, `ExerciseList`, `ExerciseTechniquePills`, `LastWorkoutSets`, `RestTimer`).
+  - `src/components/active-workout/`: Componentes do treino ativo (`ActiveWorkoutHeader`, `CueManager`, `ExerciseSearch`).
+  - `src/components/history/`: Componentes do histórico (`ActiveWorkoutCard`, `BackupSection`, `WorkoutHistoryItem`, `WorkoutHistoryList`, `VersionInfo`).
+- **Nomenclatura:** Nomes semânticos do vocabulário de treino, **SEM** prefixo `Mt` (ex.: `ExerciseSetItem`, `LastWorkoutSets`, `CueManager`).
+- **Responsabilidade:** Manipular dados de treino e aplicar regras de negócio da sessão.
+- **Restrição:** Devem ser autocontidos e **utilizar obrigatoriamente os componentes `Mt*` para montar toda a sua camada de interface visual**.
 
 ---
 
-## 📖 4. Legibilidade e Linguagem de Domínio
+## 📁 3. Visão Geral do Repositório & Estrutura de Pastas
 
-- **Linguagem do Domínio:** Escreva utilizando o vocabulário real do domínio de musculação/treino (ex.: *série*, *repetições*, *carga*, *descanso*, *template*, *cues*), evitando termos técnicos abstratos de programação sempre que possível.
-- **Código Explícito e Verboso:** Escreva código claro e descritivo. Não utilize abreviações crípticas.
-- **Acessível a Iniciantes:** Estruture o código para que qualquer pessoa, inclusive um desenvolvedor júnior, consiga entender o fluxo de funcionamento apenas lendo o arquivo.
-
----
-
-## 🗄️ 5. Dados e Persistência
-
-- **Esquema de Dados Seguro:** Não altere a estrutura das entidades ou o esquema de armazenamento (LocalStorage/Backup) sem sugerir e implementar uma rotina de migração compatível para proteger os dados históricos dos usuários.
-
----
-
-## 🔄 6. Processo de Trabalho e Ferramentas
-
-- **Commits Pequenos e Frequentes:** Faça commits atômicos, pequenos e frequentes. Nunca deixe alterações acumularem para commitar tudo de uma só vez no final da sessão.
-- **Instalação de Pacotes:** Nunca baixe nem instale novos pacotes ou dependências (`npm install`, etc.) sem pedir autorização prévia ao usuário.
-- **Uso de Skills:** Verifique as skills existentes no projeto (`.agents/skills/`) e utilize-as ativamente conforme os gatilhos de *"When to use"* especificados em cada uma.
+```
+meu-treino/
+├── .agents/                    # Skills e ferramentas especializadas para agentes de IA
+├── docs/                       # Documentação técnica, issues e notas de release
+├── src/
+│   ├── types/                  # Entidades de domínio (WorkoutSession, WorkoutExercise, ExerciseSet, etc.)
+│   ├── services/               # Persistência LocalStorage (storageService) e import/export JSON (backupService)
+│   ├── hooks/                  # Provedores de contexto (session/, history/, navigation/) e hooks utilitários
+│   ├── views/                  # Telas principais da aplicação (ActiveWorkoutView/, HistoryView/)
+│   └── components/
+│       ├── ui/                 # Design System interno (todos com prefixo Mt*)
+│       ├── active-workout/     # Componentes de domínio da tela de treino ativo
+│       └── history/            # Componentes de domínio da tela de histórico
+```
 
 ---
 
-## 🚫 Tabela Rápida: O que NUNCA fazer
+## 🛠️ 4. Tech Stack Oficial
+
+- **Core & Framework:** React 19 + TypeScript + Vite.
+- **PWA & Offline:** `vite-plugin-pwa` para service worker offline e manifesto de instalação no celular.
+- **Estilização:** CSS Puro com Design Tokens centralizados em `src/index.css` (sem Tailwind, light mode de alto contraste, ergonomia touch).
+- **Ícones:** `lucide-react`.
+- **Testes & Qualidade:** Vitest, `@testing-library/react`, `@testing-library/jest-dom`, Stryker Mutator (Mutation Testing) e Oxlint.
+- **Persistência:** LocalStorage nativo do navegador e exportação/importação JSON.
+
+---
+
+## 🎨 5. Política do Design System (`Mt*`)
+
+- **Proibição de Tags HTML Puras:** É expressamente proibido usar tags HTML nativas (`<button>`, `<div className="card">`, `<section className="card">`, `<span className="pill">`, etc.) quando já existir ou couber a criação de um componente `Mt*`.
+- **Ações Destrutivas Exigem Confirmação:** Ações destrutivas (como excluir série, remover exercício, cancelar treino ou resetar dados) **sempre** exigem diálogo de confirmação explícita do usuário antes de serem executadas.
+- **Preservação de Componentes:** Nunca apague nem renomeie componentes existentes sem perguntar e confirmar previamente com o usuário.
+
+---
+
+## 📦 6. Política de Dependências
+
+- **Manter a Base Leve (Zero Bloat):** Evite adicionar novas dependências externas. O aplicativo preza por independência, alta velocidade e soberania.
+- **Sugestão de Soluções:** Se uma funcionalidade complexa justificar uma biblioteca pronta da comunidade, o agente deve sugerir a adição com justificativa técnica clara.
+- **Proibição Estrita:** **NUNCA** baixe nem instale novos pacotes (`npm install <pacote>`, `yarn add`, etc.) sem pedir autorização prévia e explícita ao usuário.
+
+---
+
+## 🧪 7. Qualidade, Testes & Padrões de Código
+
+- **Linter Obrigatório:** Execute **sempre** `npm run lint` (`oxlint`) antes de realizar commits. O código deve ter **0 erros**.
+- **Testes Automatizados:** Execute **sempre** `npm test` (`vitest run`) e `npm run build` antes de fechar commits, garantindo que nenhuma regressão foi introduzida.
+- **Commits Pequenos, Frequentes e em Português:** Nunca acumule trabalho para commitar tudo de uma vez. Escreva commits atômicos em português seguindo o padrão do **Conventional Commits**:
+  - `feat(ui): adiciona componente MtBadge`
+  - `fix(history): corrige cálculo de duração na visualização`
+  - `refactor(session): simplifica fluxo de atualização de séries`
+  - `test(services): adiciona testes de importação de backup`
+  - `docs: atualiza documentação no AGENTS.md`
+- **Legibilidade & Linguagem de Domínio:** Escreva código explícito e verboso, usando termos reais de treino (*série*, *repetições*, *carga*, *descanso*, *template*, *cues*). O código deve ser compreensível para qualquer desenvolvedor júnior apenas lendo o arquivo.
+
+---
+
+## 🚀 8. Protocolo de Deploy, Versionamento & Release Notes
+
+- **Proibição de Deploy Automático:** **NUNCA** execute `npm run deploy` sem solicitação explícita e direta do usuário.
+- **Procedimento Obrigatório ao Rodar Deploy:**
+  Sempre que o usuário solicitar explicitamente o deploy (`npm run deploy`), o agente deve seguir rigorosamente estes passos:
+  1. **Atualizar Versão:** Incrementar a versão no `package.json` de acordo com o SemVer (`major`, `minor` ou `patch`).
+  2. **Criar Release Notes:** Criar ou atualizar o arquivo de release notes para desenvolvedores em `docs/releases/vX.Y.Z.md`, documentando as novidades, correções e melhorias técnicas da versão.
+  3. **Commitar Release:** Fazer o commit da versão e release notes (`git commit -m "docs: release notes vX.Y.Z"`).
+  4. **Executar Deploy:** Rodar o comando `npm run deploy` e informar o link publicado ao usuário.
+
+---
+
+## 🚫 9. Tabela Rápida: O que NUNCA fazer
 
 | Proibição | Motivo |
 | :--- | :--- |
-| **Não apague componentes existentes sem perguntar** | Evita regressões e quebra de contratos visuais |
-| **Não altere o esquema do banco sem migração** | Protege os dados reais dos usuários contra corrupção |
-| **Não faça prop-drilling** | Mantém componentes desacoplados e a arquitetura limpa |
-| **Não use tags HTML puras se houver `MtComponent`** | Garante consistência visual em todo o app |
-| **Não instale dependências sem permissão** | Mantém a base leve, soberana e previsível |
+| **Nunca rodar `npm run deploy` sem pedido explícito** | Evita deploys acidentais ou não testados em produção |
+| **Nunca instalar dependências sem permissão** | Mantém a base leve, auditável e soberana |
+| **Nunca usar tags HTML puras se houver `MtComponent`** | Garante uniformidade e consistência no Design System |
+| **Nunca criar componentes de UI fora de `src/components/ui/` ou sem prefixo `Mt*`** | Mantém a separação clara entre primitivos e domínio |
+| **Nunca fazer prop-drilling** | Mantém a arquitetura limpa e os componentes desacoplados |
+| **Nunca alterar o esquema de armazenamento sem migração** | Protege os dados reais dos usuários contra corrupção |
+| **Nunca apagar componentes existentes sem confirmação** | Previne quebras e regressões na aplicação |
