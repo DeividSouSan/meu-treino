@@ -67,6 +67,7 @@ Qualquer novo componente deve ser classificado corretamente antes de ser criado:
 meu-treino/
 ├── .agents/                    # Skills e ferramentas especializadas para agentes de IA
 ├── docs/                       # Documentação técnica, relatórios e notas de release
+│   └── DESIGN.md               # Princípios de Design & Mobile UX (leitura obrigatória para UI/UX)
 ├── src/
 │   ├── types/                  # Entidades de domínio (WorkoutSession, WorkoutExercise, ExerciseSet, etc.)
 │   ├── services/               # Persistência LocalStorage (storageService) e import/export JSON (backupService)
@@ -91,8 +92,9 @@ meu-treino/
 
 ---
 
-## 🎨 5. Política do Design System (`Mt*`)
+## 🎨 5. Política do Design System (`Mt*`) & Princípios de UX
 
+- **Leitura Obrigatória de UX (`docs/DESIGN.md`):** Sempre que qualquer tarefa envolver alterações, melhorias ou criação de UI/UX, o agente **PRECISA** consultar e seguir rigorosamente os princípios de design para app 100% mobile definidos em `docs/DESIGN.md`.
 - **Proibição de Tags HTML Puras:** É expressamente proibido usar tags HTML nativas (`<button>`, `<div className="card">`, `<section className="card">`, `<span className="pill">`, etc.) quando já existir ou couber a criação de um componente `Mt*`.
 - **Ações Destrutivas Exigem Confirmação:** Ações destrutivas (como excluir série, remover exercício, cancelar treino ou resetar dados) **sempre** exigem diálogo de confirmação explícita do usuário antes de serem executadas.
 - **Preservação de Componentes:** Nunca apague nem renomeie componentes existentes sem perguntar e confirmar previamente com o usuário.
