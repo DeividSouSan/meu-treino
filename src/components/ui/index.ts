@@ -34,3 +34,9 @@ export type { MtSuggestionDropdownProps, MtSuggestionItem } from './MtSuggestion
 
 export { MtInputForm } from './MtInputForm';
 export type { MtInputFormProps } from './MtInputForm';
+
+export { MtModal } from './MtModal';
+export type { MtModalProps } from './MtModal';
+
+export { MtConfirmDialog } from './MtConfirmDialog';
+export type { MtConfirmDialogProps } from './MtConfirmDialog';
