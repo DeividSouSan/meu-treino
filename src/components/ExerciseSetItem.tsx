@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react';
 import type { ExerciseSet, AdvancedTechnique } from '../types/workout';
 import { X, Edit2, Save, Trash2 } from 'lucide-react';
 import { ExerciseTechniquePills } from './ExerciseTechniquePills';
-import { MtField } from './ui';
+import { MtField, MtButton } from './ui';
 
 export interface ExerciseSetItemProps {
   set: ExerciseSet;
@@ -117,8 +117,9 @@ export function ExerciseSetItem({
           </span>
 
           <div>
-            <button
-              className="text"
+            <MtButton
+              variant="text"
+              size="small"
               style={{ padding: '2px 6px' }}
               onClick={(event) => {
                 event.stopPropagation();
@@ -127,7 +128,7 @@ export function ExerciseSetItem({
               title="Editar série"
             >
               <Edit2 size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-            </button>
+            </MtButton>
           </div>
         </div>
       </li>
@@ -142,30 +143,31 @@ export function ExerciseSetItem({
           <strong>Série #{index + 1}</strong>
           <div style={{ display: 'flex', gap: 'var(--spacing-xs)' }}>
             {/* O botão de apagar foi movido para dentro da edição para economizar espaço na linha principal */}
-            <button
-              className="text text-danger small"
+            <MtButton
+              variant="danger"
+              size="small"
               style={{ padding: '4px 8px', fontSize: '0.75rem' }}
               onClick={handleDelete}
               title="Excluir série"
             >
               <Trash2 size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-            </button>
-            <button
-              className="small"
+            </MtButton>
+            <MtButton
+              size="small"
               style={{ padding: '4px 8px', fontSize: '0.75rem' }}
               onClick={handleSave}
               title="Salvar edição"
             >
               <Save size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-            </button>
-            <button
-              className="small"
+            </MtButton>
+            <MtButton
+              size="small"
               style={{ padding: '4px 8px', fontSize: '0.75rem' }}
               onClick={handleCancel}
               title="Cancelar"
             >
               <X size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-            </button>
+            </MtButton>
           </div>
         </div>
 

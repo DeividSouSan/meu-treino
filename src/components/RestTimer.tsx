@@ -1,5 +1,6 @@
 import type { UseStopwatchResult } from '../hooks/useStopwatch';
 import { Clock, RotateCcw } from 'lucide-react';
+import { MtButton } from './ui';
 
 export interface RestTimerProps {
   stopwatch: UseStopwatchResult;
@@ -51,14 +52,14 @@ export function RestTimer({ stopwatch, targetSeconds }: RestTimerProps) {
       </div>
 
       <div style={{ display: 'flex', gap: 'var(--spacing-xs)' }}>
-        <button
-          className="small"
+        <MtButton
+          size="small"
           onClick={() => stopwatch.reset()}
           title="Resetar"
           style={{ padding: '4px 8px' }}
         >
           <RotateCcw size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-        </button>
+        </MtButton>
       </div>
     </div>
   );
