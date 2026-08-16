@@ -6,7 +6,7 @@ import {
 } from './storageService';
 
 /**
- * Estrutura do arquivo de backup exportado pelo aplicativo.
+ * Estrutura do arquivo de backup completo exportado pelo aplicativo.
  */
 export interface BackupData {
   /**
@@ -14,9 +14,35 @@ export interface BackupData {
    */
   version: number;
   /**
-   * Histórico de sessões de treinos finalizados.
+   * Tipo do backup — facilita a distinção no importador.
    */
-  history: WorkoutSession[];
+  type?: 'full_history' | 'single_workout';
+  /**
+   * Histórico de sessões de treinos finalizados (backup completo).
+   */
+  history?: WorkoutSession[];
+  /**
+   * Sessão individual (backup de treino único).
+   */
+  session?: WorkoutSession;
+}
+
+/**
+ * Resultado estruturado de uma importação de backup.
+ */
+export interface ImportResult {
+  /**
+   * Verdadeiro quando pelo menos uma sessão válida foi importada ou o formato era correto.
+   */
+  success: boolean;
+  /**
+   * Quantidade de sessões efetivamente importadas.
+   */
+  count: number;
+  /**
+   * Nome do treino importado (disponível quando apenas um treino foi importado).
+   */
+  sessionName?: string;
 }
 
 /**
@@ -26,6 +52,7 @@ export function exportWorkoutBackup(): void {
   const history = getWorkoutHistory();
   const backupData: BackupData = {
     version: 1,
+    type: 'full_history',
     history: history,
   };
 
@@ -47,6 +74,39 @@ export function exportWorkoutBackup(): void {
 }
 
 /**
+ * Gera um arquivo JSON contendo uma única sessão de treino e inicia o download no navegador.
+ */
+export function exportSingleWorkoutSession(session: WorkoutSession): void {
+  const backupData: BackupData = {
+    version: 1,
+    type: 'single_workout',
+    session: session,
+  };
+
+  const sanitizedName = session.name
+    .toLowerCase()
+    .replace(/[^a-z0-9áàâãéèêíïóôõúüçñ]+/gi, '_')
+    .replace(/^_|_$/g, '');
+
+  const dateSlice = new Date(session.date).toISOString().slice(0, 10);
+  const fileName = `meu_treino_${sanitizedName}_${dateSlice}.json`;
+
+  const jsonString = JSON.stringify(backupData, null, 2);
+  const blob = new Blob([jsonString], { type: 'application/json' });
+  const downloadUrl = URL.createObjectURL(blob);
+
+  const anchorElement = document.createElement('a');
+  anchorElement.href = downloadUrl;
+  anchorElement.download = fileName;
+
+  document.body.appendChild(anchorElement);
+  anchorElement.click();
+
+  document.body.removeChild(anchorElement);
+  URL.revokeObjectURL(downloadUrl);
+}
+
+/**
  * Valida a estrutura de dados de uma sessão de treino importada.
  */
 function isValidWorkoutSession(session: any): session is WorkoutSession {
@@ -62,34 +122,71 @@ function isValidWorkoutSession(session: any): session is WorkoutSession {
 }
 
 /**
- * Importa dados de um arquivo de backup JSON, validando sua estrutura e atualizando o LocalStorage.
+ * Importa dados de um arquivo de backup JSON, validando sua estrutura
+ * e **mesclando** as sessões ao histórico existente no LocalStorage.
+ *
+ * Aceita os seguintes formatos:
+ *   1. Backup completo: `{ history: [...] }` ou `{ type: 'full_history', history: [...] }`
+ *   2. Treino individual: `{ type: 'single_workout', session: {...} }` ou `{ session: {...} }`
+ *   3. Sessão avulsa direta: objeto com `id`, `date`, `name`, etc.
+ *   4. Array de sessões: `[{...}, {...}]`
+ *
+ * A mesclagem é feita via `saveWorkoutSession`, que atualiza se o ID já existe
+ * ou adiciona se é novo — sem apagar nenhuma sessão preexistente.
  */
-export function importWorkoutBackup(jsonString: string): boolean {
+export function importWorkoutBackup(jsonString: string): ImportResult {
   try {
     const parsedData = JSON.parse(jsonString);
 
     if (!parsedData || typeof parsedData !== 'object') {
-      return false;
+      return { success: false, count: 0 };
     }
 
-    const hasValidHistory = Array.isArray(parsedData.history);
-
-    if (!hasValidHistory) {
-      return false;
+    // Formato 4: Array direto de sessões
+    if (Array.isArray(parsedData)) {
+      const validSessions = parsedData.filter(isValidWorkoutSession);
+      validSessions.forEach((session) => saveWorkoutSession(session));
+      return {
+        success: true,
+        count: validSessions.length,
+        sessionName: validSessions.length === 1 ? validSessions[0].name : undefined,
+      };
     }
 
-    const validatedHistory = (parsedData.history as any[]).filter((session) => {
-      return isValidWorkoutSession(session);
-    });
+    // Formato 2: Treino individual { session: {...} }
+    if (parsedData.session && isValidWorkoutSession(parsedData.session)) {
+      saveWorkoutSession(parsedData.session);
+      return {
+        success: true,
+        count: 1,
+        sessionName: parsedData.session.name,
+      };
+    }
 
-    validatedHistory.forEach((session) => {
-      saveWorkoutSession(session);
-    });
+    // Formato 1: Backup completo { history: [...] }
+    if (Array.isArray(parsedData.history)) {
+      const validSessions = parsedData.history.filter(isValidWorkoutSession);
+      validSessions.forEach((session: WorkoutSession) => saveWorkoutSession(session));
+      saveLastBackupWorkoutCount(getWorkoutHistory().length);
+      return {
+        success: true,
+        count: validSessions.length,
+        sessionName: validSessions.length === 1 ? validSessions[0].name : undefined,
+      };
+    }
 
-    saveLastBackupWorkoutCount(validatedHistory.length);
+    // Formato 3: Sessão avulsa direta (objeto raiz é a própria sessão)
+    if (isValidWorkoutSession(parsedData)) {
+      saveWorkoutSession(parsedData);
+      return {
+        success: true,
+        count: 1,
+        sessionName: parsedData.name,
+      };
+    }
 
-    return true;
+    return { success: false, count: 0 };
   } catch {
-    return false;
+    return { success: false, count: 0 };
   }
 }

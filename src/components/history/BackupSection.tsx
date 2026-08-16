@@ -64,12 +64,18 @@ export function BackupSection({
     fileReader.onload = (fileEvent) => {
       const fileContent = fileEvent.target?.result;
       if (typeof fileContent === 'string') {
-        const importSucceeded = importBackup(fileContent);
-        if (importSucceeded) {
+        const result = importBackup(fileContent);
+        if (result.success) {
+          const feedbackMessage = result.count === 1 && result.sessionName
+            ? `O treino "${result.sessionName}" foi adicionado ao seu histórico com sucesso!`
+            : result.count > 0
+              ? `${result.count} treinos foram importados e sincronizados com seu histórico!`
+              : 'O backup foi processado, mas nenhum treino novo foi encontrado.';
+
           setFeedbackDialog({
             isOpen: true,
-            title: 'Backup Importado',
-            message: 'Seus dados de treino foram importados com sucesso!',
+            title: 'Importação Concluída',
+            message: feedbackMessage,
             variant: 'primary',
             isSuccess: true,
           });
@@ -87,6 +93,7 @@ export function BackupSection({
 
     fileReader.readAsText(selectedFile);
   }, [importBackup]);
+
 
 
   const handleExportBackup = useCallback(() => {

@@ -120,7 +120,7 @@ describe('useHistoryView', () => {
     expect(result.current.nav.currentView).toBe('active_workout');
   });
 
-  it('ao confirmar exclusão com long press, remove a sessão do histórico', () => {
+  it('ao fazer long press, abre o menu de ações selecionando a sessão', () => {
     storageService.saveWorkoutSession(mockSession);
 
     const { result } = renderHook(() => useHistoryView(), {
@@ -130,7 +130,27 @@ describe('useHistoryView', () => {
     act(() => {
       result.current.handleSessionLongPress(mockSession.id);
     });
+
+    expect(result.current.selectedSessionForActions?.id).toBe(mockSession.id);
+  });
+
+  it('ao confirmar exclusão pelo menu de ações, remove a sessão do histórico', () => {
+    storageService.saveWorkoutSession(mockSession);
+
+    const { result } = renderHook(() => useHistoryView(), {
+      wrapper: createWrapper(),
+    });
+
+    act(() => {
+      result.current.handleSessionLongPress(mockSession.id);
+    });
+    
+    act(() => {
+      result.current.handleDeleteFromActionMenu();
+    });
+
     expect(result.current.sessionToDeleteId).toBe(mockSession.id);
+    expect(result.current.selectedSessionForActions).toBeNull();
 
     act(() => {
       result.current.confirmDeleteSession();
@@ -140,7 +160,7 @@ describe('useHistoryView', () => {
     expect(result.current.workoutHistory).toEqual([]);
   });
 
-  it('ao cancelar exclusão com long press, mantém a sessão no histórico', () => {
+  it('ao cancelar exclusão, mantém a sessão no histórico', () => {
     storageService.saveWorkoutSession(mockSession);
 
     const { result } = renderHook(() => useHistoryView(), {
@@ -150,7 +170,10 @@ describe('useHistoryView', () => {
     act(() => {
       result.current.handleSessionLongPress(mockSession.id);
     });
-    expect(result.current.sessionToDeleteId).toBe(mockSession.id);
+
+    act(() => {
+      result.current.handleDeleteFromActionMenu();
+    });
 
     act(() => {
       result.current.cancelDeleteSession();

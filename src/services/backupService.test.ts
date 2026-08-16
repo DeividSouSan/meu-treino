@@ -57,7 +57,9 @@ describe('importWorkoutBackup', () => {
       history: [sessaoValidaJSON('s1'), sessaoValidaJSON('s2')],
     });
 
-    expect(importWorkoutBackup(backupJson)).toBe(true);
+    const result = importWorkoutBackup(backupJson);
+    expect(result.success).toBe(true);
+    expect(result.count).toBe(2);
 
     const historico = getWorkoutHistory();
     expect(historico).toHaveLength(2);
@@ -74,7 +76,9 @@ describe('importWorkoutBackup', () => {
       ],
     });
 
-    expect(importWorkoutBackup(backupJson)).toBe(true);
+    const result = importWorkoutBackup(backupJson);
+    expect(result.success).toBe(true);
+    expect(result.count).toBe(1);
 
     const historico = getWorkoutHistory();
     expect(historico).toHaveLength(1);
@@ -82,24 +86,25 @@ describe('importWorkoutBackup', () => {
   });
 
   it('retorna false quando a string não é JSON válido', () => {
-    expect(importWorkoutBackup('{ json totalmente invalido')).toBe(false);
+    expect(importWorkoutBackup('{ json totalmente invalido').success).toBe(false);
   });
 
   it('retorna false quando o JSON parseado não é um objeto', () => {
-    expect(importWorkoutBackup('[]')).toBe(false);
-    expect(importWorkoutBackup('123')).toBe(false);
-    expect(importWorkoutBackup('null')).toBe(false);
+    expect(importWorkoutBackup('123').success).toBe(false);
+    expect(importWorkoutBackup('null').success).toBe(false);
   });
 
-  it('retorna false quando a propriedade history não é um array', () => {
+  it('retorna false quando a propriedade history não é um array (e não é uma sessão individual válida)', () => {
     const backupJson = JSON.stringify({ version: 1, history: 'nao-e-array' });
-    expect(importWorkoutBackup(backupJson)).toBe(false);
+    expect(importWorkoutBackup(backupJson).success).toBe(false);
   });
 
   it('retorna true e salva nada quando o histórico vem vazio', () => {
     const backupJson = JSON.stringify({ version: 1, history: [] });
 
-    expect(importWorkoutBackup(backupJson)).toBe(true);
+    const result = importWorkoutBackup(backupJson);
+    expect(result.success).toBe(true);
+    expect(result.count).toBe(0);
     expect(getWorkoutHistory()).toEqual([]);
   });
 

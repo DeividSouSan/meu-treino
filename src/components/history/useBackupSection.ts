@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { exportWorkoutBackup, importWorkoutBackup } from '../../services/backupService';
+import type { ImportResult } from '../../services/backupService';
 import { getLastBackupWorkoutCount, getWorkoutHistory } from '../../services/storageService';
 
 export interface UseBackupSectionResult {
@@ -12,9 +13,10 @@ export interface UseBackupSectionResult {
    */
   exportBackup: () => void;
   /**
-   * Importa um backup a partir de uma string JSON. Retorna true se deu certo.
+   * Importa um backup a partir de uma string JSON.
+   * Retorna o resultado estruturado com sucesso, contagem e nome da sessão.
    */
-  importBackup: (jsonString: string) => boolean;
+  importBackup: (jsonString: string) => ImportResult;
 }
 
 /**
@@ -39,12 +41,12 @@ export function useBackupSection(workoutHistoryLength: number): UseBackupSection
     setLastBackupWorkoutCount(workoutHistoryLength);
   }, [workoutHistoryLength]);
 
-  const importBackup = useCallback((jsonString: string): boolean => {
-    const importSucceeded = importWorkoutBackup(jsonString);
-    if (importSucceeded) {
+  const importBackup = useCallback((jsonString: string): ImportResult => {
+    const result = importWorkoutBackup(jsonString);
+    if (result.success) {
       setLastBackupWorkoutCount(getWorkoutHistory().length);
     }
-    return importSucceeded;
+    return result;
   }, []);
 
   return {
@@ -53,3 +55,4 @@ export function useBackupSection(workoutHistoryLength: number): UseBackupSection
     importBackup,
   };
 }
+

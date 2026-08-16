@@ -14,7 +14,7 @@ import {
   MtButton,
   MtModal,
 } from '../../components/ui';
-import { Calendar, Settings, Plus } from 'lucide-react';
+import { Calendar, Settings, Plus, Pencil, Download, Trash2 } from 'lucide-react';
 
 /**
  * HistoryView é a tela apresentacional do histórico de treinos.
@@ -28,12 +28,17 @@ export function HistoryView() {
     workoutHistory,
     activeSession,
     sessionToDeleteId,
+    selectedSessionForActions,
     isSettingsOpen,
     openSettings,
     closeSettings,
     resumeActiveWorkout,
     handleSessionTap,
     handleSessionLongPress,
+    closeActionMenu,
+    handleEditFromActionMenu,
+    handleExportFromActionMenu,
+    handleDeleteFromActionMenu,
     confirmDeleteSession,
     cancelDeleteSession,
     handleImportSuccess,
@@ -102,6 +107,39 @@ export function HistoryView() {
           />
           <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: 'var(--spacing-xs) 0' }} />
           <VersionInfo version={packageInfo.version} />
+        </div>
+      </MtModal>
+
+      <MtModal
+        isOpen={selectedSessionForActions !== null}
+        onClose={closeActionMenu}
+        title={selectedSessionForActions ? selectedSessionForActions.name : 'Ações do Treino'}
+      >
+        <div className="mt-modal-body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
+          <MtButton
+            variant="default"
+            onClick={handleEditFromActionMenu}
+            style={{ justifyContent: 'flex-start', padding: '12px 16px' }}
+          >
+            <Pencil size={18} style={{ marginRight: '8px' }} />
+            Editar Treino
+          </MtButton>
+          <MtButton
+            variant="default"
+            onClick={handleExportFromActionMenu}
+            style={{ justifyContent: 'flex-start', padding: '12px 16px' }}
+          >
+            <Download size={18} style={{ marginRight: '8px' }} />
+            Exportar este Treino (JSON)
+          </MtButton>
+          <MtButton
+            variant="danger"
+            onClick={handleDeleteFromActionMenu}
+            style={{ justifyContent: 'flex-start', padding: '12px 16px' }}
+          >
+            <Trash2 size={18} style={{ marginRight: '8px' }} />
+            Excluir Treino
+          </MtButton>
         </div>
       </MtModal>
 

@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import type { WorkoutSession } from '../../types/workout';
 import { useHistory, useSession, useNavigation } from '../../hooks';
 import { useHistoryFormatters } from '../../hooks/useHistoryFormatters';
+import { exportSingleWorkoutSession } from '../../services/backupService';
 
 export interface UseHistoryViewResult {
   /**
@@ -16,6 +17,10 @@ export interface UseHistoryViewResult {
    * ID da sessão selecionada para exclusão (abre o diálogo de confirmação).
    */
   sessionToDeleteId: string | null;
+  /**
+   * Sessão selecionada pelo toque longo para exibir o menu de ações.
+   */
+  selectedSessionForActions: WorkoutSession | null;
   /**
    * Estado de visibilidade do modal de Configurações & Backup.
    */
@@ -38,9 +43,25 @@ export interface UseHistoryViewResult {
    */
   handleSessionTap: (session: WorkoutSession) => void;
   /**
-   * Toque longo em uma sessão do histórico: abre confirmação de exclusão.
+   * Toque longo em uma sessão do histórico: abre o menu de ações.
    */
   handleSessionLongPress: (sessionId: string) => void;
+  /**
+   * Fecha o menu de ações do treino selecionado.
+   */
+  closeActionMenu: () => void;
+  /**
+   * Edita a sessão selecionada no menu de ações.
+   */
+  handleEditFromActionMenu: () => void;
+  /**
+   * Exporta a sessão selecionada no menu de ações como arquivo JSON individual.
+   */
+  handleExportFromActionMenu: () => void;
+  /**
+   * Abre a confirmação de exclusão para a sessão selecionada no menu de ações.
+   */
+  handleDeleteFromActionMenu: () => void;
   /**
    * Executa a exclusão da sessão selecionada após confirmação.
    */
@@ -78,6 +99,7 @@ export interface UseHistoryViewResult {
 export function useHistoryView(): UseHistoryViewResult {
   const [sessionToDeleteId, setSessionToDeleteId] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [selectedSessionForActions, setSelectedSessionForActions] = useState<WorkoutSession | null>(null);
   const { workoutHistory, deleteSession, reloadAllData } = useHistory();
   const { activeSession, startNewWorkout, startEditingWorkout } = useSession();
   const { navigateToHistory, navigateToActiveWorkout } = useNavigation();
@@ -97,9 +119,39 @@ export function useHistoryView(): UseHistoryViewResult {
     navigateToActiveWorkout();
   }, [startEditingWorkout, navigateToActiveWorkout]);
 
+  /**
+   * Toque longo: em vez de abrir diretamente a confirmação de exclusão,
+   * abre o menu de ações do treino selecionado.
+   */
   const handleSessionLongPress = useCallback((sessionId: string) => {
-    setSessionToDeleteId(sessionId);
+    const session = workoutHistory.find((s) => s.id === sessionId) || null;
+    setSelectedSessionForActions(session);
+  }, [workoutHistory]);
+
+  const closeActionMenu = useCallback(() => {
+    setSelectedSessionForActions(null);
   }, []);
+
+  const handleEditFromActionMenu = useCallback(() => {
+    if (selectedSessionForActions) {
+      handleSessionTap(selectedSessionForActions);
+      setSelectedSessionForActions(null);
+    }
+  }, [selectedSessionForActions, handleSessionTap]);
+
+  const handleExportFromActionMenu = useCallback(() => {
+    if (selectedSessionForActions) {
+      exportSingleWorkoutSession(selectedSessionForActions);
+      setSelectedSessionForActions(null);
+    }
+  }, [selectedSessionForActions]);
+
+  const handleDeleteFromActionMenu = useCallback(() => {
+    if (selectedSessionForActions) {
+      setSessionToDeleteId(selectedSessionForActions.id);
+      setSelectedSessionForActions(null);
+    }
+  }, [selectedSessionForActions]);
 
   const confirmDeleteSession = useCallback(() => {
     if (sessionToDeleteId) {
@@ -127,12 +179,17 @@ export function useHistoryView(): UseHistoryViewResult {
     workoutHistory,
     activeSession,
     sessionToDeleteId,
+    selectedSessionForActions,
     isSettingsOpen,
     openSettings,
     closeSettings,
     resumeActiveWorkout: navigateToActiveWorkout,
     handleSessionTap,
     handleSessionLongPress,
+    closeActionMenu,
+    handleEditFromActionMenu,
+    handleExportFromActionMenu,
+    handleDeleteFromActionMenu,
     confirmDeleteSession,
     cancelDeleteSession,
     handleImportSuccess,
