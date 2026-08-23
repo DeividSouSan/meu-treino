@@ -106,6 +106,7 @@ meu-treino/
 ## 📦 6. Política de Dependências
 
 - **Manter a Base Leve (Zero Bloat):** Evite adicionar novas dependências externas. O aplicativo preza por independência, alta velocidade e soberania.
+- **Versões Fixas & Estritas (Sem `^` ou `~`):** Todas as dependências (`dependencies` e `devDependencies`) no `package.json` devem ser instaladas e declaradas com versões exatas e fixas (sem os prefixos `^` ou `~`), garantindo builds 100% reproduzíveis e previsíveis. Sempre instale pacotes com a flag `npm install --save-exact` (ou `-E`).
 - **Sugestão de Soluções:** Se uma funcionalidade complexa justificar uma biblioteca pronta da comunidade, o agente deve sugerir a adição com justificativa técnica clara.
 - **Proibição Estrita:** **NUNCA** baixe nem instale novos pacotes (`npm install <pacote>`, `yarn add`, etc.) sem pedir autorização prévia e explícita ao usuário.
 
@@ -182,6 +183,7 @@ O projeto conta com dois ambientes de publicação isolados:
 | **Nunca rodar `npm run deploy` sem pedido explícito**                               | Evita deploys acidentais ou não testados em produção     |
 | **Nunca instalar dependências sem permissão**                                       | Mantém a base leve, auditável e soberana                 |
 | **Nunca usar tags HTML puras se houver `MtComponent`**                              | Garante uniformidade e consistência no Design System     |
+| **Nunca adicionar versões soltas (`^` ou `~`) no `package.json`**                   | Garante builds 100% reproduzíveis e determinísticos      |
 | **Nunca criar componentes de UI fora de `src/components/ui/` ou sem prefixo `Mt*`** | Mantém a separação clara entre primitivos e domínio      |
 | **Nunca fazer prop-drilling**                                                       | Mantém a arquitetura limpa e os componentes desacoplados |
 | **Nunca alterar o esquema de armazenamento sem migração**                           | Protege os dados reais dos usuários contra corrupção     |
