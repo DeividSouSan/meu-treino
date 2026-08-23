@@ -2,7 +2,15 @@ import { useState, type FormEvent } from 'react';
 import type { WorkoutExercise } from '../types/workout';
 import { useExerciseScreen } from './useExerciseScreen';
 import { RestTimer } from './RestTimer';
-import { MtButton, MtEmptyState, MtField, MtCard, MtConfirmDialog, MtStepper, MtAlertDialog } from './ui';
+import {
+  MtButton,
+  MtEmptyState,
+  MtField,
+  MtCard,
+  MtConfirmDialog,
+  MtStepper,
+  MtAlertDialog,
+} from './ui';
 import { ExerciseSetItem } from './ExerciseSetItem';
 
 import { ExerciseTechniquePills } from './ExerciseTechniquePills';
@@ -126,12 +134,11 @@ export function ExerciseScreen({
 
         {/* Lista de séries já registradas */}
         <div>
-          <label style={{ marginBottom: 'var(--spacing-xs)', fontWeight: 700 }}>Séries Realizadas</label>
+          <label style={{ marginBottom: 'var(--spacing-xs)', fontWeight: 700 }}>
+            Séries Realizadas
+          </label>
           {form.exercise.sets.length === 0 ? (
-            <MtEmptyState
-              size="small"
-              title="Nenhuma série registrada ainda"
-            />
+            <MtEmptyState size="small" title="Nenhuma série registrada ainda" />
           ) : (
             <ol
               style={{
@@ -248,10 +255,7 @@ export function ExerciseScreen({
         </form>
       </div>
 
-      <RestTimer
-        stopwatch={form.restStopwatch}
-        targetSeconds={form.restTargetSeconds}
-      />
+      <RestTimer stopwatch={form.restStopwatch} targetSeconds={form.restTargetSeconds} />
 
       <MtConfirmDialog
         isOpen={isConfirmDeleteOpen}

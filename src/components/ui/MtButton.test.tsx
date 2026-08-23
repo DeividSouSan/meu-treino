@@ -11,14 +11,18 @@ describe('MtButton', () => {
 
     // Variant primária e size grande
     const { container: primaryContainer } = render(
-      <MtButton variant="primary" size="large">Grande</MtButton>
+      <MtButton variant="primary" size="large">
+        Grande
+      </MtButton>,
     );
     expect(primaryContainer.firstChild).toHaveClass('primary');
     expect(primaryContainer.firstChild).toHaveClass('large');
 
     // Variant danger e size small
     const { container: dangerContainer } = render(
-      <MtButton variant="danger" size="small">Pequeno</MtButton>
+      <MtButton variant="danger" size="small">
+        Pequeno
+      </MtButton>,
     );
     expect(dangerContainer.firstChild).toHaveClass('danger');
     expect(dangerContainer.firstChild).toHaveClass('small');
@@ -35,7 +39,7 @@ describe('MtButton', () => {
     render(
       <MtButton type="submit" aria-label="Acessível" title="Dica" autoFocus>
         Acessível
-      </MtButton>
+      </MtButton>,
     );
     const btn = screen.getByRole('button', { name: 'Acessível' }) as HTMLButtonElement;
     expect(btn.type).toBe('submit');

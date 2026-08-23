@@ -4,7 +4,11 @@ import { MtCard } from './MtCard';
 
 describe('MtCard', () => {
   it('renderiza o conteúdo (children) corretamente', () => {
-    render(<MtCard><span data-testid="child">Conteúdo</span></MtCard>);
+    render(
+      <MtCard>
+        <span data-testid="child">Conteúdo</span>
+      </MtCard>,
+    );
     expect(screen.getByTestId('child')).toBeInTheDocument();
     expect(screen.getByText('Conteúdo')).toBeInTheDocument();
   });
@@ -35,8 +39,12 @@ describe('MtCard', () => {
 
   it('dispara evento onClick quando clicado', () => {
     const handleClick = vi.fn();
-    render(<MtCard onClick={handleClick} data-testid="card">Botão Card</MtCard>);
-    
+    render(
+      <MtCard onClick={handleClick} data-testid="card">
+        Botão Card
+      </MtCard>,
+    );
+
     // Precisamos buscar pelo texto para usar fireEvent
     fireEvent.click(screen.getByText('Botão Card'));
     expect(handleClick).toHaveBeenCalledTimes(1);
@@ -45,19 +53,15 @@ describe('MtCard', () => {
   it('aceita propriedades de acessibilidade (role, tabIndex, onKeyDown)', () => {
     const handleKeyDown = vi.fn();
     render(
-      <MtCard
-        role="button"
-        tabIndex={0}
-        onKeyDown={handleKeyDown}
-      >
+      <MtCard role="button" tabIndex={0} onKeyDown={handleKeyDown}>
         Card Acessível
-      </MtCard>
+      </MtCard>,
     );
-    
+
     const card = screen.getByText('Card Acessível');
     expect(card).toHaveAttribute('role', 'button');
     expect(card).toHaveAttribute('tabindex', '0');
-    
+
     fireEvent.keyDown(card, { key: 'Enter' });
     expect(handleKeyDown).toHaveBeenCalledTimes(1);
   });

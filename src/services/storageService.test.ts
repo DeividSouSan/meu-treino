@@ -66,8 +66,14 @@ describe('getWorkoutHistory', () => {
   });
 
   it('retorna os treinos salvos ordenados da data mais recente para a mais antiga', () => {
-    const primeiroTreino = criarSessaoDeTreino({ id: 'mais-velho', date: '2024-01-10T08:00:00.000Z' });
-    const segundoTreino = criarSessaoDeTreino({ id: 'mais-novo', date: '2024-02-20T12:00:00.000Z' });
+    const primeiroTreino = criarSessaoDeTreino({
+      id: 'mais-velho',
+      date: '2024-01-10T08:00:00.000Z',
+    });
+    const segundoTreino = criarSessaoDeTreino({
+      id: 'mais-novo',
+      date: '2024-02-20T12:00:00.000Z',
+    });
 
     saveWorkoutSession(primeiroTreino);
     saveWorkoutSession(segundoTreino);

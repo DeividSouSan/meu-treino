@@ -18,7 +18,7 @@ describe('useSession hook edge cases', () => {
     console.error = () => {};
 
     expect(() => renderHook(() => useSession())).toThrowError(
-      'useSession must be used within a SessionProvider'
+      'useSession must be used within a SessionProvider',
     );
 
     console.error = consoleError;

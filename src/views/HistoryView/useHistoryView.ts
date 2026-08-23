@@ -99,7 +99,9 @@ export interface UseHistoryViewResult {
 export function useHistoryView(): UseHistoryViewResult {
   const [sessionToDeleteId, setSessionToDeleteId] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
-  const [selectedSessionForActions, setSelectedSessionForActions] = useState<WorkoutSession | null>(null);
+  const [selectedSessionForActions, setSelectedSessionForActions] = useState<WorkoutSession | null>(
+    null,
+  );
   const { workoutHistory, deleteSession, reloadAllData } = useHistory();
   const { activeSession, startNewWorkout, startEditingWorkout } = useSession();
   const { navigateToHistory, navigateToActiveWorkout } = useNavigation();
@@ -114,19 +116,25 @@ export function useHistoryView(): UseHistoryViewResult {
     setIsSettingsOpen(false);
   }, []);
 
-  const handleSessionTap = useCallback((session: WorkoutSession) => {
-    startEditingWorkout(session);
-    navigateToActiveWorkout();
-  }, [startEditingWorkout, navigateToActiveWorkout]);
+  const handleSessionTap = useCallback(
+    (session: WorkoutSession) => {
+      startEditingWorkout(session);
+      navigateToActiveWorkout();
+    },
+    [startEditingWorkout, navigateToActiveWorkout],
+  );
 
   /**
    * Toque longo: em vez de abrir diretamente a confirmação de exclusão,
    * abre o menu de ações do treino selecionado.
    */
-  const handleSessionLongPress = useCallback((sessionId: string) => {
-    const session = workoutHistory.find((s) => s.id === sessionId) || null;
-    setSelectedSessionForActions(session);
-  }, [workoutHistory]);
+  const handleSessionLongPress = useCallback(
+    (sessionId: string) => {
+      const session = workoutHistory.find((s) => s.id === sessionId) || null;
+      setSelectedSessionForActions(session);
+    },
+    [workoutHistory],
+  );
 
   const closeActionMenu = useCallback(() => {
     setSelectedSessionForActions(null);

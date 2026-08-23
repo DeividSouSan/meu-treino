@@ -11,9 +11,9 @@ describe('MtInputForm', () => {
         onSubmit={() => {}}
         placeholder="Digite algo"
         submitButtonContent="Enviar"
-      />
+      />,
     );
-    
+
     expect(screen.getByPlaceholderText('Digite algo')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Enviar' })).toBeInTheDocument();
   });
@@ -26,12 +26,12 @@ describe('MtInputForm', () => {
         onChange={() => {}}
         onSubmit={handleSubmit}
         submitButtonContent="Enviar"
-      />
+      />,
     );
-    
+
     const btn = screen.getByRole('button', { name: 'Enviar' });
     fireEvent.click(btn); // Clicar no botão type="submit" dentro de um form dispara onSubmit
-    
+
     expect(handleSubmit).toHaveBeenCalledTimes(1);
     expect(handleSubmit).toHaveBeenCalledWith('Meu Valor'); // Verifica o trim()
   });
@@ -44,12 +44,12 @@ describe('MtInputForm', () => {
         onChange={() => {}}
         onSubmit={handleSubmit}
         submitButtonContent="Enviar"
-      />
+      />,
     );
-    
+
     const btn = screen.getByRole('button', { name: 'Enviar' });
     fireEvent.click(btn);
-    
+
     expect(handleSubmit).not.toHaveBeenCalled();
   });
 
@@ -65,9 +65,9 @@ describe('MtInputForm', () => {
         inputStyle={{ color: 'red' }}
         submitButtonStyle={{ background: 'blue' }}
         placeholder="Teste"
-      />
+      />,
     );
-    
+
     const input = screen.getByPlaceholderText('Teste') as HTMLInputElement;
     expect(input.style.color).toBe('red');
 

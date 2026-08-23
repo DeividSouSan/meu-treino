@@ -64,7 +64,6 @@ export function ActiveWorkoutHeader({
     setDraftName(session.name);
   }, [session.name]);
 
-
   /**
    * Valida e persiste o nome rascunho ao sair do campo.
    * Se o valor trimado for vazio, restaura silenciosamente o último nome válido.
@@ -202,4 +201,3 @@ function formatTimerValue(totalSeconds: number): string {
   }
   return `${paddedMinutes}:${paddedSeconds}`;
 }
-

@@ -9,7 +9,7 @@ describe('useNavigation hook edge cases', () => {
     console.error = () => {};
 
     expect(() => renderHook(() => useNavigation())).toThrowError(
-      'useNavigation must be used within a NavigationProvider'
+      'useNavigation must be used within a NavigationProvider',
     );
 
     console.error = consoleError;

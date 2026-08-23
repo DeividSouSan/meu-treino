@@ -4,7 +4,6 @@ export type { MtEditableListProps, MtEditableListItem } from './MtEditableList';
 export { MtFloatingActionButton } from './MtFloatingActionButton';
 export type { MtFloatingActionButtonProps } from './MtFloatingActionButton';
 
-
 export { MtCard } from './MtCard';
 export type { MtCardProps } from './MtCard';
 
@@ -46,4 +45,3 @@ export type { MtStepperProps } from './MtStepper';
 
 export { MtAlertDialog } from './MtAlertDialog';
 export type { MtAlertDialogProps } from './MtAlertDialog';
-

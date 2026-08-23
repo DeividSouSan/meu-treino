@@ -30,12 +30,12 @@ export function ExerciseList({
           style={{
             cursor: 'pointer',
             padding: 'var(--spacing-sm) var(--spacing-md)',
-            backgroundColor: selectedExerciseId === exercise.id
-              ? 'var(--accent-light)'
-              : 'var(--card-background)',
-            border: selectedExerciseId === exercise.id
-              ? '2px solid var(--accent-color)'
-              : '1px solid var(--border-color)',
+            backgroundColor:
+              selectedExerciseId === exercise.id ? 'var(--accent-light)' : 'var(--card-background)',
+            border:
+              selectedExerciseId === exercise.id
+                ? '2px solid var(--accent-color)'
+                : '1px solid var(--border-color)',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -45,9 +45,7 @@ export function ExerciseList({
                 {getLastSetSummary(exercise)}
               </span>
             </div>
-            <span style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}>
-              ▶
-            </span>
+            <span style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}>▶</span>
           </div>
         </MtCard>
       ))}

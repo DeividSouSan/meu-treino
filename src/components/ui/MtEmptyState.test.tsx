@@ -22,11 +22,7 @@ describe('MtEmptyState', () => {
     it('renderiza o botão de ação e dispara evento ao clicar', () => {
       const handleAction = vi.fn();
       render(
-        <MtEmptyState
-          title="Título"
-          actionLabel="Tentar Novamente"
-          onAction={handleAction}
-        />
+        <MtEmptyState title="Título" actionLabel="Tentar Novamente" onAction={handleAction} />,
       );
 
       const btn = screen.getByRole('button', { name: 'Tentar Novamente' });
@@ -56,9 +52,9 @@ describe('MtEmptyState', () => {
           title="Customizado"
           style={{ padding: '10px' }}
           titleStyle={{ color: 'blue' }}
-        />
+        />,
       );
-      
+
       const wrapperDiv = container.firstChild as HTMLElement;
       expect(wrapperDiv.style.padding).toBe('10px');
 
@@ -85,12 +81,12 @@ describe('MtEmptyState', () => {
           description="Algo compacto"
           actionLabel="Agir"
           onAction={handleAction}
-        />
+        />,
       );
 
       expect(screen.getByText('Vazio compacto')).toBeInTheDocument();
       expect(screen.getByText('Algo compacto')).toBeInTheDocument();
-      
+
       const btn = screen.getByRole('button', { name: 'Agir' });
       expect(btn).toBeInTheDocument();
 

@@ -31,7 +31,10 @@ export function MtEmptyState({
   if (size === 'small') {
     if (!description && !actionLabel) {
       return (
-        <p className="text-secondary" style={{ fontSize: '0.85rem', fontStyle: 'italic', ...style }}>
+        <p
+          className="text-secondary"
+          style={{ fontSize: '0.85rem', fontStyle: 'italic', ...style }}
+        >
           {title}
         </p>
       );
@@ -39,11 +42,17 @@ export function MtEmptyState({
 
     return (
       <div style={style}>
-        <p className="text-secondary" style={{ fontSize: '0.85rem', fontStyle: 'italic', margin: 0 }}>
+        <p
+          className="text-secondary"
+          style={{ fontSize: '0.85rem', fontStyle: 'italic', margin: 0 }}
+        >
           {title}
         </p>
         {description && (
-          <p className="text-secondary" style={{ fontSize: '0.8rem', fontStyle: 'italic', margin: 'var(--spacing-xs) 0 0' }}>
+          <p
+            className="text-secondary"
+            style={{ fontSize: '0.8rem', fontStyle: 'italic', margin: 'var(--spacing-xs) 0 0' }}
+          >
             {description}
           </p>
         )}

@@ -27,13 +27,7 @@ export interface MtPillProps {
  * MtPill é o componente do Design System para tags e botões de filtro em formato de pílula.
  * Representa itens selecionáveis como técnicas avançadas de treino.
  */
-export function MtPill({
-  children,
-  isActive = false,
-  onClick,
-  style,
-  title,
-}: MtPillProps) {
+export function MtPill({ children, isActive = false, onClick, style, title }: MtPillProps) {
   const activeClass = isActive ? 'active' : '';
   const combinedClassName = `pill ${activeClass}`.trim();
 

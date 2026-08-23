@@ -30,7 +30,7 @@ function renderHeader(
     onRenameSession: (name: string) => void;
     onSaveOrFinish: () => void;
     onCancel: () => void;
-  }> = {}
+  }> = {},
 ) {
   return render(
     <ActiveWorkoutHeader
@@ -40,7 +40,7 @@ function renderHeader(
       onSaveOrFinish={overrides.onSaveOrFinish ?? vi.fn()}
       onCancel={overrides.onCancel ?? vi.fn()}
       onRenameSession={overrides.onRenameSession ?? vi.fn()}
-    />
+    />,
   );
 }
 

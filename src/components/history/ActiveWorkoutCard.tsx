@@ -8,7 +8,11 @@ export interface ActiveWorkoutCardProps {
   formatWorkoutDate: (dateString: string) => string;
 }
 
-export function ActiveWorkoutCard({ activeSession, onResume, formatWorkoutDate }: ActiveWorkoutCardProps) {
+export function ActiveWorkoutCard({
+  activeSession,
+  onResume,
+  formatWorkoutDate,
+}: ActiveWorkoutCardProps) {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -35,7 +39,14 @@ export function ActiveWorkoutCard({ activeSession, onResume, formatWorkoutDate }
         marginBottom: 'var(--spacing-md)',
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: 'var(--spacing-sm)',
+        }}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span

@@ -49,14 +49,13 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-
 describe('useExerciseScreen — estado inicial', () => {
   it('inicia com lista de séries vazia, inputs zerados e técnicas vazias', () => {
     const { result } = renderHook(() =>
       useExerciseScreen({
         initialExercise: exercicioInicial({ weightInKg: 70 }),
         onUpdateExercise: vi.fn(),
-      })
+      }),
     );
 
     expect(result.current.exercise.sets).toEqual([]);
@@ -74,7 +73,7 @@ describe('useExerciseScreen — handleAddSet', () => {
       useExerciseScreen({
         initialExercise: exercicioInicial({ weightInKg: 70 }),
         onUpdateExercise: notificarAlteracao,
-      })
+      }),
     );
 
     act(() => {
@@ -108,7 +107,7 @@ describe('useExerciseScreen — handleAddSet', () => {
       useExerciseScreen({
         initialExercise: exercicioInicial(),
         onUpdateExercise: notificarAlteracao,
-      })
+      }),
     );
 
     act(() => {
@@ -130,14 +129,16 @@ describe('useExerciseScreen — handleAddSet', () => {
       useExerciseScreen({
         initialExercise: exercicioInicial(),
         onUpdateExercise: notificarAlteracao,
-      })
+      }),
     );
 
     act(() => result.current.setRepetitionsInput('0'));
     act(() => result.current.handleAddSet());
 
     expect(notificarAlteracao).not.toHaveBeenCalled();
-    expect(result.current.validationError).toBe('Por favor, informe um número válido de repetições (maior que zero).');
+    expect(result.current.validationError).toBe(
+      'Por favor, informe um número válido de repetições (maior que zero).',
+    );
     expect(result.current.exercise.sets).toHaveLength(0);
 
     act(() => result.current.clearValidationError());
@@ -150,24 +151,28 @@ describe('useExerciseScreen — handleAddSet', () => {
       useExerciseScreen({
         initialExercise: exercicioInicial(),
         onUpdateExercise: notificarAlteracao,
-      })
+      }),
     );
 
     act(() => result.current.setRepetitionsInput('-5'));
     act(() => result.current.handleAddSet());
 
     expect(notificarAlteracao).not.toHaveBeenCalled();
-    expect(result.current.validationError).toBe('Por favor, informe um número válido de repetições (maior que zero).');
+    expect(result.current.validationError).toBe(
+      'Por favor, informe um número válido de repetições (maior que zero).',
+    );
     expect(result.current.exercise.sets).toHaveLength(0);
   });
 });
-
 
 describe('useExerciseScreen — manipulação de séries', () => {
   it('remove uma série existente pelo índice', () => {
     const notificarAlteracao = vi.fn();
     const { result } = renderHook(() =>
-      useExerciseScreen({ initialExercise: exercicioInicial(), onUpdateExercise: notificarAlteracao })
+      useExerciseScreen({
+        initialExercise: exercicioInicial(),
+        onUpdateExercise: notificarAlteracao,
+      }),
     );
 
     act(() => result.current.setRepetitionsInput('10'));
@@ -177,7 +182,9 @@ describe('useExerciseScreen — manipulação de séries', () => {
 
     act(() => result.current.handleDeleteSet(0));
 
-    const exercicioAtualizado = notificarAlteracao.mock.calls[notificarAlteracao.mock.calls.length - 1][0] as WorkoutExercise;
+    const exercicioAtualizado = notificarAlteracao.mock.calls[
+      notificarAlteracao.mock.calls.length - 1
+    ][0] as WorkoutExercise;
     expect(exercicioAtualizado.sets).toHaveLength(1);
     expect(exercicioAtualizado.sets[0].repetitions).toBe(8);
   });
@@ -185,7 +192,10 @@ describe('useExerciseScreen — manipulação de séries', () => {
   it('atualiza uma série pelo índice mantendo as demais inalteradas', () => {
     const notificarAlteracao = vi.fn();
     const { result } = renderHook(() =>
-      useExerciseScreen({ initialExercise: exercicioInicial(), onUpdateExercise: notificarAlteracao })
+      useExerciseScreen({
+        initialExercise: exercicioInicial(),
+        onUpdateExercise: notificarAlteracao,
+      }),
     );
 
     act(() => result.current.setRepetitionsInput('10'));
@@ -193,10 +203,17 @@ describe('useExerciseScreen — manipulação de séries', () => {
     act(() => result.current.setRepetitionsInput('12'));
     act(() => result.current.handleAddSet());
 
-    const novaSet = { weightInKg: 99, repetitions: 15, restTimeInSeconds: 45, advancedTechniques: [] as AdvancedTechnique[] };
+    const novaSet = {
+      weightInKg: 99,
+      repetitions: 15,
+      restTimeInSeconds: 45,
+      advancedTechniques: [] as AdvancedTechnique[],
+    };
     act(() => result.current.handleUpdateSet(0, novaSet));
 
-    const exercicioAtualizado = notificarAlteracao.mock.calls[notificarAlteracao.mock.calls.length - 1][0] as WorkoutExercise;
+    const exercicioAtualizado = notificarAlteracao.mock.calls[
+      notificarAlteracao.mock.calls.length - 1
+    ][0] as WorkoutExercise;
     expect(exercicioAtualizado.sets[0]).toEqual(novaSet);
     expect(exercicioAtualizado.sets[1].repetitions).toBe(12);
   });
@@ -209,12 +226,14 @@ describe('useExerciseScreen — edição de campos do exercício', () => {
       useExerciseScreen({
         initialExercise: exercicioInicial({ name: 'Supino' }),
         onUpdateExercise: notificarAlteracao,
-      })
+      }),
     );
 
     act(() => result.current.handleUpdateName(eventoComValor('Agachamento')));
 
-    expect(notificarAlteracao).toHaveBeenCalledWith(expect.objectContaining({ name: 'Agachamento' }));
+    expect(notificarAlteracao).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Agachamento' }),
+    );
     expect(result.current.exercise.name).toBe('Agachamento');
   });
 
@@ -224,12 +243,14 @@ describe('useExerciseScreen — edição de campos do exercício', () => {
       useExerciseScreen({
         initialExercise: exercicioInicial({ notes: '' }),
         onUpdateExercise: notificarAlteracao,
-      })
+      }),
     );
 
     act(() => result.current.handleUpdateNotes(eventoComValor('Controlar a descida')));
 
-    expect(notificarAlteracao).toHaveBeenCalledWith(expect.objectContaining({ notes: 'Controlar a descida' }));
+    expect(notificarAlteracao).toHaveBeenCalledWith(
+      expect.objectContaining({ notes: 'Controlar a descida' }),
+    );
   });
 
   it('atualiza a carga de referência e mantém o input de carga em sincronia', () => {
@@ -238,7 +259,7 @@ describe('useExerciseScreen — edição de campos do exercício', () => {
       useExerciseScreen({
         initialExercise: exercicioInicial({ weightInKg: 0 }),
         onUpdateExercise: notificarAlteracao,
-      })
+      }),
     );
 
     act(() => result.current.handleUpdateReferenceWeight(eventoComValor('82.5')));
@@ -251,7 +272,7 @@ describe('useExerciseScreen — edição de campos do exercício', () => {
 describe('useExerciseScreen — técnicas avançadas', () => {
   it('liga e desliga uma técnica avançada ao clicar repetidamente', () => {
     const { result } = renderHook(() =>
-      useExerciseScreen({ initialExercise: exercicioInicial(), onUpdateExercise: vi.fn() })
+      useExerciseScreen({ initialExercise: exercicioInicial(), onUpdateExercise: vi.fn() }),
     );
 
     act(() => result.current.handleToggleTechnique('RP'));
@@ -263,7 +284,7 @@ describe('useExerciseScreen — técnicas avançadas', () => {
 
   it('permite selecionar múltiplas técnicas ao mesmo tempo', () => {
     const { result } = renderHook(() =>
-      useExerciseScreen({ initialExercise: exercicioInicial(), onUpdateExercise: vi.fn() })
+      useExerciseScreen({ initialExercise: exercicioInicial(), onUpdateExercise: vi.fn() }),
     );
 
     act(() => result.current.handleToggleTechnique('RP'));
@@ -276,7 +297,7 @@ describe('useExerciseScreen — técnicas avançadas', () => {
 describe('useExerciseScreen — ajustes rápidos de repetições', () => {
   it('incrementa e decrementa as repetições do input com o delta informado', () => {
     const { result } = renderHook(() =>
-      useExerciseScreen({ initialExercise: exercicioInicial(), onUpdateExercise: vi.fn() })
+      useExerciseScreen({ initialExercise: exercicioInicial(), onUpdateExercise: vi.fn() }),
     );
 
     act(() => result.current.setRepetitionsInput('10'));
@@ -289,7 +310,7 @@ describe('useExerciseScreen — ajustes rápidos de repetições', () => {
 
   it('nunca deixa o input de repetições ficar negativo', () => {
     const { result } = renderHook(() =>
-      useExerciseScreen({ initialExercise: exercicioInicial(), onUpdateExercise: vi.fn() })
+      useExerciseScreen({ initialExercise: exercicioInicial(), onUpdateExercise: vi.fn() }),
     );
 
     act(() => result.current.setRepetitionsInput('3'));
@@ -301,7 +322,7 @@ describe('useExerciseScreen — ajustes rápidos de repetições', () => {
 describe('useExerciseScreen — cópia de repetições da última série', () => {
   it('copia a quantidade de repetições da última série para o input', () => {
     const { result } = renderHook(() =>
-      useExerciseScreen({ initialExercise: exercicioInicial(), onUpdateExercise: vi.fn() })
+      useExerciseScreen({ initialExercise: exercicioInicial(), onUpdateExercise: vi.fn() }),
     );
 
     act(() => result.current.setRepetitionsInput('15'));
@@ -316,7 +337,7 @@ describe('useExerciseScreen — cópia de repetições da última série', () =>
 
   it('não altera o input quando ainda não existem séries', () => {
     const { result } = renderHook(() =>
-      useExerciseScreen({ initialExercise: exercicioInicial(), onUpdateExercise: vi.fn() })
+      useExerciseScreen({ initialExercise: exercicioInicial(), onUpdateExercise: vi.fn() }),
     );
 
     expect(result.current.repetitionsInput).toBe('');
@@ -331,7 +352,7 @@ describe('useExerciseScreen — resetForm', () => {
       useExerciseScreen({
         initialExercise: exercicioInicial({ weightInKg: 70 }),
         onUpdateExercise: vi.fn(),
-      })
+      }),
     );
 
     act(() => result.current.setRepetitionsInput('20'));
@@ -351,13 +372,12 @@ describe('useExerciseScreen — resetForm', () => {
 describe('useExerciseScreen — sincronização com exercício externo', () => {
   it('sincroniza a cópia de trabalho quando o id do exercício externo muda', () => {
     const { result, rerender } = renderHook(
-      ({ initialExercise }) =>
-        useExerciseScreen({ initialExercise, onUpdateExercise: vi.fn() }),
+      ({ initialExercise }) => useExerciseScreen({ initialExercise, onUpdateExercise: vi.fn() }),
       {
         initialProps: {
           initialExercise: exercicioInicial({ id: 'ex-1', name: 'Supino', notes: 'nota-inicial' }),
         },
-      }
+      },
     );
 
     // Edita localmente
@@ -376,13 +396,12 @@ describe('useExerciseScreen — sincronização com exercício externo', () => {
 
   it('NÃO resincroniza quando o id do exercício externo permanece o mesmo', () => {
     const { result, rerender } = renderHook(
-      ({ initialExercise }) =>
-        useExerciseScreen({ initialExercise, onUpdateExercise: vi.fn() }),
+      ({ initialExercise }) => useExerciseScreen({ initialExercise, onUpdateExercise: vi.fn() }),
       {
         initialProps: {
           initialExercise: exercicioInicial({ id: 'ex-1', name: 'Supino' }),
         },
-      }
+      },
     );
 
     act(() => result.current.handleUpdateName(eventoComValor('Nome Editado')));

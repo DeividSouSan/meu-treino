@@ -19,7 +19,8 @@
   --spacing-md: 16px;
   --spacing-lg: 24px;
 
-  --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-family:
+    system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
 * {
@@ -50,7 +51,6 @@ body {
   position: relative;
   padding-bottom: 100px;
 }
-
 
 /* Base Layouts */
 header {
@@ -109,7 +109,11 @@ button {
   justify-content: center;
   gap: 8px;
   box-shadow: 0 1px 2px rgba(142, 141, 141, 0.345);
-  transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    box-shadow 0.15s,
+    transform 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -166,8 +170,8 @@ button.large {
 }
 
 /* Form Inputs */
-input[type="text"],
-input[type="number"],
+input[type='text'],
+input[type='number'],
 textarea {
   font-family: inherit;
   font-size: 0.95rem;
@@ -209,7 +213,10 @@ label {
 }
 
 .shadow-hover {
-  transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s;
+  transition:
+    box-shadow 0.15s,
+    border-color 0.15s,
+    transform 0.15s;
 }
 
 .shadow-hover:hover {
@@ -235,7 +242,11 @@ label {
   cursor: pointer;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.15s, box-shadow 0.15s, border-color 0.15s, transform 0.15s;
+  transition:
+    background-color 0.15s,
+    box-shadow 0.15s,
+    border-color 0.15s,
+    transform 0.15s;
 }
 
 .workout-history-item:hover {
@@ -343,7 +354,10 @@ label {
   flex-direction: column;
   gap: var(--spacing-sm);
   box-shadow: 0 2px 3px rgba(142, 141, 141, 0.345);
-  transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s;
+  transition:
+    box-shadow 0.15s,
+    border-color 0.15s,
+    transform 0.15s;
 }
 
 .card:hover {
@@ -404,7 +418,9 @@ label {
   font-weight: 600;
   display: inline-flex;
   box-shadow: 0 1px 2px rgba(142, 141, 141, 0.345);
-  transition: box-shadow 0.15s, transform 0.15s;
+  transition:
+    box-shadow 0.15s,
+    transform 0.15s;
 }
 
 .badge:hover {
