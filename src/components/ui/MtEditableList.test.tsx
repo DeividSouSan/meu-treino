@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import React from 'react';
-import { MtEditableList, MtEditableListItem } from './MtEditableList';
+import { MtEditableList, type MtEditableListItem } from './MtEditableList';
 
 describe('MtEditableList', () => {
   const items: MtEditableListItem[] = [
