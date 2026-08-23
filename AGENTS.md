@@ -123,28 +123,55 @@ meu-treino/
 
 ---
 
-## 🚀 8. Protocolo de Deploy, Ambientes & Release Notes
+## 🌿 8. Estratégia de Branches & Ciclo de Vida do Código
+
+O repositório adota um fluxo de trabalho estruturado em 3 branches principais:
+
+```
+develop (Desenvolvimento diário)
+   │
+   ▼ (Merge)
+homolog (Homologação / Staging no Surge.sh)
+   │
+   ▼ (Merge + Bump de versão + Release notes)
+main (Produção / Código-fonte estável oficial)
+   │
+   ▼ (npm run deploy -> Build compilado em dist/)
+gh-pages (Remoto: GitHub Pages público)
+```
+
+1. **`develop` (Desenvolvimento Ativo):** Branch de trabalho padrão no dia a dia. Todo novo desenvolvimento, melhoria, refatoração e testes iniciam aqui.
+2. **`homolog` (Homologação / Staging):** Branch intermediária de pré-lançamento. Recebe merges de `develop` e é enviada para validação no celular via `npm run deploy:staging` (Surge.sh).
+3. **`main` (Produção Oficial):** Contém exclusivamente o código-fonte estável e auditado pronto para produção. Recebe merges de `homolog` no momento de fechamento de releases.
+4. **`gh-pages` (Hospedagem Remota):** Branch remota dedicada apenas a hospedar os assets estáticos minificados (`dist/`) servidos pelo GitHub Pages. Nunca editada diretamente.
+
+---
+
+## 🚀 9. Protocolo de Deploy, Ambientes & Release Notes
 
 O projeto conta com dois ambientes de publicação isolados:
 
 ### A. Ambiente de Homologação / Staging (`npm run deploy:staging`)
+- **Branch:** `homolog`
 - **Destino:** `https://meu-treino-staging.surge.sh` (Surge.sh).
 - **Propósito:** Validar alterações online no celular com `LocalStorage` e Service Worker isolados antes de atualizar a versão oficial.
-- **Execução:** Pode ser executado a qualquer momento para testes prévios.
+- **Execução:** Pode ser executado a partir da branch `homolog` a qualquer momento para testes prévios.
 
 ### B. Ambiente de Produção Oficial (`npm run deploy` ou `npm run deploy:prod`)
-- **Destino:** `https://deividsousan.github.io/meu-treino/` (GitHub Pages).
+- **Branch:** `main`
+- **Destino:** `https://deividsousan.github.io/meu-treino/` (GitHub Pages via branch `gh-pages`).
 - **Proibição de Deploy Automático:** **NUNCA** execute `npm run deploy` sem solicitação explícita e direta do usuário.
 - **Procedimento Obrigatório ao Rodar Deploy de Produção:**
   Sempre que o usuário solicitar explicitamente o deploy de produção, o agente deve seguir rigorosamente estes passos:
-  1. **Atualizar Versão:** Incrementar a versão no `package.json` de acordo com o SemVer (`major`, `minor` ou `patch`).
-  2. **Criar Release Notes:** Criar ou atualizar o arquivo de release notes para desenvolvedores em `docs/releases/vX.Y.Z.md`, documentando as novidades, correções e melhorias técnicas da versão.
-  3. **Commitar Release:** Fazer o commit da versão e release notes (`git commit -m "docs: release notes vX.Y.Z"`).
-  4. **Executar Deploy:** Rodar o comando `npm run deploy` e informar o link publicado ao usuário.
+  1. Estar na branch `main` com o código devidamente integrado de `homolog`.
+  2. **Atualizar Versão:** Incrementar a versão no `package.json` de acordo com o SemVer (`major`, `minor` ou `patch`).
+  3. **Criar Release Notes:** Criar ou atualizar o arquivo de release notes para desenvolvedores em `docs/releases/vX.Y.Z.md`, documentando as novidades, correções e melhorias técnicas da versão.
+  4. **Commitar Release:** Fazer o commit da versão e release notes (`git commit -m "docs: release notes vX.Y.Z"`).
+  5. **Executar Deploy:** Rodar o comando `npm run deploy` e informar o link publicado ao usuário.
 
 ---
 
-## 🚫 9. Tabela Rápida: O que NUNCA fazer
+## 🚫 10. Tabela Rápida: O que NUNCA fazer
 
 | Proibição | Motivo |
 | :--- | :--- |
