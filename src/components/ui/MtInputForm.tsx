@@ -34,7 +34,10 @@ export function MtInputForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', gap: 'var(--spacing-xs)', marginTop: 'var(--spacing-xs)' }}>
+    <form
+      onSubmit={handleSubmit}
+      style={{ display: 'flex', gap: 'var(--spacing-xs)', marginTop: 'var(--spacing-xs)' }}
+    >
       <MtInput
         value={value}
         onChange={onChange}

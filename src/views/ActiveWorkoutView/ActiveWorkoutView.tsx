@@ -3,11 +3,7 @@ import { useActiveWorkoutScreen } from './useActiveWorkoutScreen';
 import { useExerciseNavigation } from '../../hooks/useExerciseNavigation';
 import { ExerciseList } from '../../components/ExerciseList';
 import { ExerciseScreen } from '../../components/ExerciseScreen';
-import {
-  ActiveWorkoutHeader,
-  CueManager,
-  ExerciseSearch,
-} from '../../components/active-workout';
+import { ActiveWorkoutHeader, CueManager, ExerciseSearch } from '../../components/active-workout';
 import { MtEmptyState, MtSectionTitle, MtCard } from '../../components/ui';
 import { Dumbbell } from 'lucide-react';
 import { useNavigation } from '../../hooks';
@@ -53,7 +49,7 @@ export function ActiveWorkoutView() {
   const navigation = useExerciseNavigation(
     session.exercises,
     currentExerciseId,
-    handleSelectExercise
+    handleSelectExercise,
   );
 
   const { navigateToHistory } = useNavigation();
@@ -81,11 +77,10 @@ export function ActiveWorkoutView() {
         session={session}
         isEditing={isEditing}
         durationStopwatch={durationStopwatch}
-        onSaveOrFinish={ () => {
+        onSaveOrFinish={() => {
           saveOrFinish();
           navigateToHistory();
-        }
-        }
+        }}
         onCancel={() => {
           cancel();
           navigateToHistory();
@@ -112,11 +107,7 @@ export function ActiveWorkoutView() {
           />
         ) : (
           <>
-            <CueManager
-              cues={session.cues}
-              onAddCue={addCue}
-              onRemoveCue={removeCue}
-            />
+            <CueManager cues={session.cues} onAddCue={addCue} onRemoveCue={removeCue} />
 
             <section style={{ marginTop: 'var(--spacing-md)' }}>
               <MtSectionTitle
@@ -138,9 +129,9 @@ export function ActiveWorkoutView() {
                 const uniqueExerciseNames = Array.from(
                   new Set(
                     workoutHistory.flatMap((sessionItem) =>
-                      sessionItem.exercises.map((exercise) => exercise.name)
-                    )
-                  )
+                      sessionItem.exercises.map((exercise) => exercise.name),
+                    ),
+                  ),
                 );
 
                 if (query.trim() === '') {

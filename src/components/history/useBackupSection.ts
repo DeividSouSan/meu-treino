@@ -28,12 +28,12 @@ export interface UseBackupSectionResult {
  */
 export function useBackupSection(workoutHistoryLength: number): UseBackupSectionResult {
   const [lastBackupWorkoutCount, setLastBackupWorkoutCount] = useState<number>(
-    getLastBackupWorkoutCount()
+    getLastBackupWorkoutCount(),
   );
 
   const workoutsSinceLastBackup = useMemo(
     () => Math.max(0, workoutHistoryLength - lastBackupWorkoutCount),
-    [workoutHistoryLength, lastBackupWorkoutCount]
+    [workoutHistoryLength, lastBackupWorkoutCount],
   );
 
   const exportBackup = useCallback(() => {
@@ -55,4 +55,3 @@ export function useBackupSection(workoutHistoryLength: number): UseBackupSection
     importBackup,
   };
 }
-

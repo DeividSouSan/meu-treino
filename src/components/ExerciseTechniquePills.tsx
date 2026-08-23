@@ -24,7 +24,14 @@ export function ExerciseTechniquePills({
   return (
     <div style={style}>
       {label && (
-        <label style={{ fontSize: '0.75rem', marginBottom: 'var(--spacing-xs)', display: 'block', ...labelStyle }}>
+        <label
+          style={{
+            fontSize: '0.75rem',
+            marginBottom: 'var(--spacing-xs)',
+            display: 'block',
+            ...labelStyle,
+          }}
+        >
           {label}
         </label>
       )}

@@ -22,11 +22,7 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
     navigateToActiveWorkout,
   };
 
-  return (
-    <NavigationContext.Provider value={value}>
-      {children}
-    </NavigationContext.Provider>
-  );
+  return <NavigationContext.Provider value={value}>{children}</NavigationContext.Provider>;
 }
 
 export function useNavigation() {

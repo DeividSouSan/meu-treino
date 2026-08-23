@@ -71,31 +71,37 @@ export function SessionProvider({ children }: SessionProviderProps) {
     setEditingSession(updatedSession);
   }, []);
 
-  const finishActiveWorkout = useCallback((sessionToComplete?: WorkoutSession) => {
-    const sessionToClose = sessionToComplete ?? activeSession;
-    if (!sessionToClose) {
-      return;
-    }
+  const finishActiveWorkout = useCallback(
+    (sessionToComplete?: WorkoutSession) => {
+      const sessionToClose = sessionToComplete ?? activeSession;
+      if (!sessionToClose) {
+        return;
+      }
 
-    const completedSession: WorkoutSession = {
-      ...sessionToClose,
-      status: 'completed',
-    };
+      const completedSession: WorkoutSession = {
+        ...sessionToClose,
+        status: 'completed',
+      };
 
-    saveWorkoutSession(completedSession);
-    saveActiveWorkoutSession(null);
-    setActiveSession(null);
-  }, [activeSession]);
+      saveWorkoutSession(completedSession);
+      saveActiveWorkoutSession(null);
+      setActiveSession(null);
+    },
+    [activeSession],
+  );
 
-  const saveEditedWorkout = useCallback((sessionToSave?: WorkoutSession) => {
-    const sessionToPersist = sessionToSave ?? editingSession;
-    if (!sessionToPersist) {
-      return;
-    }
+  const saveEditedWorkout = useCallback(
+    (sessionToSave?: WorkoutSession) => {
+      const sessionToPersist = sessionToSave ?? editingSession;
+      if (!sessionToPersist) {
+        return;
+      }
 
-    saveWorkoutSession(sessionToPersist);
-    setEditingSession(null);
-  }, [editingSession]);
+      saveWorkoutSession(sessionToPersist);
+      setEditingSession(null);
+    },
+    [editingSession],
+  );
 
   const value = {
     activeSession,
@@ -109,11 +115,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
     saveEditedWorkout,
   };
 
-  return (
-    <SessionContext.Provider value={value}>
-      {children}
-    </SessionContext.Provider>
-  );
+  return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }
 
 export function useSession() {

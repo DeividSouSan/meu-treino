@@ -86,69 +86,92 @@ export function useActiveWorkoutScreen(): UseActiveWorkoutScreenResult {
 
   const sessionStopwatch = useStopwatch(
     session ? session.durationInSeconds : 0,
-    !isEditing && session?.status === 'in_progress'
+    !isEditing && session?.status === 'in_progress',
   );
 
   /**
    * Aplica uma sessão modificada no estado correto (ativo ou edição).
    */
-  const updateSession = useCallback((updatedSession: WorkoutSession) => {
-    if (isEditing) {
-      updateEditingSession(updatedSession);
-    } else {
-      updateActiveSession(updatedSession);
-    }
-  }, [isEditing, updateActiveSession, updateEditingSession]);
+  const updateSession = useCallback(
+    (updatedSession: WorkoutSession) => {
+      if (isEditing) {
+        updateEditingSession(updatedSession);
+      } else {
+        updateActiveSession(updatedSession);
+      }
+    },
+    [isEditing, updateActiveSession, updateEditingSession],
+  );
 
-  const addCue = useCallback((cue: string) => {
-    const currentSession = session;
-    if (!currentSession) return;
-    updateSession({ ...currentSession, cues: [...currentSession.cues, cue] });
-  }, [session, updateSession]);
+  const addCue = useCallback(
+    (cue: string) => {
+      const currentSession = session;
+      if (!currentSession) return;
+      updateSession({ ...currentSession, cues: [...currentSession.cues, cue] });
+    },
+    [session, updateSession],
+  );
 
-  const removeCue = useCallback((cueIndex: number) => {
-    const currentSession = session;
-    if (!currentSession) return;
-    updateSession({ ...currentSession, cues: currentSession.cues.filter((_: string, index: number) => index !== cueIndex) });
-  }, [session, updateSession]);
+  const removeCue = useCallback(
+    (cueIndex: number) => {
+      const currentSession = session;
+      if (!currentSession) return;
+      updateSession({
+        ...currentSession,
+        cues: currentSession.cues.filter((_: string, index: number) => index !== cueIndex),
+      });
+    },
+    [session, updateSession],
+  );
 
-  const addExercise = useCallback((exerciseName: string) => {
-    const currentSession = session;
-    if (!currentSession) return;
-    const trimmedName = exerciseName.trim();
-    if (trimmedName === '') return;
+  const addExercise = useCallback(
+    (exerciseName: string) => {
+      const currentSession = session;
+      if (!currentSession) return;
+      const trimmedName = exerciseName.trim();
+      if (trimmedName === '') return;
 
-    const newExercise: WorkoutExercise = {
-      id: crypto.randomUUID(),
-      name: trimmedName,
-      weightInKg: 0,
-      notes: '',
-      sets: [],
-    };
+      const newExercise: WorkoutExercise = {
+        id: crypto.randomUUID(),
+        name: trimmedName,
+        weightInKg: 0,
+        notes: '',
+        sets: [],
+      };
 
-    updateSession({ ...currentSession, exercises: [...currentSession.exercises, newExercise] });
-  }, [session, updateSession]);
+      updateSession({ ...currentSession, exercises: [...currentSession.exercises, newExercise] });
+    },
+    [session, updateSession],
+  );
 
-  const updateExercise = useCallback((updatedExercise: WorkoutExercise) => {
-    const currentSession = session;
-    if (!currentSession) return;
-    updateSession({
-      ...currentSession,
-      exercises: currentSession.exercises.map((exercise: WorkoutExercise) =>
-        exercise.id === updatedExercise.id ? updatedExercise : exercise
-      ),
-    });
-  }, [session, updateSession]);
+  const updateExercise = useCallback(
+    (updatedExercise: WorkoutExercise) => {
+      const currentSession = session;
+      if (!currentSession) return;
+      updateSession({
+        ...currentSession,
+        exercises: currentSession.exercises.map((exercise: WorkoutExercise) =>
+          exercise.id === updatedExercise.id ? updatedExercise : exercise,
+        ),
+      });
+    },
+    [session, updateSession],
+  );
 
-  const deleteExercise = useCallback((exerciseId: string) => {
-    const currentSession = session;
-    if (!currentSession) return;
+  const deleteExercise = useCallback(
+    (exerciseId: string) => {
+      const currentSession = session;
+      if (!currentSession) return;
 
-    updateSession({
-      ...currentSession,
-      exercises: currentSession.exercises.filter((exercise: WorkoutExercise) => exercise.id !== exerciseId),
-    });
-  }, [session, updateSession]);
+      updateSession({
+        ...currentSession,
+        exercises: currentSession.exercises.filter(
+          (exercise: WorkoutExercise) => exercise.id !== exerciseId,
+        ),
+      });
+    },
+    [session, updateSession],
+  );
 
   /**
    * Salva (edição) ou encerra (ativa). Passa a sessão final — com a
@@ -177,38 +200,44 @@ export function useActiveWorkoutScreen(): UseActiveWorkoutScreenResult {
    * Atualiza o nome da sessão ativa ou em edição.
    * Ignora valores vazios ou compostos apenas por espaços.
    */
-  const renameSession = useCallback((newName: string) => {
-    if (!session) return;
-    const trimmedName = newName.trim();
-    if (!trimmedName) return;
-    updateSession({ ...session, name: trimmedName });
-  }, [session, updateSession]);
+  const renameSession = useCallback(
+    (newName: string) => {
+      if (!session) return;
+      const trimmedName = newName.trim();
+      if (!trimmedName) return;
+      updateSession({ ...session, name: trimmedName });
+    },
+    [session, updateSession],
+  );
 
-  return useMemo(() => ({
-    session: session!,
-    isEditing,
-    durationStopwatch: sessionStopwatch,
-    workoutHistory,
-    addCue,
-    removeCue,
-    addExercise,
-    updateExercise,
-    deleteExercise,
-    saveOrFinish,
-    cancel,
-    renameSession,
-  }), [
-    session,
-    isEditing,
-    sessionStopwatch,
-    workoutHistory,
-    addCue,
-    removeCue,
-    addExercise,
-    updateExercise,
-    deleteExercise,
-    saveOrFinish,
-    cancel,
-    renameSession,
-  ]);
+  return useMemo(
+    () => ({
+      session: session!,
+      isEditing,
+      durationStopwatch: sessionStopwatch,
+      workoutHistory,
+      addCue,
+      removeCue,
+      addExercise,
+      updateExercise,
+      deleteExercise,
+      saveOrFinish,
+      cancel,
+      renameSession,
+    }),
+    [
+      session,
+      isEditing,
+      sessionStopwatch,
+      workoutHistory,
+      addCue,
+      removeCue,
+      addExercise,
+      updateExercise,
+      deleteExercise,
+      saveOrFinish,
+      cancel,
+      renameSession,
+    ],
+  );
 }

@@ -10,7 +10,7 @@ describe('MtAlertDialog', () => {
         title="Título"
         message="Mensagem de alerta"
         onClose={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.queryByText('Título')).not.toBeInTheDocument();
@@ -25,7 +25,7 @@ describe('MtAlertDialog', () => {
         message="Número de repetições inválido"
         buttonText="OK"
         onClose={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.getByText('Atenção')).toBeInTheDocument();
@@ -41,7 +41,7 @@ describe('MtAlertDialog', () => {
         title="Atenção"
         message="Mensagem de teste"
         onClose={handleClose}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Entendido' }));

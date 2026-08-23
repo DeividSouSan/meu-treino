@@ -11,14 +11,14 @@ describe('MtSectionTitle', () => {
   it('renderiza o ícone quando provido', () => {
     const IconMock = () => <svg data-testid="icone-teste" />;
     render(<MtSectionTitle icon={<IconMock />}>Com Ícone</MtSectionTitle>);
-    
+
     expect(screen.getByTestId('icone-teste')).toBeInTheDocument();
     expect(screen.getByText('Com Ícone')).toBeInTheDocument();
   });
 
   it('aplica estilo customizado', () => {
     const { container } = render(
-      <MtSectionTitle style={{ marginBottom: '20px' }}>Estilo</MtSectionTitle>
+      <MtSectionTitle style={{ marginBottom: '20px' }}>Estilo</MtSectionTitle>,
     );
     const wrapperDiv = container.firstChild as HTMLElement;
     expect(wrapperDiv.style.marginBottom).toBe('20px');

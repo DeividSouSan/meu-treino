@@ -13,10 +13,10 @@ describe('MtInput', () => {
   it('chama onChange quando o valor muda', () => {
     const handleChange = vi.fn();
     render(<MtInput value="" onChange={handleChange} />);
-    
+
     const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: 'Novo' } });
-    
+
     expect(handleChange).toHaveBeenCalledTimes(1);
   });
 
@@ -30,9 +30,9 @@ describe('MtInput', () => {
         placeholder="Valor numérico"
         style={{ color: 'blue' }}
         onKeyDown={handleKeyDown}
-      />
+      />,
     );
-    
+
     const input = screen.getByPlaceholderText('Valor numérico') as HTMLInputElement;
     expect(input.type).toBe('number');
     expect(input.style.color).toBe('blue');

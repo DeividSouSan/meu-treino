@@ -11,7 +11,7 @@ describe('MtConfirmDialog', () => {
         message="Mensagem Teste"
         onConfirm={vi.fn()}
         onCancel={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.queryByText('Título Teste')).not.toBeInTheDocument();
@@ -26,7 +26,7 @@ describe('MtConfirmDialog', () => {
         message="Tem certeza de que deseja excluir?"
         onConfirm={vi.fn()}
         onCancel={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.getByText('Excluir Item')).toBeInTheDocument();
@@ -47,7 +47,7 @@ describe('MtConfirmDialog', () => {
         confirmText="Finalizar"
         onConfirm={handleConfirm}
         onCancel={handleCancel}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByText('Finalizar'));
@@ -67,7 +67,7 @@ describe('MtConfirmDialog', () => {
         cancelText="Voltar"
         onConfirm={handleConfirm}
         onCancel={handleCancel}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByText('Voltar'));
@@ -85,7 +85,7 @@ describe('MtConfirmDialog', () => {
         message="Pressione escape"
         onConfirm={vi.fn()}
         onCancel={handleCancel}
-      />
+      />,
     );
 
     fireEvent.keyDown(window, { key: 'Escape' });

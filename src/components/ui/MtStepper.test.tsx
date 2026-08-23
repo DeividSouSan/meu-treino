@@ -44,12 +44,7 @@ describe('MtStepper', () => {
   it('deve renderizar chips de incremento rápido e aplicar o salto ao clicar', () => {
     const handleChange = vi.fn();
     render(
-      <MtStepper
-        label="Carga"
-        value="20"
-        quickIncrements={[2.5, 5]}
-        onChange={handleChange}
-      />
+      <MtStepper label="Carga" value="20" quickIncrements={[2.5, 5]} onChange={handleChange} />,
     );
 
     const chip25 = screen.getByText('+2.5');
@@ -85,7 +80,9 @@ describe('MtStepper', () => {
 
   it('desabilita todos os botões e inputs se disabled = true', () => {
     const handleChange = vi.fn();
-    render(<MtStepper label="Reps" value="10" disabled onChange={handleChange} quickIncrements={[5]} />);
+    render(
+      <MtStepper label="Reps" value="10" disabled onChange={handleChange} quickIncrements={[5]} />,
+    );
 
     const input = screen.getByRole('spinbutton');
     const plusButton = screen.getByLabelText('Aumentar Reps');
@@ -104,14 +101,7 @@ describe('MtStepper', () => {
 
   it('renderiza chips de incremento rápido negativo (exibe o número sem "+" adicional)', () => {
     const handleChange = vi.fn();
-    render(
-      <MtStepper
-        label="Carga"
-        value="20"
-        quickIncrements={[-5]}
-        onChange={handleChange}
-      />
-    );
+    render(<MtStepper label="Carga" value="20" quickIncrements={[-5]} onChange={handleChange} />);
 
     const chipMinus5 = screen.getByText('-5');
     expect(chipMinus5).toBeInTheDocument();

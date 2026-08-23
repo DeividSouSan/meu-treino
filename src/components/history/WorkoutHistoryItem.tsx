@@ -39,10 +39,13 @@ export function WorkoutHistoryItem({
     }
   }, []);
 
-  const handleContextMenu = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    onLongPress(session.id);
-  }, [session.id, onLongPress]);
+  const handleContextMenu = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      onLongPress(session.id);
+    },
+    [session.id, onLongPress],
+  );
 
   return (
     <div
