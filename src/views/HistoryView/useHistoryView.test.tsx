@@ -78,7 +78,7 @@ describe('useHistoryView', () => {
         history: useHistoryView(),
         nav: useNavigation(),
       }),
-      { wrapper: createWrapper() }
+      { wrapper: createWrapper() },
     );
 
     act(() => {
@@ -94,7 +94,7 @@ describe('useHistoryView', () => {
         history: useHistoryView(),
         nav: useNavigation(),
       }),
-      { wrapper: createWrapper() }
+      { wrapper: createWrapper() },
     );
 
     act(() => {
@@ -110,7 +110,7 @@ describe('useHistoryView', () => {
         history: useHistoryView(),
         nav: useNavigation(),
       }),
-      { wrapper: createWrapper() }
+      { wrapper: createWrapper() },
     );
 
     act(() => {
@@ -144,7 +144,7 @@ describe('useHistoryView', () => {
     act(() => {
       result.current.handleSessionLongPress(mockSession.id);
     });
-    
+
     act(() => {
       result.current.handleDeleteFromActionMenu();
     });
@@ -190,7 +190,7 @@ describe('useHistoryView', () => {
         history: useHistoryView(),
         nav: useNavigation(),
       }),
-      { wrapper: createWrapper() }
+      { wrapper: createWrapper() },
     );
 
     act(() => {
@@ -255,4 +255,3 @@ describe('useHistoryView', () => {
     expect(result.current.isSettingsOpen).toBe(false);
   });
 });
-

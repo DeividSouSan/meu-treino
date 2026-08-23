@@ -59,14 +59,14 @@ export function exportWorkoutBackup(): void {
   const jsonString = JSON.stringify(backupData, null, 2);
   const blob = new Blob([jsonString], { type: 'application/json' });
   const downloadUrl = URL.createObjectURL(blob);
-  
+
   const anchorElement = document.createElement('a');
   anchorElement.href = downloadUrl;
   anchorElement.download = `meu_treino_backup_${new Date().toISOString().slice(0, 10)}.json`;
-  
+
   document.body.appendChild(anchorElement);
   anchorElement.click();
-  
+
   document.body.removeChild(anchorElement);
   URL.revokeObjectURL(downloadUrl);
 

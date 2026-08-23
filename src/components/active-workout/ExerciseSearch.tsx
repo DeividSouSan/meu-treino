@@ -12,10 +12,7 @@ export interface ExerciseSearchProps {
   getSuggestions: (query: string) => ExerciseSuggestion[];
 }
 
-export function ExerciseSearch({
-  onAddExercise,
-  getSuggestions,
-}: ExerciseSearchProps) {
+export function ExerciseSearch({ onAddExercise, getSuggestions }: ExerciseSearchProps) {
   const [searchInput, setSearchInput] = useState<string>('');
   const [suggestions, setSuggestions] = useState<ExerciseSuggestion[]>([]);
 
@@ -44,10 +41,15 @@ export function ExerciseSearch({
 
   return (
     <MtCard as="section" style={{ marginTop: 'var(--spacing-md)' }}>
-      <MtSectionTitle icon={<Search size={16} />}>
-        Adicionar Exercício
-      </MtSectionTitle>
-      <div style={{ display: 'flex', gap: 'var(--spacing-xs)', marginTop: 'var(--spacing-xs)', position: 'relative' }}>
+      <MtSectionTitle icon={<Search size={16} />}>Adicionar Exercício</MtSectionTitle>
+      <div
+        style={{
+          display: 'flex',
+          gap: 'var(--spacing-xs)',
+          marginTop: 'var(--spacing-xs)',
+          position: 'relative',
+        }}
+      >
         <MtInput
           value={searchInput}
           onChange={(event) => setSearchInput(event.target.value)}
@@ -71,10 +73,7 @@ export function ExerciseSearch({
         </MtButton>
       </div>
 
-      <MtSuggestionDropdown
-        suggestions={suggestionItems}
-        onSelect={handleSelectSuggestion}
-      />
+      <MtSuggestionDropdown suggestions={suggestionItems} onSelect={handleSelectSuggestion} />
     </MtCard>
   );
 }

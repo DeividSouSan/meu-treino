@@ -1,9 +1,6 @@
 import { useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { WorkoutSession } from '../../types/workout';
-import {
-  getWorkoutHistory,
-  deleteWorkoutSession,
-} from '../../services/storageService';
+import { getWorkoutHistory, deleteWorkoutSession } from '../../services/storageService';
 import { useNavigation } from '../navigation';
 import { HistoryContext } from './HistoryContext';
 
@@ -36,11 +33,7 @@ export function HistoryProvider({ children }: HistoryProviderProps) {
     reloadAllData,
   };
 
-  return (
-    <HistoryContext.Provider value={value}>
-      {children}
-    </HistoryContext.Provider>
-  );
+  return <HistoryContext.Provider value={value}>{children}</HistoryContext.Provider>;
 }
 
 export function useHistory() {

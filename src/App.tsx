@@ -5,15 +5,7 @@ import { ActiveWorkoutView } from './views/ActiveWorkoutView';
 function AppContent() {
   const { currentView } = useNavigation();
 
-  return (
-    <div>
-      {currentView === 'history' ? (
-        <HistoryView />
-      ) : (
-        <ActiveWorkoutView />
-      )}
-    </div>
-  );
+  return <div>{currentView === 'history' ? <HistoryView /> : <ActiveWorkoutView />}</div>;
 }
 
 function App() {

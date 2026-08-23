@@ -73,9 +73,7 @@ export function HistoryView() {
         )}
 
         <MtCard as="section" style={{ gap: 'var(--spacing-sm)' }}>
-          <MtSectionTitle icon={<Calendar size={18} />}>
-            Histórico
-          </MtSectionTitle>
+          <MtSectionTitle icon={<Calendar size={18} />}>Histórico</MtSectionTitle>
           <WorkoutHistoryList
             sessions={workoutHistory}
             onSessionTap={handleSessionTap}
@@ -94,18 +92,23 @@ export function HistoryView() {
         ariaLabel="Criar novo treino"
       />
 
-      <MtModal
-        isOpen={isSettingsOpen}
-        onClose={closeSettings}
-        title="Configurações & Backup"
-      >
-        <div className="mt-modal-body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+      <MtModal isOpen={isSettingsOpen} onClose={closeSettings} title="Configurações & Backup">
+        <div
+          className="mt-modal-body"
+          style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}
+        >
           <BackupSection
             asCard={false}
             onImportSuccess={handleImportSuccess}
             workoutHistoryLength={workoutHistory.length}
           />
-          <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: 'var(--spacing-xs) 0' }} />
+          <hr
+            style={{
+              border: 'none',
+              borderTop: '1px solid var(--border-color)',
+              margin: 'var(--spacing-xs) 0',
+            }}
+          />
           <VersionInfo version={packageInfo.version} />
         </div>
       </MtModal>
@@ -115,7 +118,10 @@ export function HistoryView() {
         onClose={closeActionMenu}
         title={selectedSessionForActions ? selectedSessionForActions.name : 'Ações do Treino'}
       >
-        <div className="mt-modal-body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
+        <div
+          className="mt-modal-body"
+          style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}
+        >
           <MtButton
             variant="default"
             onClick={handleEditFromActionMenu}
@@ -155,4 +161,3 @@ export function HistoryView() {
     </div>
   );
 }
-

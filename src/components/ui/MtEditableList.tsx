@@ -38,7 +38,15 @@ export function MtEditableList({
 }: MtEditableListProps) {
   if (items.length === 0) {
     return (
-      <span className="text-secondary" style={{ fontSize: '0.85rem', fontStyle: 'italic', display: 'block', padding: 'var(--spacing-xs) 0' }}>
+      <span
+        className="text-secondary"
+        style={{
+          fontSize: '0.85rem',
+          fontStyle: 'italic',
+          display: 'block',
+          padding: 'var(--spacing-xs) 0',
+        }}
+      >
         {emptyMessage}
       </span>
     );
@@ -77,13 +85,18 @@ export function MtEditableList({
   );
 
   return (
-    <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px', marginTop: 'var(--spacing-sm)' }}>
+    <ul
+      style={{
+        listStyle: 'none',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '4px',
+        marginTop: 'var(--spacing-sm)',
+      }}
+    >
       {items.map((item, index) => (
-        <li key={item.id}>
-          {renderItem ? renderItem(item, index) : defaultRenderItem(item)}
-        </li>
+        <li key={item.id}>{renderItem ? renderItem(item, index) : defaultRenderItem(item)}</li>
       ))}
     </ul>
   );
 }
-

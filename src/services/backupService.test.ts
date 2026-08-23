@@ -1,10 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { exportWorkoutBackup, importWorkoutBackup } from './backupService';
-import {
-  saveWorkoutSession,
-  getWorkoutHistory,
-  getLastBackupWorkoutCount,
-} from './storageService';
+import { saveWorkoutSession, getWorkoutHistory, getLastBackupWorkoutCount } from './storageService';
 import type { WorkoutSession } from '../types/workout';
 
 /**

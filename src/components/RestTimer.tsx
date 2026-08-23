@@ -44,7 +44,9 @@ export function RestTimer({ stopwatch, targetSeconds }: RestTimerProps) {
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-xs)' }}>
         <Clock size={18} strokeWidth={2.25} color="var(--text-secondary)" />
-        <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Descanso</span>
+        <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+          Descanso
+        </span>
       </div>
 
       <div

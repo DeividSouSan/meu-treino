@@ -22,17 +22,25 @@ describe('MtSuggestionDropdown', () => {
   it('chama onSelect ao clicar em uma sugestão', () => {
     const handleSelect = vi.fn();
     render(<MtSuggestionDropdown suggestions={suggestions} onSelect={handleSelect} />);
-    
+
     fireEvent.click(screen.getByText('Opção 2'));
     expect(handleSelect).toHaveBeenCalledTimes(1);
     expect(handleSelect).toHaveBeenCalledWith({ id: '2', label: 'Opção 2' });
   });
 
   it('permite usar renderItem customizado', () => {
-    const customRender = (item: MtSuggestionItem) => <button data-testid="custom-item">{item.label}</button>;
-    
-    render(<MtSuggestionDropdown suggestions={suggestions} onSelect={() => {}} renderItem={customRender} />);
-    
+    const customRender = (item: MtSuggestionItem) => (
+      <button data-testid="custom-item">{item.label}</button>
+    );
+
+    render(
+      <MtSuggestionDropdown
+        suggestions={suggestions}
+        onSelect={() => {}}
+        renderItem={customRender}
+      />,
+    );
+
     const customItems = screen.getAllByTestId('custom-item');
     expect(customItems).toHaveLength(2);
     expect(customItems[0]).toHaveTextContent('Opção 1');

@@ -8,11 +8,7 @@ export interface CueManagerProps {
   onRemoveCue: (cueIndex: number) => void;
 }
 
-export function CueManager({
-  cues,
-  onAddCue,
-  onRemoveCue,
-}: CueManagerProps) {
+export function CueManager({ cues, onAddCue, onRemoveCue }: CueManagerProps) {
   const [cueInput, setCueInput] = useState<string>('');
 
   const handleAddCue = (value: string) => {
@@ -32,15 +28,15 @@ export function CueManager({
 
   return (
     <MtCard as="section" style={{ gap: 'var(--spacing-xs)' }}>
-      <MtSectionTitle icon={<Bell size={16} />}>
-        Cues da Sessão (Lembretes)
-      </MtSectionTitle>
+      <MtSectionTitle icon={<Bell size={16} />}>Cues da Sessão (Lembretes)</MtSectionTitle>
       <MtInputForm
         value={cueInput}
         onChange={(event) => setCueInput(event.target.value)}
         onSubmit={handleAddCue}
         placeholder="Ex: Controlar a descida no agachamento"
-        submitButtonContent={<Plus size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />}
+        submitButtonContent={
+          <Plus size={14} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+        }
       />
       <MtEditableList
         items={cueItems}

@@ -8,11 +8,11 @@ describe('MtModal', () => {
     render(
       <MtModal isOpen={true} onClose={handleClose}>
         <div>Conteúdo Modal</div>
-      </MtModal>
+      </MtModal>,
     );
 
     const dialog = screen.getByRole('dialog');
-    
+
     // O click no proprio dialog (overlay) aciona close.
     fireEvent.click(dialog);
     expect(handleClose).toHaveBeenCalledTimes(1);
@@ -28,7 +28,7 @@ describe('MtModal', () => {
     render(
       <MtModal isOpen={true} onClose={handleClose} closeOnBackdropClick={false}>
         <div>Conteúdo Modal</div>
-      </MtModal>
+      </MtModal>,
     );
 
     const dialog = screen.getByRole('dialog');

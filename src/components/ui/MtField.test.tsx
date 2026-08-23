@@ -18,10 +18,10 @@ describe('MtField', () => {
   it('chama onChange quando o valor muda', () => {
     const handleChange = vi.fn();
     render(<MtField label="Campo" value="" onChange={handleChange} />);
-    
+
     const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: 'Novo Valor' } });
-    
+
     expect(handleChange).toHaveBeenCalledTimes(1);
   });
 
@@ -35,9 +35,9 @@ describe('MtField', () => {
         placeholder="Insira um número"
         required
         step="0.5"
-      />
+      />,
     );
-    
+
     const input = screen.getByPlaceholderText('Insira um número') as HTMLInputElement;
     expect(input.type).toBe('number');
     expect(input.required).toBe(true);
@@ -52,12 +52,12 @@ describe('MtField', () => {
         onChange={() => {}}
         style={{ margin: '10px' }}
         labelStyle={{ color: 'red' }}
-      />
+      />,
     );
-    
+
     const div = container.firstChild as HTMLElement;
     expect(div.style.margin).toBe('10px');
-    
+
     const label = screen.getByText('Estilizado');
     expect(label.style.color).toBe('red');
   });

@@ -11,7 +11,7 @@ O **Meu Treino** é um rastreador de musculação progressivo (**PWA**), desenvo
 - **Notepad-Style (Sem Checkboxes):** Sem burocracia de marcação. Se uma série está listada na tela, ela já foi executada.
 - **Soberania dos Dados (Zero Bloat):** Todos os dados pertencem ao usuário e ficam armazenados localmente no navegador via `LocalStorage` e backups JSON limpos. Sem cadastro, sem anúncios, sem telemetria e sem servidores na nuvem.
 - **Mobile-First Rigoroso:** O app é desenhado primordialmente para uso com uma mão na academia. A interface é contida em largura máxima mobile (600px) com ergonomia touch em botões e controles.
-- **Arquitetura de Estado Modular:** É expressamente proibido fazer *prop-drilling*. O estado global é dividido em contextos especializados (`NavigationContext`, `SessionContext`, `HistoryContext`), consumidos por container hooks co-localizados (`useActiveWorkoutScreen`, `useHistoryView`, `useExerciseScreen`).
+- **Arquitetura de Estado Modular:** É expressamente proibido fazer _prop-drilling_. O estado global é dividido em contextos especializados (`NavigationContext`, `SessionContext`, `HistoryContext`), consumidos por container hooks co-localizados (`useActiveWorkoutScreen`, `useHistoryView`, `useExerciseScreen`).
 - **SOLID & KISS:** Mantenha soluções simples, diretas e legíveis. Evite abstrações prematuras ou complexidade acidental.
 
 ---
@@ -44,6 +44,7 @@ Qualquer novo componente deve ser classificado corretamente antes de ser criado:
 ```
 
 ### A. Componentes de UI / Design System (`Mt*`)
+
 - **Localização:** `src/components/ui/`
 - **Nomenclatura:** **SEMPRE** prefixados com `Mt` (ex.: `MtButton`, `MtCard`, `MtField`, `MtInput`, `MtInputForm`, `MtPill`, `MtEmptyState`, `MtAlert`, `MtSectionTitle`, `MtEditableList`, `MtFloatingActionButton`, `MtSuggestionDropdown`).
 - **Responsabilidade:** Primitivos visuais puros, estilos, microinterações e acessibilidade.
@@ -51,6 +52,7 @@ Qualquer novo componente deve ser classificado corretamente antes de ser criado:
 - **Exportação:** Sempre exportados no barrel `src/components/ui/index.ts`.
 
 ### B. Componentes de Domínio
+
 - **Localização:**
   - `src/components/`: Componentes compartilhados de domínio (`ExerciseScreen`, `ExerciseSetItem`, `ExerciseList`, `ExerciseTechniquePills`, `LastWorkoutSets`, `RestTimer`).
   - `src/components/active-workout/`: Componentes do treino ativo (`ActiveWorkoutHeader`, `CueManager`, `ExerciseSearch`).
@@ -104,6 +106,7 @@ meu-treino/
 ## 📦 6. Política de Dependências
 
 - **Manter a Base Leve (Zero Bloat):** Evite adicionar novas dependências externas. O aplicativo preza por independência, alta velocidade e soberania.
+- **Versões Fixas & Estritas (Sem `^` ou `~`):** Todas as dependências (`dependencies` e `devDependencies`) no `package.json` devem ser instaladas e declaradas com versões exatas e fixas (sem os prefixos `^` ou `~`), garantindo builds 100% reproduzíveis e previsíveis. Sempre instale pacotes com a flag `npm install --save-exact` (ou `-E`).
 - **Sugestão de Soluções:** Se uma funcionalidade complexa justificar uma biblioteca pronta da comunidade, o agente deve sugerir a adição com justificativa técnica clara.
 - **Proibição Estrita:** **NUNCA** baixe nem instale novos pacotes (`npm install <pacote>`, `yarn add`, etc.) sem pedir autorização prévia e explícita ao usuário.
 
@@ -119,7 +122,7 @@ meu-treino/
   - `refactor(session): simplifica fluxo de atualização de séries`
   - `test(services): adiciona testes de importação de backup`
   - `docs: atualiza documentação no AGENTS.md`
-- **Legibilidade & Linguagem de Domínio:** Escreva código explícito e verboso, usando termos reais de treino (*série*, *repetições*, *carga*, *descanso*, *template*, *cues*). O código deve ser compreensível para qualquer desenvolvedor júnior apenas lendo o arquivo.
+- **Legibilidade & Linguagem de Domínio:** Escreva código explícito e verboso, usando termos reais de treino (_série_, _repetições_, _carga_, _descanso_, _template_, _cues_). O código deve ser compreensível para qualquer desenvolvedor júnior apenas lendo o arquivo.
 
 ---
 
@@ -152,12 +155,14 @@ gh-pages (Remoto: GitHub Pages público)
 O projeto conta com dois ambientes de publicação isolados:
 
 ### A. Ambiente de Homologação / Staging (`npm run deploy:staging`)
+
 - **Branch:** `homolog`
 - **Destino:** `https://meu-treino-staging.surge.sh` (Surge.sh).
 - **Propósito:** Validar alterações online no celular com `LocalStorage` e Service Worker isolados antes de atualizar a versão oficial.
 - **Execução:** Pode ser executado a partir da branch `homolog` a qualquer momento para testes prévios.
 
 ### B. Ambiente de Produção Oficial (`npm run deploy` ou `npm run deploy:prod`)
+
 - **Branch:** `main`
 - **Destino:** `https://deividsousan.github.io/meu-treino/` (GitHub Pages via branch `gh-pages`).
 - **Proibição de Deploy Automático:** **NUNCA** execute `npm run deploy` sem solicitação explícita e direta do usuário.
@@ -173,12 +178,13 @@ O projeto conta com dois ambientes de publicação isolados:
 
 ## 🚫 10. Tabela Rápida: O que NUNCA fazer
 
-| Proibição | Motivo |
-| :--- | :--- |
-| **Nunca rodar `npm run deploy` sem pedido explícito** | Evita deploys acidentais ou não testados em produção |
-| **Nunca instalar dependências sem permissão** | Mantém a base leve, auditável e soberana |
-| **Nunca usar tags HTML puras se houver `MtComponent`** | Garante uniformidade e consistência no Design System |
-| **Nunca criar componentes de UI fora de `src/components/ui/` ou sem prefixo `Mt*`** | Mantém a separação clara entre primitivos e domínio |
-| **Nunca fazer prop-drilling** | Mantém a arquitetura limpa e os componentes desacoplados |
-| **Nunca alterar o esquema de armazenamento sem migração** | Protege os dados reais dos usuários contra corrupção |
-| **Nunca apagar componentes existentes sem confirmação** | Previne quebras e regressões na aplicação |
+| Proibição                                                                           | Motivo                                                   |
+| :---------------------------------------------------------------------------------- | :------------------------------------------------------- |
+| **Nunca rodar `npm run deploy` sem pedido explícito**                               | Evita deploys acidentais ou não testados em produção     |
+| **Nunca instalar dependências sem permissão**                                       | Mantém a base leve, auditável e soberana                 |
+| **Nunca usar tags HTML puras se houver `MtComponent`**                              | Garante uniformidade e consistência no Design System     |
+| **Nunca adicionar versões soltas (`^` ou `~`) no `package.json`**                   | Garante builds 100% reproduzíveis e determinísticos      |
+| **Nunca criar componentes de UI fora de `src/components/ui/` ou sem prefixo `Mt*`** | Mantém a separação clara entre primitivos e domínio      |
+| **Nunca fazer prop-drilling**                                                       | Mantém a arquitetura limpa e os componentes desacoplados |
+| **Nunca alterar o esquema de armazenamento sem migração**                           | Protege os dados reais dos usuários contra corrupção     |
+| **Nunca apagar componentes existentes sem confirmação**                             | Previne quebras e regressões na aplicação                |

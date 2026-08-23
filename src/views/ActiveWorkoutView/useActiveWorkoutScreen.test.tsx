@@ -68,7 +68,7 @@ describe('useActiveWorkoutScreen — renameSession com sessão ativa', () => {
         screen: useActiveWorkoutScreen(),
         session: useSession(),
       }),
-      { wrapper: createWrapper() }
+      { wrapper: createWrapper() },
     );
 
     act(() => {
@@ -90,7 +90,7 @@ describe('useActiveWorkoutScreen — renameSession com sessão ativa', () => {
         screen: useActiveWorkoutScreen(),
         session: useSession(),
       }),
-      { wrapper: createWrapper() }
+      { wrapper: createWrapper() },
     );
 
     act(() => {
@@ -112,7 +112,7 @@ describe('useActiveWorkoutScreen — renameSession com sessão ativa', () => {
         screen: useActiveWorkoutScreen(),
         session: useSession(),
       }),
-      { wrapper: createWrapper() }
+      { wrapper: createWrapper() },
     );
 
     act(() => {
@@ -134,7 +134,7 @@ describe('useActiveWorkoutScreen — renameSession com sessão ativa', () => {
         screen: useActiveWorkoutScreen(),
         session: useSession(),
       }),
-      { wrapper: createWrapper() }
+      { wrapper: createWrapper() },
     );
 
     act(() => {
@@ -154,7 +154,7 @@ describe('useActiveWorkoutScreen — renameSession com sessão ativa', () => {
         screen: useActiveWorkoutScreen(),
         session: useSession(),
       }),
-      { wrapper: createWrapper() }
+      { wrapper: createWrapper() },
     );
 
     act(() => {
@@ -178,7 +178,7 @@ describe('useActiveWorkoutScreen — renameSession com sessão ativa', () => {
         screen: useActiveWorkoutScreen(),
         session: useSession(),
       }),
-      { wrapper: createWrapper() }
+      { wrapper: createWrapper() },
     );
 
     act(() => {
@@ -201,7 +201,7 @@ describe('useActiveWorkoutScreen — renameSession com sessão ativa', () => {
         screen: useActiveWorkoutScreen(),
         session: useSession(),
       }),
-      { wrapper: createWrapper() }
+      { wrapper: createWrapper() },
     );
 
     act(() => {
@@ -231,7 +231,7 @@ describe('useActiveWorkoutScreen — renameSession com sessão ativa', () => {
         screen: useActiveWorkoutScreen(),
         session: useSession(),
       }),
-      { wrapper: createWrapper() }
+      { wrapper: createWrapper() },
     );
 
     act(() => {
@@ -264,7 +264,7 @@ describe('useActiveWorkoutScreen — renameSession com sessão ativa', () => {
           screen: useActiveWorkoutScreen(),
           session: useSession(),
         }),
-        { wrapper: createWrapper() }
+        { wrapper: createWrapper() },
       );
 
       act(() => {
@@ -299,7 +299,7 @@ describe('useActiveWorkoutScreen — renameSession com sessão ativa', () => {
           screen: useActiveWorkoutScreen(),
           session: useSession(),
         }),
-        { wrapper: createWrapper() }
+        { wrapper: createWrapper() },
       );
 
       act(() => {
@@ -331,7 +331,7 @@ describe('useActiveWorkoutScreen — renameSession com sessão ativa', () => {
           screen: useActiveWorkoutScreen(),
           session: useSession(),
         }),
-        { wrapper: createWrapper() }
+        { wrapper: createWrapper() },
       );
 
       act(() => {
@@ -352,7 +352,15 @@ describe('useActiveWorkoutScreen — renameSession com sessão ativa', () => {
 
       act(() => {
         expect(() => result.current.addExercise('Supino')).not.toThrow();
-        expect(() => result.current.updateExercise({ id: '1', name: 'Supino', weightInKg: 0, notes: '', sets: [] })).not.toThrow();
+        expect(() =>
+          result.current.updateExercise({
+            id: '1',
+            name: 'Supino',
+            weightInKg: 0,
+            notes: '',
+            sets: [],
+          }),
+        ).not.toThrow();
         expect(() => result.current.deleteExercise('1')).not.toThrow();
       });
     });

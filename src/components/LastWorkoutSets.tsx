@@ -37,21 +37,19 @@ export function LastWorkoutSets({ exerciseName }: LastWorkoutSetsProps) {
       return null;
     }
 
-    const sessaoEncontrada = workoutHistory.find(
-      (session: WorkoutSession) => {
-        const contemExercicio = session.exercises.some(
-          (exercise: WorkoutExercise) => exercise.name.trim().toLowerCase() === nomeNormalizado
-        );
-        return session.status === 'completed' && contemExercicio;
-      }
-    );
+    const sessaoEncontrada = workoutHistory.find((session: WorkoutSession) => {
+      const contemExercicio = session.exercises.some(
+        (exercise: WorkoutExercise) => exercise.name.trim().toLowerCase() === nomeNormalizado,
+      );
+      return session.status === 'completed' && contemExercicio;
+    });
 
     if (!sessaoEncontrada) {
       return null;
     }
 
     const exercicioDoUltimoTreino = sessaoEncontrada.exercises.find(
-      (exercise: WorkoutExercise) => exercise.name.trim().toLowerCase() === nomeNormalizado
+      (exercise: WorkoutExercise) => exercise.name.trim().toLowerCase() === nomeNormalizado,
     );
 
     if (!exercicioDoUltimoTreino || exercicioDoUltimoTreino.sets.length === 0) {
@@ -87,14 +85,7 @@ export function LastWorkoutSets({ exerciseName }: LastWorkoutSetsProps) {
       }}
     >
       <MtSectionTitle
-        icon={
-          <History
-            size={16}
-            strokeWidth={2.5}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        }
+        icon={<History size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />}
         style={{ fontSize: '1rem', marginBottom: 'var(--spacing-sm)' }}
       >
         Último Treino

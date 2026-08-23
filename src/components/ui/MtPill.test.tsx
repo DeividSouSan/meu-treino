@@ -23,7 +23,11 @@ describe('MtPill', () => {
   });
 
   it('aplica title e style corretamente', () => {
-    const { container } = render(<MtPill title="Dica" style={{ color: 'red' }}>Conteúdo</MtPill>);
+    const { container } = render(
+      <MtPill title="Dica" style={{ color: 'red' }}>
+        Conteúdo
+      </MtPill>,
+    );
     const el = container.firstChild as HTMLElement;
     expect(el).toHaveAttribute('title', 'Dica');
     expect(el.style.color).toBe('red');
@@ -39,7 +43,7 @@ describe('MtPill', () => {
   it('chama onClick ao pressionar Enter ou Espaço quando há onClick', () => {
     const handleClick = vi.fn();
     render(<MtPill onClick={handleClick}>Acessível</MtPill>);
-    
+
     const pill = screen.getByText('Acessível');
     expect(pill).toHaveAttribute('role', 'button');
     expect(pill).toHaveAttribute('tabindex', '0');

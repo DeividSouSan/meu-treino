@@ -23,9 +23,7 @@ export function WorkoutHistoryList({
   if (sessions.length === 0) {
     return (
       <MtEmptyState
-        icon={
-          <Sun size={48} strokeWidth={1.5} color="var(--text-light)" />
-        }
+        icon={<Sun size={48} strokeWidth={1.5} color="var(--text-light)" />}
         title="Nenhum treino registrado"
         actionLabel="Criar primeiro treino"
         onAction={onCreateFirstWorkout}

@@ -18,7 +18,10 @@ export interface UseStopwatchResult {
  * Mantém o tempo acumulado em um ref e recalcula o valor exibido
  * usando performance.now() para garantir precisão sem drift.
  */
-export function useStopwatch(initialSeconds: number = 0, autoStart: boolean = false): UseStopwatchResult {
+export function useStopwatch(
+  initialSeconds: number = 0,
+  autoStart: boolean = false,
+): UseStopwatchResult {
   const [seconds, setSecondsState] = useState<number>(initialSeconds);
   const [isRunning, setIsRunning] = useState<boolean>(autoStart);
 

@@ -7,7 +7,7 @@ export interface UseExerciseNavigationResult {
   currentExerciseIndex: number;
   hasPrevious: boolean;
   hasNext: boolean;
-  
+
   selectExercise: (exerciseId: string) => void;
   goBackToList: () => void;
   navigatePrevious: () => void;
@@ -17,14 +17,19 @@ export interface UseExerciseNavigationResult {
 export function useExerciseNavigation(
   exercises: WorkoutExercise[],
   selectedExerciseId: string | null,
-  onSelectExercise: (exerciseId: string) => void
+  onSelectExercise: (exerciseId: string) => void,
 ): UseExerciseNavigationResult {
   const selectedExercise = exercises.find((exercise) => exercise.id === selectedExerciseId) || null;
-  const currentExerciseIndex = exercises.findIndex((exercise) => exercise.id === selectedExerciseId);
+  const currentExerciseIndex = exercises.findIndex(
+    (exercise) => exercise.id === selectedExerciseId,
+  );
 
-  const selectExercise = useCallback((exerciseId: string) => {
-    onSelectExercise(exerciseId);
-  }, [onSelectExercise]);
+  const selectExercise = useCallback(
+    (exerciseId: string) => {
+      onSelectExercise(exerciseId);
+    },
+    [onSelectExercise],
+  );
 
   const goBackToList = useCallback(() => {
     onSelectExercise('');
@@ -44,24 +49,27 @@ export function useExerciseNavigation(
     }
   }, [currentExerciseIndex, exercises, onSelectExercise]);
 
-  return useMemo(() => ({
-    selectedExercise,
-    selectedExerciseId,
-    currentExerciseIndex: currentExerciseIndex ?? -1,
-    hasPrevious: currentExerciseIndex > 0,
-    hasNext: currentExerciseIndex < exercises.length - 1,
-    selectExercise,
-    goBackToList,
-    navigatePrevious,
-    navigateNext,
-  }), [
-    selectedExercise,
-    selectedExerciseId,
-    currentExerciseIndex,
-    exercises.length,
-    selectExercise,
-    goBackToList,
-    navigatePrevious,
-    navigateNext,
-  ]);
+  return useMemo(
+    () => ({
+      selectedExercise,
+      selectedExerciseId,
+      currentExerciseIndex: currentExerciseIndex ?? -1,
+      hasPrevious: currentExerciseIndex > 0,
+      hasNext: currentExerciseIndex < exercises.length - 1,
+      selectExercise,
+      goBackToList,
+      navigatePrevious,
+      navigateNext,
+    }),
+    [
+      selectedExercise,
+      selectedExerciseId,
+      currentExerciseIndex,
+      exercises.length,
+      selectExercise,
+      goBackToList,
+      navigatePrevious,
+      navigateNext,
+    ],
+  );
 }

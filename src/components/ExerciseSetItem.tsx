@@ -21,19 +21,15 @@ export interface ExerciseSetItemProps {
  * O item NÃO é expansível por toque. A interação de clique abre o modo de edição.
  * Na tela de visualização normal, as técnicas avançadas são mostradas como texto simples.
  */
-export function ExerciseSetItem({
-  set,
-  index,
-  onDelete,
-  onUpdate,
-  style,
-}: ExerciseSetItemProps) {
+export function ExerciseSetItem({ set, index, onDelete, onUpdate, style }: ExerciseSetItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [localReps, setLocalReps] = useState(set.repetitions);
   const [localWeight, setLocalWeight] = useState(set.weightInKg);
   const [localRest, setLocalRest] = useState(set.restTimeInSeconds);
-  const [localTechniques, setLocalTechniques] = useState<AdvancedTechnique[]>([...(set.advancedTechniques || [])]);
+  const [localTechniques, setLocalTechniques] = useState<AdvancedTechnique[]>([
+    ...(set.advancedTechniques || []),
+  ]);
 
   const toggleTechnique = (tech: AdvancedTechnique) => {
     const idx = localTechniques.indexOf(tech);
@@ -97,7 +93,8 @@ export function ExerciseSetItem({
                   fontSize: '1rem',
                 }}
               >
-                <strong style={{ color: 'var(--text-primary)' }}>{set.repetitions} reps</strong> @ {set.weightInKg}kg
+                <strong style={{ color: 'var(--text-primary)' }}>{set.repetitions} reps</strong> @{' '}
+                {set.weightInKg}kg
                 {set.restTimeInSeconds > 0 && (
                   <span style={{ color: 'var(--text-secondary)', marginLeft: '4px' }}>
                     - {set.restTimeInSeconds}s

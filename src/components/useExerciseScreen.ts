@@ -47,7 +47,6 @@ export interface UseExerciseScreenResult {
   clearValidationError: () => void;
 }
 
-
 /**
  * useExerciseScreen é o CONTÊINER da tela de edição de um exercício.
  *
@@ -67,7 +66,7 @@ export function useExerciseScreen({
   const [exercise, setExercise] = useState<WorkoutExercise>(initialExercise);
   const [repetitionsInput, setRepetitionsInput] = useState<string>('');
   const [weightInput, setWeightInput] = useState<string>(
-    initialExercise.weightInKg > 0 ? String(initialExercise.weightInKg) : ''
+    initialExercise.weightInKg > 0 ? String(initialExercise.weightInKg) : '',
   );
   const [restInput, setRestInput] = useState<string>('120');
   const [selectedTechniques, setSelectedTechniques] = useState<AdvancedTechnique[]>([]);
@@ -80,9 +79,7 @@ export function useExerciseScreen({
   }, []);
 
   const restTargetSeconds =
-    exercise.sets.length > 0
-      ? exercise.sets[exercise.sets.length - 1].restTimeInSeconds
-      : 0;
+    exercise.sets.length > 0 ? exercise.sets[exercise.sets.length - 1].restTimeInSeconds : 0;
 
   /**
    * Sincroniza a cópia de trabalho quando o exercício externo troca —
@@ -108,21 +105,21 @@ export function useExerciseScreen({
       setExercise(updatedExercise);
       onUpdateExercise(updatedExercise);
     },
-    [onUpdateExercise]
+    [onUpdateExercise],
   );
 
   const handleUpdateName = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       updateExercise({ ...exercise, name: event.target.value });
     },
-    [exercise, updateExercise]
+    [exercise, updateExercise],
   );
 
   const handleUpdateNotes = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       updateExercise({ ...exercise, notes: event.target.value });
     },
-    [exercise, updateExercise]
+    [exercise, updateExercise],
   );
 
   const handleUpdateReferenceWeight = useCallback(
@@ -131,7 +128,7 @@ export function useExerciseScreen({
       updateExercise({ ...exercise, weightInKg: numericWeight });
       setWeightInput(event.target.value);
     },
-    [exercise, updateExercise]
+    [exercise, updateExercise],
   );
 
   const handleToggleTechnique = useCallback((technique: AdvancedTechnique) => {
@@ -169,8 +166,15 @@ export function useExerciseScreen({
     setSelectedTechniques([]);
     setRestInput('120');
     restStopwatch.reset();
-  }, [repetitionsInput, weightInput, restInput, selectedTechniques, exercise, updateExercise, restStopwatch]);
-
+  }, [
+    repetitionsInput,
+    weightInput,
+    restInput,
+    selectedTechniques,
+    exercise,
+    updateExercise,
+    restStopwatch,
+  ]);
 
   const handleDeleteSet = useCallback(
     (setIndexToDelete: number) => {
@@ -179,7 +183,7 @@ export function useExerciseScreen({
         sets: exercise.sets.filter((_, index) => index !== setIndexToDelete),
       });
     },
-    [exercise, updateExercise]
+    [exercise, updateExercise],
   );
 
   const handleUpdateSet = useCallback(
@@ -187,11 +191,11 @@ export function useExerciseScreen({
       updateExercise({
         ...exercise,
         sets: exercise.sets.map((currentSet, index) =>
-          index === setIndex ? updatedSet : currentSet
+          index === setIndex ? updatedSet : currentSet,
         ),
       });
     },
-    [exercise, updateExercise]
+    [exercise, updateExercise],
   );
 
   const handleQuickAdjustReps = useCallback(
@@ -200,7 +204,7 @@ export function useExerciseScreen({
       const newReps = Math.max(0, currentReps + delta);
       setRepetitionsInput(String(newReps));
     },
-    [repetitionsInput]
+    [repetitionsInput],
   );
 
   const handleCopyLastSetReps = useCallback(() => {
@@ -242,4 +246,3 @@ export function useExerciseScreen({
     clearValidationError,
   };
 }
-
