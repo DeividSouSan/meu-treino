@@ -1,0 +1,34 @@
+name: Branch Gatekeeper
+
+on:
+  pull_request:
+    branches:
+      - main
+      - homolog
+
+jobs:
+  validate-branch:
+    name: Validar Origem da Branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validar branch de origem
+        run: |
+          TARGET="${{ github.base_ref }}"
+          SOURCE="${{ github.head_ref }}"
+
+          echo "Target branch: $TARGET"
+          echo "Source branch: $SOURCE"
+
+          if [ "$TARGET" = "main" ] && [ "$SOURCE" != "homolog" ]; then
+            echo "❌ ERRO: A branch 'main' aceita Pull Requests EXCLUSIVAMENTE a partir de 'homolog'."
+            echo "Origem recebida: '$SOURCE'"
+            exit 1
+          fi
+
+          if [ "$TARGET" = "homolog" ] && [ "$SOURCE" != "develop" ]; then
+            echo "❌ ERRO: A branch 'homolog' aceita Pull Requests EXCLUSIVAMENTE a partir de 'develop'."
+            echo "Origem recebida: '$SOURCE'"
+            exit 1
+          fi
+
+          echo "✅ Validação de branch aprovada: $SOURCE -> $TARGET"
