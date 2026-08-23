@@ -124,6 +124,24 @@ meu-treino/
   - `docs: atualiza documentação no AGENTS.md`
 - **Legibilidade & Linguagem de Domínio:** Escreva código explícito e verboso, usando termos reais de treino (_série_, _repetições_, _carga_, _descanso_, _template_, _cues_). O código deve ser compreensível para qualquer desenvolvedor júnior apenas lendo o arquivo.
 
+### 7.4. Política de Modificação de Testes
+
+**Test Modification Policy**
+
+1. **Fases Separadas:** Alterações de código de produção e de testes devem ser tratadas como fases distintas.
+2. **Executar a suíte antes de mudar testes:** Depois de modificar código de produção, execute a suíte de testes existente (`npm test`) **antes** de tocar em qualquer teste.
+3. **Não conserte um teste falho apenas para passar a suíte.** Investigue se a falha representa:
+   - regressão,
+   - mudança intencional de comportamento,
+   - teste obsoleto,
+   - falha não‑relacionada.
+4. **Quando a suíte atual passa:**
+   - Revise novas funcionalidades/ramificações.
+   - Verifique se os testes existentes cobrem o novo comportamento.
+   - **Adicione novos testes somente se o comportamento ainda não estiver coberto.** Não crie testes redundantes apenas por refatoração de código.
+5. **Escrita de testes:** Baseie‑os no comportamento esperado e nos critérios de aceitação, não nos detalhes de implementação.
+6. **Re‑execução da suíte:** Após quaisquer alterações nos testes, execute novamente a suíte completa (`npm test`). Nenhum commit deve ser criado se a suíte ainda falhar.
+
 ---
 
 ## 🌿 8. Estratégia de Branches & Ciclo de Vida do Código
