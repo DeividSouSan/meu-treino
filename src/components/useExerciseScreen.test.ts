@@ -92,10 +92,11 @@ describe('useExerciseScreen — handleAddSet', () => {
       advancedTechniques: [],
     });
 
-    // Inputs são limpos após registrar a série
-    expect(result.current.repetitionsInput).toBe('');
-    expect(result.current.selectedTechniques).toEqual([]);
+    // Inputs are preserved after registering the series
+    expect(result.current.repetitionsInput).toBe('12');
+    expect(result.current.weightInput).toBe('75');
     expect(result.current.restInput).toBe('120');
+    expect(result.current.selectedTechniques).toEqual([]);
 
     // O cronômetro de descanso foi reiniciado (feature: timer inicia ao registrar)
     expect(espioncarDoStopwatch.reset).toHaveBeenCalled();

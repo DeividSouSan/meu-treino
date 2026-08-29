@@ -162,9 +162,11 @@ export function useExerciseScreen({
 
     updateExercise({ ...exercise, sets: [...exercise.sets, newSet] });
     hapticService.success();
-    setRepetitionsInput('');
-    setSelectedTechniques([]);
-    setRestInput('120');
+    // Preserve the just-added values as defaults for the next set
+    setRepetitionsInput(String(repetitions));
+    setWeightInput(String(weight));
+    setRestInput(String(effectiveRest));
+    setSelectedTechniques([...selectedTechniques]);
     restStopwatch.reset();
   }, [
     repetitionsInput,
