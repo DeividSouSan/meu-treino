@@ -120,4 +120,25 @@ describe('MtStepper', () => {
     // Como "inválido" vira 0, 0 + 1 = 1
     expect(handleChange).toHaveBeenCalledWith('1');
   });
+
+  it('deve definir o valor diretamente quando setValueOnQuickIncrement for true e ocultar o sinal +', () => {
+    const handleChange = vi.fn();
+    render(
+      <MtStepper
+        label="Descanso"
+        value="30"
+        quickIncrements={[60]}
+        setValueOnQuickIncrement={true}
+        onChange={handleChange}
+      />,
+    );
+
+    // O chip deve exibir "60" ao invés de "+60"
+    const chip = screen.getByText('60');
+    expect(chip).toBeInTheDocument();
+    expect(screen.queryByText('+60')).not.toBeInTheDocument();
+
+    fireEvent.click(chip);
+    expect(handleChange).toHaveBeenCalledWith('60');
+  });
 });

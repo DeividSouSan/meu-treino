@@ -227,6 +227,7 @@ export function ExerciseScreen({
             step={15}
             min={0}
             quickIncrements={[60, 90, 120]}
+            setValueOnQuickIncrement={true}
             placeholder="120"
           />
 

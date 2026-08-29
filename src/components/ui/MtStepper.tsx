@@ -12,6 +12,7 @@ export interface MtStepperProps {
   unit?: string;
   placeholder?: string;
   quickIncrements?: number[];
+  setValueOnQuickIncrement?: boolean;
   style?: CSSProperties;
   disabled?: boolean;
 }
@@ -26,6 +27,7 @@ export function MtStepper({
   unit,
   placeholder,
   quickIncrements,
+  setValueOnQuickIncrement = false,
   style,
   disabled = false,
 }: MtStepperProps) {
@@ -39,6 +41,19 @@ export function MtStepper({
     if (max !== undefined && next > max) next = max;
     hapticService.lightTap();
     onChange(String(next));
+  };
+
+  const handleQuickIncrement = (inc: number) => {
+    if (disabled) return;
+    if (setValueOnQuickIncrement) {
+      let next = inc;
+      if (min !== undefined && next < min) next = min;
+      if (max !== undefined && next > max) next = max;
+      hapticService.lightTap();
+      onChange(String(next));
+    } else {
+      handleAdjust(inc);
+    }
   };
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -153,7 +168,7 @@ export function MtStepper({
             <button
               key={inc}
               type="button"
-              onClick={() => handleAdjust(inc)}
+              onClick={() => handleQuickIncrement(inc)}
               disabled={disabled}
               style={{
                 fontSize: '0.75rem',
@@ -168,7 +183,7 @@ export function MtStepper({
                 minHeight: '28px',
               }}
             >
-              {inc > 0 ? `+${inc}` : inc}
+              {setValueOnQuickIncrement ? inc : inc > 0 ? `+${inc}` : inc}
             </button>
           ))}
         </div>
