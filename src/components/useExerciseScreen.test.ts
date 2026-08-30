@@ -92,10 +92,11 @@ describe('useExerciseScreen — handleAddSet', () => {
       advancedTechniques: [],
     });
 
-    // Inputs são limpos após registrar a série
-    expect(result.current.repetitionsInput).toBe('');
-    expect(result.current.selectedTechniques).toEqual([]);
+    // Inputs are preserved after registering the series
+    expect(result.current.repetitionsInput).toBe('12');
+    expect(result.current.weightInput).toBe('75');
     expect(result.current.restInput).toBe('120');
+    expect(result.current.selectedTechniques).toEqual([]);
 
     // O cronômetro de descanso foi reiniciado (feature: timer inicia ao registrar)
     expect(espioncarDoStopwatch.reset).toHaveBeenCalled();
@@ -412,5 +413,22 @@ describe('useExerciseScreen — sincronização com exercício externo', () => {
     });
 
     expect(result.current.exercise.name).toBe('Nome Editado');
+  });
+
+  it('deve atualizar o equipmentType e loadType corretamente', () => {
+    const { result } = renderHook(() =>
+      useExerciseScreen({
+        initialExercise: exercicioInicial({ id: 'ex-1', name: 'Supino' }),
+        onUpdateExercise: vi.fn(),
+      }),
+    );
+
+    act(() => {
+      result.current.handleUpdateEquipmentType('dumbbell');
+      result.current.handleUpdateLoadType('each_side');
+    });
+
+    expect(result.current.exercise.equipmentType).toBe('dumbbell');
+    expect(result.current.exercise.loadType).toBe('each_side');
   });
 });

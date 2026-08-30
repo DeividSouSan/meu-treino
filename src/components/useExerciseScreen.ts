@@ -1,9 +1,20 @@
 import { useState, useCallback, useEffect } from 'react';
 import type { ChangeEvent } from 'react';
-import type { WorkoutExercise, ExerciseSet, AdvancedTechnique } from '../types/workout';
+import type {
+  WorkoutExercise,
+  ExerciseSet,
+  AdvancedTechnique,
+  EquipmentType,
+  LoadType,
+} from '../types/workout';
 import { useStopwatch } from '../hooks/useStopwatch';
 import type { UseStopwatchResult } from '../hooks/useStopwatch';
 import { hapticService } from '../services/hapticService';
+import {
+  getGlobalExerciseNotes,
+  saveGlobalExerciseNote,
+  getWorkoutHistory,
+} from '../services/storageService';
 
 export interface UseExerciseScreenProps {
   /**
@@ -30,8 +41,11 @@ export interface UseExerciseScreenResult {
   setRestInput: (value: string) => void;
   handleUpdateName: (event: ChangeEvent<HTMLInputElement>) => void;
   handleUpdateNotes: (event: ChangeEvent<HTMLInputElement>) => void;
+  handleUpdateNotesValue: (notes: string) => void;
   handleUpdateReferenceWeight: (event: ChangeEvent<HTMLInputElement>) => void;
   handleToggleTechnique: (technique: AdvancedTechnique) => void;
+  handleUpdateEquipmentType: (type: EquipmentType) => void;
+  handleUpdateLoadType: (type: LoadType) => void;
   handleAddSet: () => void;
   handleDeleteSet: (setIndexToDelete: number) => void;
   handleUpdateSet: (setIndex: number, updatedSet: ExerciseSet) => void;
@@ -85,15 +99,43 @@ export function useExerciseScreen({
    * Sincroniza a cópia de trabalho quando o exercício externo troca —
    * ou seja, quando o usuário navega para outro exercício. Os inputs de
    * série são reiniciados junto, mantendo o comportamento enxuto.
+   * Carrega a nota singleton do localStorage com base no nome do exercício.
+   * Também tenta obter do histórico o equipamento/carga padrão se vierem vazios.
    */
   useEffect(() => {
-    setExercise(initialExercise);
+    const normName = initialExercise.name.trim().toLowerCase();
+    const notesMap = getGlobalExerciseNotes();
+    const loadedNote =
+      normName && notesMap[normName] !== undefined
+        ? notesMap[normName]
+        : initialExercise.notes || '';
+
+    // Busca última sessão que teve esse mesmo exercício para herdar o equipamento e carga como padrão
+    let defaultEquipment = initialExercise.equipmentType;
+    let defaultLoad = initialExercise.loadType;
+    if (!defaultEquipment || !defaultLoad) {
+      const history = getWorkoutHistory();
+      const pastExercise = history
+        .flatMap((s) => s.exercises)
+        .find((e) => e.name.trim().toLowerCase() === normName);
+      if (pastExercise) {
+        if (!defaultEquipment) defaultEquipment = pastExercise.equipmentType;
+        if (!defaultLoad) defaultLoad = pastExercise.loadType;
+      }
+    }
+
+    setExercise({
+      ...initialExercise,
+      notes: loadedNote,
+      equipmentType: defaultEquipment,
+      loadType: defaultLoad,
+    });
     setRepetitionsInput('');
     setWeightInput(initialExercise.weightInKg > 0 ? String(initialExercise.weightInKg) : '');
     setRestInput('120');
     setSelectedTechniques([]);
     setValidationError(null);
-  }, [initialExercise.id, initialExercise.weightInKg]);
+  }, [initialExercise.id, initialExercise.name, initialExercise.weightInKg]);
 
   /**
    * Aplica uma modificação ao exercício: atualiza a cópia local e notifica
@@ -110,14 +152,32 @@ export function useExerciseScreen({
 
   const handleUpdateName = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      updateExercise({ ...exercise, name: event.target.value });
+      const newName = event.target.value;
+      const normName = newName.trim().toLowerCase();
+      const notesMap = getGlobalExerciseNotes();
+      const loadedNote = normName ? notesMap[normName] || '' : '';
+      updateExercise({ ...exercise, name: newName, notes: loadedNote });
     },
     [exercise, updateExercise],
   );
 
   const handleUpdateNotes = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      updateExercise({ ...exercise, notes: event.target.value });
+      const newNotes = event.target.value;
+      if (exercise.name) {
+        saveGlobalExerciseNote(exercise.name, newNotes);
+      }
+      updateExercise({ ...exercise, notes: newNotes });
+    },
+    [exercise, updateExercise],
+  );
+
+  const handleUpdateNotesValue = useCallback(
+    (notes: string) => {
+      if (exercise.name) {
+        saveGlobalExerciseNote(exercise.name, notes);
+      }
+      updateExercise({ ...exercise, notes });
     },
     [exercise, updateExercise],
   );
@@ -139,6 +199,28 @@ export function useExerciseScreen({
       return [...previousTechniques, technique];
     });
   }, []);
+
+  const handleUpdateEquipmentType = useCallback(
+    (type: EquipmentType) => {
+      setExercise((prev) => {
+        const updated = { ...prev, equipmentType: type };
+        onUpdateExercise(updated);
+        return updated;
+      });
+    },
+    [onUpdateExercise],
+  );
+
+  const handleUpdateLoadType = useCallback(
+    (type: LoadType) => {
+      setExercise((prev) => {
+        const updated = { ...prev, loadType: type };
+        onUpdateExercise(updated);
+        return updated;
+      });
+    },
+    [onUpdateExercise],
+  );
 
   const handleAddSet = useCallback(() => {
     const repetitions = parseInt(repetitionsInput, 10);
@@ -162,9 +244,11 @@ export function useExerciseScreen({
 
     updateExercise({ ...exercise, sets: [...exercise.sets, newSet] });
     hapticService.success();
-    setRepetitionsInput('');
-    setSelectedTechniques([]);
-    setRestInput('120');
+    // Preserve the just-added values as defaults for the next set
+    setRepetitionsInput(String(repetitions));
+    setWeightInput(String(weight));
+    setRestInput(String(effectiveRest));
+    setSelectedTechniques([...selectedTechniques]);
     restStopwatch.reset();
   }, [
     repetitionsInput,
@@ -232,8 +316,11 @@ export function useExerciseScreen({
     setRestInput,
     handleUpdateName,
     handleUpdateNotes,
+    handleUpdateNotesValue,
     handleUpdateReferenceWeight,
     handleToggleTechnique,
+    handleUpdateEquipmentType,
+    handleUpdateLoadType,
     handleAddSet,
     handleDeleteSet,
     handleUpdateSet,

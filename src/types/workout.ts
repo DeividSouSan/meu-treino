@@ -25,6 +25,9 @@ export interface ExerciseSet {
   advancedTechniques: AdvancedTechnique[];
 }
 
+export type EquipmentType = 'barbell' | 'dumbbell' | 'cable' | 'machine' | 'bodyweight' | 'other';
+export type LoadType = 'total' | 'each_side';
+
 /**
  * Representa o registro de um exercício específico realizado na sessão de treino.
  */
@@ -49,6 +52,14 @@ export interface WorkoutExercise {
    * Lista de séries executadas para este exercício.
    */
   sets: ExerciseSet[];
+  /**
+   * Tipo de equipamento utilizado para o exercício nesta sessão.
+   */
+  equipmentType?: EquipmentType;
+  /**
+   * Tipo de indicação do peso/carga nesta sessão.
+   */
+  loadType?: LoadType;
 }
 
 /**

@@ -45,3 +45,5 @@ export type { MtStepperProps } from './MtStepper';
 
 export { MtAlertDialog } from './MtAlertDialog';
 export type { MtAlertDialogProps } from './MtAlertDialog';
+
+export { MtTextArea } from './MtTextArea';

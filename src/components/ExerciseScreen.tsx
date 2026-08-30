@@ -10,6 +10,8 @@ import {
   MtConfirmDialog,
   MtStepper,
   MtAlertDialog,
+  MtTextArea,
+  MtPill,
 } from './ui';
 import { ExerciseSetItem } from './ExerciseSetItem';
 
@@ -111,22 +113,73 @@ export function ExerciseScreen({
         />
 
         <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
-          <MtField
-            label="Carga Padrão (kg)"
-            value={form.weightInput}
-            onChange={form.handleUpdateReferenceWeight}
-            placeholder="Ex: 30"
-            type="number"
-            step="any"
+          <MtTextArea
+            label="Notas"
+            value={form.exercise.notes || ''}
+            onChangeValue={form.handleUpdateNotesValue}
+            placeholder="Ex: Peso por lado com halteres; barra olímpica; polia..."
             style={{ flex: 1 }}
           />
-          <MtField
-            label="Notas"
-            value={form.exercise.notes}
-            onChange={form.handleUpdateNotes}
-            placeholder="Ex: Pegada aberta"
-            style={{ flex: 2 }}
-          />
+        </div>
+
+        {/* Seleção de Equipamento com MtPill */}
+        <div>
+          <label style={{ marginBottom: 'var(--spacing-xs)', display: 'block', fontWeight: 700 }}>
+            Equipamento
+          </label>
+          <div style={{ display: 'flex', gap: 'var(--spacing-xs)', flexWrap: 'wrap' }}>
+            <MtPill
+              isActive={form.exercise.equipmentType === 'barbell'}
+              onClick={() => form.handleUpdateEquipmentType('barbell')}
+            >
+              Barra
+            </MtPill>
+            <MtPill
+              isActive={form.exercise.equipmentType === 'dumbbell'}
+              onClick={() => form.handleUpdateEquipmentType('dumbbell')}
+            >
+              Halteres
+            </MtPill>
+            <MtPill
+              isActive={form.exercise.equipmentType === 'cable'}
+              onClick={() => form.handleUpdateEquipmentType('cable')}
+            >
+              Polia
+            </MtPill>
+            <MtPill
+              isActive={form.exercise.equipmentType === 'machine'}
+              onClick={() => form.handleUpdateEquipmentType('machine')}
+            >
+              Máquina
+            </MtPill>
+            <MtPill
+              isActive={form.exercise.equipmentType === 'bodyweight'}
+              onClick={() => form.handleUpdateEquipmentType('bodyweight')}
+            >
+              Peso Corporal
+            </MtPill>
+          </div>
+        </div>
+
+        {/* Seleção de Tipo de Carga com MtPill */}
+        <div>
+          <label style={{ marginBottom: 'var(--spacing-xs)', display: 'block', fontWeight: 700 }}>
+            Carga
+          </label>
+          <div style={{ display: 'flex', gap: 'var(--spacing-xs)' }}>
+            <MtPill
+              isActive={form.exercise.loadType === 'total'}
+              onClick={() => form.handleUpdateLoadType('total')}
+            >
+              Carga Total
+            </MtPill>
+            <MtPill
+              isActive={form.exercise.loadType === 'each_side'}
+              onClick={() => form.handleUpdateLoadType('each_side')}
+            >
+              Cada Lado
+            </MtPill>
+          </div>
         </div>
 
         {/* Visualização rápida das séries do último treino deste exercício */}
@@ -227,6 +280,7 @@ export function ExerciseScreen({
             step={15}
             min={0}
             quickIncrements={[60, 90, 120]}
+            setValueOnQuickIncrement={true}
             placeholder="120"
           />
 
