@@ -14,6 +14,9 @@ describe('runNotesMigrationV150', () => {
         name: 'Treino A',
         date: '2026-08-29T10:00:00Z',
         durationInSeconds: 3600,
+        cues: [],
+        isTemplate: false,
+        status: 'completed',
         exercises: [
           {
             id: 'ex-2',
@@ -29,6 +32,9 @@ describe('runNotesMigrationV150', () => {
         name: 'Treino A',
         date: '2026-08-28T10:00:00Z',
         durationInSeconds: 3600,
+        cues: [],
+        isTemplate: false,
+        status: 'completed',
         exercises: [
           {
             id: 'ex-1',
@@ -47,6 +53,9 @@ describe('runNotesMigrationV150', () => {
         name: 'Template Supino',
         date: '2026-08-27T10:00:00Z',
         durationInSeconds: 0,
+        cues: [],
+        isTemplate: true,
+        status: 'completed',
         exercises: [
           {
             id: 'ex-temp-1',
@@ -89,6 +98,9 @@ describe('runNotesMigrationV150', () => {
         name: 'Treino A',
         date: '2026-08-28T10:00:00Z',
         durationInSeconds: 3600,
+        cues: [],
+        isTemplate: false,
+        status: 'completed',
         exercises: [
           {
             id: 'ex-1',
