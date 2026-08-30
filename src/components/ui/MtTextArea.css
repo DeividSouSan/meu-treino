@@ -1,0 +1,32 @@
+.mt-textarea {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.mt-textarea-label {
+  margin-bottom: var(--spacing-xs);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.mt-textarea-input {
+  width: 100%;
+  min-height: 80px;
+  padding: var(--spacing-sm);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background: var(--background-primary);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 1.1rem;
+  line-height: 1.4;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.mt-textarea-input:focus {
+  outline: none;
+  border-color: var(--focus-color);
+}
