@@ -122,6 +122,35 @@ export function saveActiveWorkoutSession(workoutSession: WorkoutSession | null):
 }
 
 const LAST_BACKUP_COUNT_STORAGE_KEY = 'meu_treino_last_backup_count';
+const GLOBAL_NOTES_STORAGE_KEY = 'meu_treino_global_notes';
+
+/**
+ * Recupera as notas globais unificadas de todos os exercícios.
+ */
+export function getGlobalExerciseNotes(): Record<string, string> {
+  const notesJson = localStorage.getItem(GLOBAL_NOTES_STORAGE_KEY);
+  if (!notesJson) {
+    return {};
+  }
+  try {
+    return JSON.parse(notesJson) as Record<string, string>;
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Salva a nota de um exercício globalmente de forma unificada (Singleton).
+ */
+export function saveGlobalExerciseNote(exerciseName: string, notes: string): void {
+  const allNotes = getGlobalExerciseNotes();
+  const normalizedKey = exerciseName.trim().toLowerCase();
+  if (!normalizedKey) {
+    return;
+  }
+  allNotes[normalizedKey] = notes;
+  localStorage.setItem(GLOBAL_NOTES_STORAGE_KEY, JSON.stringify(allNotes));
+}
 
 /**
  * Recupera o número de treinos salvos que estavam no histórico durante o último backup.
@@ -150,4 +179,5 @@ export function clearAllWorkoutData(): void {
   localStorage.removeItem(TEMPLATE_STORAGE_KEY);
   localStorage.removeItem(ACTIVE_WORKOUT_STORAGE_KEY);
   localStorage.removeItem(LAST_BACKUP_COUNT_STORAGE_KEY);
+  localStorage.removeItem(GLOBAL_NOTES_STORAGE_KEY);
 }
