@@ -414,4 +414,21 @@ describe('useExerciseScreen — sincronização com exercício externo', () => {
 
     expect(result.current.exercise.name).toBe('Nome Editado');
   });
+
+  it('deve atualizar o equipmentType e loadType corretamente', () => {
+    const { result } = renderHook(() =>
+      useExerciseScreen({
+        initialExercise: exercicioInicial({ id: 'ex-1', name: 'Supino' }),
+        onUpdateExercise: vi.fn(),
+      }),
+    );
+
+    act(() => {
+      result.current.handleUpdateEquipmentType('dumbbell');
+      result.current.handleUpdateLoadType('each_side');
+    });
+
+    expect(result.current.exercise.equipmentType).toBe('dumbbell');
+    expect(result.current.exercise.loadType).toBe('each_side');
+  });
 });

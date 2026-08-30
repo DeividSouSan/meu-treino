@@ -1,9 +1,16 @@
 import { useState, useCallback, useEffect } from 'react';
 import type { ChangeEvent } from 'react';
-import type { WorkoutExercise, ExerciseSet, AdvancedTechnique } from '../types/workout';
+import type {
+  WorkoutExercise,
+  ExerciseSet,
+  AdvancedTechnique,
+  EquipmentType,
+  LoadType,
+} from '../types/workout';
 import { useStopwatch } from '../hooks/useStopwatch';
 import type { UseStopwatchResult } from '../hooks/useStopwatch';
 import { hapticService } from '../services/hapticService';
+import { getWorkoutHistory } from '../services/storageService';
 
 export interface UseExerciseScreenProps {
   /**
@@ -32,6 +39,8 @@ export interface UseExerciseScreenResult {
   handleUpdateNotes: (event: ChangeEvent<HTMLInputElement>) => void;
   handleUpdateReferenceWeight: (event: ChangeEvent<HTMLInputElement>) => void;
   handleToggleTechnique: (technique: AdvancedTechnique) => void;
+  handleUpdateEquipmentType: (type: EquipmentType) => void;
+  handleUpdateLoadType: (type: LoadType) => void;
   handleAddSet: () => void;
   handleDeleteSet: (setIndexToDelete: number) => void;
   handleUpdateSet: (setIndex: number, updatedSet: ExerciseSet) => void;
@@ -85,15 +94,36 @@ export function useExerciseScreen({
    * Sincroniza a cópia de trabalho quando o exercício externo troca —
    * ou seja, quando o usuário navega para outro exercício. Os inputs de
    * série são reiniciados junto, mantendo o comportamento enxuto.
+   * Tenta obter do histórico o equipamento/carga padrão se vierem vazios.
    */
   useEffect(() => {
-    setExercise(initialExercise);
+    const normName = initialExercise.name.trim().toLowerCase();
+
+    // Busca última sessão que teve esse mesmo exercício para herdar o equipamento e carga como padrão
+    let defaultEquipment = initialExercise.equipmentType;
+    let defaultLoad = initialExercise.loadType;
+    if (!defaultEquipment || !defaultLoad) {
+      const history = getWorkoutHistory();
+      const pastExercise = history
+        .flatMap((s) => s.exercises)
+        .find((e) => e.name.trim().toLowerCase() === normName);
+      if (pastExercise) {
+        if (!defaultEquipment) defaultEquipment = pastExercise.equipmentType;
+        if (!defaultLoad) defaultLoad = pastExercise.loadType;
+      }
+    }
+
+    setExercise({
+      ...initialExercise,
+      equipmentType: defaultEquipment,
+      loadType: defaultLoad,
+    });
     setRepetitionsInput('');
     setWeightInput(initialExercise.weightInKg > 0 ? String(initialExercise.weightInKg) : '');
     setRestInput('120');
     setSelectedTechniques([]);
     setValidationError(null);
-  }, [initialExercise.id, initialExercise.weightInKg]);
+  }, [initialExercise.id, initialExercise.name, initialExercise.weightInKg]);
 
   /**
    * Aplica uma modificação ao exercício: atualiza a cópia local e notifica
@@ -139,6 +169,28 @@ export function useExerciseScreen({
       return [...previousTechniques, technique];
     });
   }, []);
+
+  const handleUpdateEquipmentType = useCallback(
+    (type: EquipmentType) => {
+      setExercise((prev) => {
+        const updated = { ...prev, equipmentType: type };
+        onUpdateExercise(updated);
+        return updated;
+      });
+    },
+    [onUpdateExercise],
+  );
+
+  const handleUpdateLoadType = useCallback(
+    (type: LoadType) => {
+      setExercise((prev) => {
+        const updated = { ...prev, loadType: type };
+        onUpdateExercise(updated);
+        return updated;
+      });
+    },
+    [onUpdateExercise],
+  );
 
   const handleAddSet = useCallback(() => {
     const repetitions = parseInt(repetitionsInput, 10);
@@ -236,6 +288,8 @@ export function useExerciseScreen({
     handleUpdateNotes,
     handleUpdateReferenceWeight,
     handleToggleTechnique,
+    handleUpdateEquipmentType,
+    handleUpdateLoadType,
     handleAddSet,
     handleDeleteSet,
     handleUpdateSet,
