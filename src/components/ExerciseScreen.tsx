@@ -10,6 +10,7 @@ import {
   MtConfirmDialog,
   MtStepper,
   MtAlertDialog,
+  MtTextArea,
   MtPill,
 } from './ui';
 import { ExerciseSetItem } from './ExerciseSetItem';
@@ -112,21 +113,12 @@ export function ExerciseScreen({
         />
 
         <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
-          <MtField
-            label="Carga Padrão (kg)"
-            value={form.weightInput}
-            onChange={form.handleUpdateReferenceWeight}
-            placeholder="Ex: 30"
-            type="number"
-            step="any"
-            style={{ flex: 1 }}
-          />
-          <MtField
+          <MtTextArea
             label="Notas"
-            value={form.exercise.notes}
-            onChange={form.handleUpdateNotes}
-            placeholder="Ex: Pegada aberta"
-            style={{ flex: 2 }}
+            value={form.exercise.notes || ''}
+            onChangeValue={form.handleUpdateNotesValue}
+            placeholder="Ex: Peso por lado com halteres; barra olímpica; polia..."
+            style={{ flex: 1 }}
           />
         </div>
 
