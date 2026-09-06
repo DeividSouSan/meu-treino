@@ -2,10 +2,12 @@ import packageInfo from '../../../package.json';
 import { useHistoryView } from './useHistoryView';
 import {
   BackupSection,
+  ExportAISection,
   ActiveWorkoutCard,
   WorkoutHistoryList,
   VersionInfo,
 } from '../../components/history';
+
 import {
   MtCard,
   MtFloatingActionButton,
@@ -102,6 +104,15 @@ export function HistoryView() {
             onImportSuccess={handleImportSuccess}
             workoutHistoryLength={workoutHistory.length}
           />
+          <hr
+            style={{
+              border: 'none',
+              borderTop: '1px solid var(--border-color)',
+              margin: 'var(--spacing-xs) 0',
+            }}
+          />
+          {/* Pass the full workout history to ExportAISection for proper export */}
+          <ExportAISection asCard={false} workoutHistory={workoutHistory} />
           <hr
             style={{
               border: 'none',

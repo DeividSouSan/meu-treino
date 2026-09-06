@@ -15,3 +15,6 @@ export type { FloatingActionButtonProps } from './FloatingActionButton';
 
 export { VersionInfo } from './VersionInfo';
 export type { VersionInfoProps } from './VersionInfo';
+
+export { ExportAISection } from './ExportAISection';
+export type { ExportAISectionProps } from './ExportAISection';
