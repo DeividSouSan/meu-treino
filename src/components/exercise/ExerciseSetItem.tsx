@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import type { CSSProperties } from 'react';
-import type { ExerciseSet, AdvancedTechnique } from '../types/workout';
+import type { ExerciseSet, AdvancedTechnique } from '../../types/workout';
 import { X, Edit2, Save, Trash2 } from 'lucide-react';
 import { ExerciseTechniquePills } from './ExerciseTechniquePills';
-import { MtButton, MtConfirmDialog, MtStepper } from './ui';
-import { hapticService } from '../services/hapticService';
+import { MtButton, MtConfirmDialog, MtStepper } from '../ui';
+import { hapticService } from '../../services/hapticService';
 
 export interface ExerciseSetItemProps {
   set: ExerciseSet;

@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
-import type { WorkoutExercise } from '../types/workout';
+import type { WorkoutExercise } from '../../types/workout';
 import { useExerciseScreen } from './useExerciseScreen';
-import { RestTimer } from './RestTimer';
+import { RestTimer } from '../common/RestTimer';
 import {
   MtButton,
   MtEmptyState,
@@ -12,7 +12,7 @@ import {
   MtAlertDialog,
   MtTextArea,
   MtPill,
-} from './ui';
+} from '../ui';
 import { ExerciseSetItem } from './ExerciseSetItem';
 
 import { ExerciseTechniquePills } from './ExerciseTechniquePills';

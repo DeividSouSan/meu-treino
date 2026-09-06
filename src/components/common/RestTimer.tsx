@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
-import type { UseStopwatchResult } from '../hooks/useStopwatch';
+import type { UseStopwatchResult } from '../../hooks/useStopwatch';
 import { Clock, RotateCcw } from 'lucide-react';
-import { MtButton } from './ui';
-import { hapticService } from '../services/hapticService';
+import { MtButton } from '../ui';
+import { hapticService } from '../../services/hapticService';
 
 export interface RestTimerProps {
   stopwatch: UseStopwatchResult;

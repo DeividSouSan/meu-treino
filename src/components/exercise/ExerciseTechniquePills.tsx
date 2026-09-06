@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
-import type { AdvancedTechnique } from '../types/workout';
-import { MtPill } from './ui';
+import type { AdvancedTechnique } from '../../types/workout';
+import { MtPill } from '../ui';
 
 export interface ExerciseTechniquePillsProps {
   selectedTechniques: AdvancedTechnique[];

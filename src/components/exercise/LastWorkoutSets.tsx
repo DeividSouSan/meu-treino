@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { History } from 'lucide-react';
-import type { WorkoutSession, WorkoutExercise, ExerciseSet } from '../types/workout';
-import { useHistory } from '../hooks';
-import { MtSectionTitle } from './ui/MtSectionTitle';
+import type { WorkoutSession, WorkoutExercise, ExerciseSet } from '../../types/workout';
+import { useHistory } from '../../hooks';
+import { MtSectionTitle } from '../ui/MtSectionTitle';
 
 export interface LastWorkoutSetsProps {
   /**

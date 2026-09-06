@@ -1,5 +1,5 @@
-import type { WorkoutExercise } from '../types/workout';
-import { MtCard } from './ui';
+import type { WorkoutExercise } from '../../types/workout';
+import { MtCard } from '../ui';
 
 export interface ExerciseListProps {
   exercises: WorkoutExercise[];

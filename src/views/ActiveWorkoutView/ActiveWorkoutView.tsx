@@ -1,8 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useActiveWorkoutScreen } from './useActiveWorkoutScreen';
 import { useExerciseNavigation } from '../../hooks/useExerciseNavigation';
-import { ExerciseList } from '../../components/ExerciseList';
-import { ExerciseScreen } from '../../components/ExerciseScreen';
+import { ExerciseList, ExerciseScreen } from '../../components/exercise';
 import { ActiveWorkoutHeader, CueManager, ExerciseSearch } from '../../components/active-workout';
 import { MtEmptyState, MtSectionTitle, MtCard } from '../../components/ui';
 import { Dumbbell } from 'lucide-react';
