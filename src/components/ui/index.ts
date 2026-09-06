@@ -47,3 +47,6 @@ export { MtAlertDialog } from './MtAlertDialog';
 export type { MtAlertDialogProps } from './MtAlertDialog';
 
 export { MtTextArea } from './MtTextArea';
+
+export { MtSelect } from './MtSelect';
+export type { MtSelectProps, MtSelectOption } from './MtSelect';
