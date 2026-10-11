@@ -10,6 +10,11 @@ export interface BackupSectionProps {
    */
   onImportSuccess: () => void;
   /**
+   * Disparado após uma exportação, para manipular alertas visuais
+   * (ex.: ocultar aviso de sessões não exportadas).
+   */
+  onExportSuccess: () => void;
+  /**
    * Quantidade atual de treinos no histórico. Serve para calcular quantos
    * treinos novos existem desde o último backup.
    */
@@ -30,6 +35,7 @@ export interface BackupSectionProps {
  */
 export function BackupSection({
   onImportSuccess,
+  onExportSuccess,
   workoutHistoryLength,
   asCard = true,
 }: BackupSectionProps) {
@@ -102,6 +108,7 @@ export function BackupSection({
 
   const handleExportBackup = useCallback(() => {
     exportBackup();
+    onExportSuccess();
   }, [exportBackup]);
 
   const handleTriggerFileInput = useCallback(() => {

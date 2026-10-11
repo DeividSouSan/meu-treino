@@ -32,6 +32,7 @@ export function HistoryView() {
     sessionToDeleteId,
     selectedSessionForActions,
     isSettingsOpen,
+    hasUnsavedSessions,
     openSettings,
     closeSettings,
     resumeActiveWorkout,
@@ -44,6 +45,7 @@ export function HistoryView() {
     confirmDeleteSession,
     cancelDeleteSession,
     handleImportSuccess,
+    handleExportSuccess,
     handleCreateNewWorkout,
     formatWorkoutDate,
     formatWorkoutDuration,
@@ -59,9 +61,17 @@ export function HistoryView() {
           onClick={openSettings}
           aria-label="Configurações e Backup"
           title="Configurações e Backup"
-          style={{ padding: '6px 8px', minHeight: '40px' }}
+          style={
+            hasUnsavedSessions
+              ? { padding: '6px 8px', minHeight: '40px', border: '2px var(--danger-color) dashed' }
+              : { padding: '6px 8px', minHeight: '40px' }
+          }
         >
-          <Settings size={20} strokeWidth={2.25} color="var(--text-secondary)" />
+          <Settings
+            size={20}
+            strokeWidth={2.25}
+            color={`${hasUnsavedSessions ? 'var(--danger-color)' : 'var(--text-secondary)'}`}
+          />
         </MtButton>
       </header>
 
@@ -102,6 +112,7 @@ export function HistoryView() {
           <BackupSection
             asCard={false}
             onImportSuccess={handleImportSuccess}
+            onExportSuccess={handleExportSuccess}
             workoutHistoryLength={workoutHistory.length}
           />
           <hr

@@ -1,8 +1,9 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { WorkoutSession } from '../../types/workout';
 import { useHistory, useSession, useNavigation } from '../../hooks';
 import { useHistoryFormatters } from '../../hooks/useHistoryFormatters';
 import { exportSingleWorkoutSession } from '../../services/backupService';
+import { getLastBackupWorkoutCount } from '../../services/storageService';
 
 export interface UseHistoryViewResult {
   /**
@@ -25,6 +26,10 @@ export interface UseHistoryViewResult {
    * Estado de visibilidade do modal de Configurações & Backup.
    */
   isSettingsOpen: boolean;
+  /**
+   * Estado de visibilidade do alerta vermelho (treinos não salvos) de Configurações & Backup.
+   */
+  hasUnsavedSessions: boolean;
   /**
    * Abre o modal de Configurações & Backup.
    */
@@ -75,6 +80,10 @@ export interface UseHistoryViewResult {
    */
   handleImportSuccess: () => void;
   /**
+   * Disparado após uma exportação de backup.
+   */
+  handleExportSuccess: () => void;
+  /**
    * Cria um novo treino em branco ("Treino Livre").
    */
   handleCreateNewWorkout: () => void;
@@ -99,6 +108,7 @@ export interface UseHistoryViewResult {
 export function useHistoryView(): UseHistoryViewResult {
   const [sessionToDeleteId, setSessionToDeleteId] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [hasUnsavedSessions, setHasUnsavedSessions] = useState<boolean>(false);
   const [selectedSessionForActions, setSelectedSessionForActions] = useState<WorkoutSession | null>(
     null,
   );
@@ -178,10 +188,21 @@ export function useHistoryView(): UseHistoryViewResult {
     navigateToHistory();
   }, [reloadAllData, navigateToHistory]);
 
+  const handleExportSuccess = useCallback(() => {
+    setHasUnsavedSessions(false);
+  }, []);
+
   const handleCreateNewWorkout = useCallback(() => {
     startNewWorkout(null);
     navigateToActiveWorkout();
   }, [startNewWorkout, navigateToActiveWorkout]);
+
+  useEffect(() => {
+    var savedWorkoutsCount = getLastBackupWorkoutCount();
+
+    if (savedWorkoutsCount < workoutHistory.length) setHasUnsavedSessions(true);
+    else setHasUnsavedSessions(false);
+  });
 
   return {
     workoutHistory,
@@ -189,6 +210,7 @@ export function useHistoryView(): UseHistoryViewResult {
     sessionToDeleteId,
     selectedSessionForActions,
     isSettingsOpen,
+    hasUnsavedSessions,
     openSettings,
     closeSettings,
     resumeActiveWorkout: navigateToActiveWorkout,
@@ -201,6 +223,7 @@ export function useHistoryView(): UseHistoryViewResult {
     confirmDeleteSession,
     cancelDeleteSession,
     handleImportSuccess,
+    handleExportSuccess,
     handleCreateNewWorkout,
     formatWorkoutDate,
     formatWorkoutDuration,
