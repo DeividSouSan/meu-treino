@@ -183,7 +183,10 @@ export function ExerciseScreen({
         </div>
 
         {/* Visualização rápida das séries do último treino deste exercício */}
-        <LastWorkoutSets exerciseName={form.exercise.name} />
+        <LastWorkoutSets
+          exerciseName={form.exercise.name}
+          equipmentType={form.exercise.equipmentType}
+        />
 
         {/* Lista de séries já registradas */}
         <div>

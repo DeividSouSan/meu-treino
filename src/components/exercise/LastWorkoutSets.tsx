@@ -10,6 +10,11 @@ export interface LastWorkoutSetsProps {
    * Serve para localizar o mesmo exercício nos treinos anteriores.
    */
   exerciseName: string;
+  /**
+   * Tipo do equipamento que o usuário está usando neste exercicio.
+   * Serve para localizar o exercício com o mesmo equipamento nos treinos anteriores.
+   */
+  equipmentType: string | undefined;
 }
 
 /**
@@ -19,10 +24,8 @@ export interface LastWorkoutSetsProps {
  * O componente é autocontido: toda a lógica de busca está dentro dele.
  * Ele obtém o histórico de treinos diretamente do contexto (sem prop-drilling)
  * e encontra a sessão mais recente que contenha o exercício informado.
- *
- * O único dado recebido via props é o nome do exercício atual.
  */
-export function LastWorkoutSets({ exerciseName }: LastWorkoutSetsProps) {
+export function LastWorkoutSets({ exerciseName, equipmentType }: LastWorkoutSetsProps) {
   const { workoutHistory } = useHistory();
 
   /**
@@ -38,9 +41,19 @@ export function LastWorkoutSets({ exerciseName }: LastWorkoutSetsProps) {
     }
 
     const sessaoEncontrada = workoutHistory.find((session: WorkoutSession) => {
-      const contemExercicio = session.exercises.some(
-        (exercise: WorkoutExercise) => exercise.name.trim().toLowerCase() === nomeNormalizado,
-      );
+      let contemExercicio = false;
+
+      if (equipmentType != undefined)
+        contemExercicio = session.exercises.some(
+          (exercise: WorkoutExercise) =>
+            exercise.name.trim().toLowerCase() === nomeNormalizado &&
+            exercise.equipmentType == equipmentType,
+        );
+      else
+        contemExercicio = session.exercises.some(
+          (exercise: WorkoutExercise) => exercise.name.trim().toLowerCase() === nomeNormalizado,
+        );
+
       return session.status === 'completed' && contemExercicio;
     });
 
@@ -60,7 +73,7 @@ export function LastWorkoutSets({ exerciseName }: LastWorkoutSetsProps) {
       series: exercicioDoUltimoTreino.sets,
       dataDoTreino: sessaoEncontrada.date,
     };
-  }, [exerciseName, workoutHistory]);
+  }, [exerciseName, workoutHistory, equipmentType]);
 
   /**
    * Formata a data de um treino no padrão brasileiro (ex: "05/08, 14:30").
@@ -88,7 +101,7 @@ export function LastWorkoutSets({ exerciseName }: LastWorkoutSetsProps) {
         icon={<History size={16} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />}
         style={{ fontSize: '1rem', marginBottom: 'var(--spacing-sm)' }}
       >
-        Último Treino
+        Último Treino: {exerciseName} & {equipmentType}
       </MtSectionTitle>
 
       {ultimoTreino ? (
@@ -155,6 +168,29 @@ export function LastWorkoutSets({ exerciseName }: LastWorkoutSetsProps) {
                     }}
                   >
                     {set.restTimeInSeconds}s
+                  </span>
+                )}
+
+                {set.restTimeInSeconds > 0 && set.advancedTechniques.length > 0 && (
+                  <span
+                    style={{
+                      fontSize: '0.8rem',
+                      color: 'var(--text-secondary)',
+                      padding: '0 0.5rem 0 0.5rem',
+                    }}
+                  >
+                    |
+                  </span>
+                )}
+
+                {set.advancedTechniques.length > 0 && (
+                  <span
+                    style={{
+                      fontSize: '0.8rem',
+                      color: 'var(--text-secondary)',
+                    }}
+                  >
+                    {set.advancedTechniques.map((element) => `${element} `)}
                   </span>
                 )}
               </li>
