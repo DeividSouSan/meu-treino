@@ -6,15 +6,15 @@ import type {
   AdvancedTechnique,
   EquipmentType,
   LoadType,
-} from '../types/workout';
-import { useStopwatch } from '../hooks/useStopwatch';
-import type { UseStopwatchResult } from '../hooks/useStopwatch';
-import { hapticService } from '../services/hapticService';
+} from '../../types/workout';
+import { useStopwatch } from '../../hooks/useStopwatch';
+import type { UseStopwatchResult } from '../../hooks/useStopwatch';
+import { hapticService } from '../../services/hapticService';
 import {
   getGlobalExerciseNotes,
   saveGlobalExerciseNote,
   getWorkoutHistory,
-} from '../services/storageService';
+} from '../../services/storageService';
 
 export interface UseExerciseScreenProps {
   /**

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import type { ChangeEvent } from 'react';
-import type { WorkoutExercise, AdvancedTechnique } from '../types/workout';
+import type { WorkoutExercise, AdvancedTechnique } from '../../types/workout';
 import { useExerciseScreen } from './useExerciseScreen';
 
 /**
@@ -15,7 +15,7 @@ const espioncarDoStopwatch = vi.hoisted(() => ({
   reset: vi.fn(),
 }));
 
-vi.mock('../hooks/useStopwatch', () => ({
+vi.mock('../../hooks/useStopwatch', () => ({
   useStopwatch: () => ({
     seconds: 0,
     isRunning: false,
