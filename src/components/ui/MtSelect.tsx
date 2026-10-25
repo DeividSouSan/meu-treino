@@ -47,7 +47,7 @@ export function MtSelect({
           padding: '10px 12px',
           borderRadius: 'var(--border-radius-sm, 8px)',
           border: '1px solid var(--border-color)',
-          backgroundColor: 'var(--bg-secondary)',
+          backgroundColor: 'var(--bg-secondary, var(--card-background))',
           color: 'var(--text-primary)',
           fontSize: '0.95rem',
           outline: 'none',

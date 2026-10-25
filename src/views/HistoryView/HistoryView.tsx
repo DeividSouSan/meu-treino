@@ -1,5 +1,6 @@
 import packageInfo from '../../../package.json';
 import { useHistoryView } from './useHistoryView';
+import { useTheme } from '../../hooks';
 import {
   BackupSection,
   ExportAISection,
@@ -15,8 +16,19 @@ import {
   MtConfirmDialog,
   MtButton,
   MtModal,
+  MtSelect,
 } from '../../components/ui';
-import { Calendar, Settings, Plus, Pencil, Download, Trash2 } from 'lucide-react';
+import {
+  Calendar,
+  Settings,
+  Plus,
+  Pencil,
+  Download,
+  Trash2,
+  Sun,
+  Moon,
+  Monitor,
+} from 'lucide-react';
 
 /**
  * HistoryView é a tela apresentacional do histórico de treinos.
@@ -50,6 +62,8 @@ export function HistoryView() {
     formatWorkoutDate,
     formatWorkoutDuration,
   } = useHistoryView();
+
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
   return (
     <div>
@@ -109,6 +123,33 @@ export function HistoryView() {
           className="mt-modal-body"
           style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}
         >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--spacing-sm)',
+              padding: 'var(--spacing-sm) 0',
+            }}
+          >
+            {resolvedTheme === 'dark' ? (
+              <Moon size={18} strokeWidth={2.25} />
+            ) : resolvedTheme === 'light' ? (
+              <Sun size={18} strokeWidth={2.25} />
+            ) : (
+              <Monitor size={18} strokeWidth={2.25} />
+            )}
+            <MtSelect
+              label="Tema"
+              value={theme}
+              onChange={(event) => setTheme(event.target.value as 'light' | 'dark' | 'system')}
+              options={[
+                { value: 'system', label: 'Seguir o sistema' },
+                { value: 'light', label: 'Claro' },
+                { value: 'dark', label: 'Escuro' },
+              ]}
+              style={{ flex: 1, maxWidth: '220px' }}
+            />
+          </div>
           <BackupSection
             asCard={false}
             onImportSuccess={handleImportSuccess}
