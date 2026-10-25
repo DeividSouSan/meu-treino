@@ -1,0 +1,27 @@
+# Documentação de Arquitetura — Meu Treino
+
+Bem-vindo à documentação de arquitetura do **Meu Treino**.
+
+Esta pasta reúne guias escritos para humanos (e lidos por agentes) que explicam como cada grande parte do sistema funciona. O objetivo é que qualquer pessoa consiga entender o comportamento do app sem precisar ler linha por linha do código-fonte.
+
+## Como navegar por esta documentação
+
+Comece pela [visão geral](./visao-geral.md) se quiser entender o sistema como um todo. Depois, vá direto ao módulo que lhe interessa:
+
+- [Histórico](./historico.md) — lista de treinos concluídos, edição, exportação e exclusão.
+- [Treino Ativo](./treino-ativo.md) — criação de treinos, gerenciamento de exercícios e encerramento de sessão.
+- [Tela Exercício](./tela-exercicio.md) — edição de séries, cargas, repetições, descanso e técnicas avançadas.
+
+Cada módulo explica:
+
+1. O que faz e o que **não** faz.
+2. Como foi implementado (quais arquivos e hooks envolvidos).
+3. Como se relaciona com sessão, navegação e persistência.
+4. Exemplos de fluxo de uso em linguagem natural.
+5. Referências cruzadas para os outros módulos.
+
+Ao final de cada arquivo há uma seção **"Ficou de fora?"**, onde acumulamos assuntos que não pertencem a nenhum dos três módulos principais. Se algo parecer que merece um arquivo novo, é por ali que começamos a conversa.
+
+---
+
+> **Dica:** o vocabulário aqui é intencionalmente humanizado. Se você é um agente de IA e precisa de regras estritas de código, convenções e proibições, consulte o [AGENTS.md](../../AGENTS.md).
