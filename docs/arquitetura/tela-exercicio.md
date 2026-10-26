@@ -20,19 +20,70 @@ A **Tela Exercício** é onde o usuário registra as séries de um exercício es
 - Não finaliza ou cancela o treino como um todo (isso é o [Treino Ativo](./treino-ativo.md)).
 - Não lista treinos concluídos (isso é o [Histórico](./historico.md)).
 
-## Como foi implementado
+## Fluxo do usuário
 
-O módulo é composto por:
+```mermaid
+graph TD
+    A[Abrir Treino Ativo] --> B[Tocar em um exercício]
+    B --> C[Tela Exercício]
+    C -->|Adicionar Série| C
+    C -->|Editar Série| C
+    C -->|Excluir Série| C
+    C -->|Ajuste rápido reps| C
+    C -->|Copiar último set| C
+    C -->|Iniciar cronômetro descanso| C
+    C -->|Voltar| A[Treino Ativo - exercício atualizado]
+```
 
-- **`ExerciseScreen.tsx`** — a View da tela. Renderiza os inputs de reps/carga/descanso, a lista de séries, o cronômetro de descanso e os botões de ação.
-- **`useExerciseScreen.ts`** — o container hook. Mantém uma cópia de trabalho do exercício (estado interno) e notifica o pai sempre que algo muda via `onUpdateExercise`.
-- **`ExerciseSetItem.tsx`** — renderiza uma série individual na lista.
-- **`ExerciseList.tsx`** — renderiza a lista de séries do exercício.
-- **`ExerciseTechniquePills.tsx`** — chips para selecionar técnicas avançadas (RP, DS, FS, ISO).
-- **`LastWorkoutSets.tsx`** — mostra as séries do último treino para esse mesmo exercício (referência).
-- **`RestTimer.tsx`** — cronômetro de descanso.
+## Como as peças se coordenam (diagrama de camadas)
+
+O código espalha a responsabilidade entre vários arquivos. Este diagrama mostra quem chama quem quando o usuário interage com a Tela Exercício:
+
+```
+View (ExerciseScreen.tsx)
+  └─ Pura, sem lógica. Recebe o exercício e callbacks via props de useExerciseScreen.
+      │
+      ▼ props + callbacks
+Container (useExerciseScreen.ts)
+  └─ Mantém uma cópia de trabalho do exercício (estado interno).
+      │
+      ▼ notifica toda alteração
+onUpdateExercise(exercício modificado)
+  └─ Chamado no pai (Treino Ativo), que atualiza o exercício dentro da sessão ativa no SessionContext.
+      │
+      ▼ grava quando necessário
+Serviço de persistência (storageService.ts)
+  └─ Lê e grava notas globais de exercício (chave: meu_treino_global_notes)
+```
+
+Essa separação é intencional: nenhum componente recebe props em cascade (prop-drilling é proibido pelo AGENTS.md). Cada camada tem um papel claro e a View nunca sabe que o LocalStorage existe para notas globais.
+
+## O que você vê ao abrir
+
+Ao abrir a Tela Exercício, a tela é composta por:
+
+- **Cabeçalho**: nome do exercício (editável) e carga de referência.
+- **Inputs de série**: repetições, carga e tempo de descanso.
+- **Técnicas avançadas**: chips para selecionar técnicas (RP, DS, FS, ISO).
+- **Botão "Adicionar Série"**: valida os campos e insere a série na lista.
+- **Lista de séries**: cada item exibe repetições, carga, descanso e técnicas aplicadas, com botões de edição e exclusão.
+- **Botão "Copiar último set"**: preenche os campos com os valores da última série adicionada.
+- **Cronômetro de descanso**: conta o tempo de descanso entre séries (zerado e iniciado após adicionar uma série).
+- **Seção "Último treino"**: mostra as séries do último treino para esse mesmo exercício, servindo de referência (`LastWorkoutSets`).
+- **Notas rápidas**: campo de texto para anotações do exercício, sincronizadas globalmente.
+
+Não aparecem dados de outros exercícios nem do treino como um todo — esses detalhes só são vistos no [Treino Ativo](./treino-ativo.md).
+
+## O container `useExerciseScreen` e o estado interno
 
 O container `useExerciseScreen` consolidou o estado do formulário em uma única fonte de verdade: o exercício de trabalho. Quando o usuário navega para outro exercício, o estado interno é sincronizado com o exercício novo recebido pelo pai.
+
+**Por que um estado interno separado?** A Tela Exercício não grava cada alteração imediatamente no `SessionContext`. Ela mantém uma cópia de trabalho e só notifica o pai via `onUpdateExercise` sempre que algo muda. Isso evita:
+
+1. **Re-renders desnecessários**: toda digitação nos inputs não dispara atualização no estado global da sessão.
+2. **Desacoplamento**: a Tela Exercício não sabe nada sobre o treino como um todo; ela apenas recebe um exercício e devolve um exercício modificado.
+
+Todo fluxo de mutação passa por `onUpdateExercise`, que atualiza o exercício dentro da sessão ativa no `SessionContext`.
 
 ## Relação com o Treino Ativo
 
@@ -49,6 +100,15 @@ A Tela Exercício lê e grava notas globais de exercício via `storageService`:
 
 Isso significa que, se o usuário anotar "pescoço neutro" no Supino de um treino, essa mesma nota estará disponível no Supino de qualquer outro treino.
 
+## Validação de campos
+
+Antes de adicionar uma série, o container valida os campos:
+
+- Repetições devem ser maiores que zero.
+- Carga deve ser maior que zero.
+
+Se a validação falhar, a série não é adicionada e o usuário é informado (mensagem de erro ou destaque no campo inválido).
+
 ## Fluxo típico (em linguagem natural)
 
 1. Dentro do Treino Ativo, o usuário toca em um exercício → abre a Tela Exercício.
@@ -58,6 +118,19 @@ Isso significa que, se o usuário anotar "pescoço neutro" no Supino de um trein
 5. Se quiser repetir as repetições da última série, clica em "Copiar último set".
 6. Após adicionar a série, o cronômetro de descanso é zerado e começa a contar.
 7. Quando termina com o exercício, volta para o Treino Ativo. Todas as alterações já foram salvas na sessão.
+
+## Filosofia de componentização e onde as coisas acontecem
+
+O projeto segue a separação entre componentes de UI (`Mt*`, agnósticos) e componentes de domínio (nomes de treino). Na Tela Exercício isso se reflete assim:
+
+- **`ExerciseScreen.tsx`** — View pura. Não tem lógica: recebe todos os dados e callbacks de `useExerciseScreen` via props. Só renderiza.
+- **`ExerciseSetItem.tsx`** — renderiza uma série individual na lista (edição e exclusão de série).
+- **`ExerciseList.tsx`** — renderiza a lista de séries do exercício.
+- **`ExerciseTechniquePills.tsx`** — chips para selecionar técnicas avançadas (RP, DS, FS, ISO).
+- **`LastWorkoutSets.tsx`** — mostra as séries do último treino para esse mesmo exercício (referência).
+- **`RestTimer.tsx`** — cronômetro de descanso.
+
+Nenhum componente recebe props em cascade: tudo vem do container `useExerciseScreen`, consumido diretamente pela View.
 
 ## Referências cruzadas
 

@@ -15,10 +15,14 @@ Comece pela [visão geral](./visao-geral.md) se quiser entender o sistema como u
 Cada módulo explica:
 
 1. O que faz e o que **não** faz.
-2. Como foi implementado (quais arquivos e hooks envolvidos).
-3. Como se relaciona com sessão, navegação e persistência.
-4. Exemplos de fluxo de uso em linguagem natural.
-5. Referências cruzadas para os outros módulos.
+2. Fluxo do usuário (diagrama Mermaid).
+3. Como as peças se coordenam (diagrama de camadas: quem chama quem).
+4. O que você vê ao abrir (detalhes da interface).
+5. Onde os dados moram (chaves do `LocalStorage`).
+6. Decisões de design ("por que" de cada escolha).
+7. Filosofia de componentização (`Mt*` para UI, componentes de domínio para regras de treino).
+8. Exemplos de fluxo de uso em linguagem natural.
+9. Referências cruzadas para os outros módulos.
 
 Ao final de cada arquivo há uma seção **"Ficou de fora?"**, onde acumulamos assuntos que não pertencem a nenhum dos três módulos principais. Se algo parecer que merece um arquivo novo, é por ali que começamos a conversa.
 

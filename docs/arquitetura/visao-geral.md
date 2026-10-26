@@ -19,6 +19,29 @@ Histórico  ↔  Treino Ativo  ↔  Tela do Exercício
 - No **Treino Ativo**, você gerencia a lista de exercícios e entra na tela de cada exercício para registrar séries.
 - Na **Tela do Exercício**, você adiciona e edita séries, depois volta para o Treino Ativo.
 
+## Como as peças se coordenam (diagrama de camadas do sistema)
+
+O código espalha a responsabilidade entre camadas bem definidas. Este diagrama mostra quem chama quem quando o usuário interage com qualquer tela do app:
+
+```
+View (HistoryView / ActiveWorkoutView / ExerciseScreen)
+  └─ Pura, sem lógica. Recebe dados e callbacks via props de containers co-localizados.
+      │
+      ▼ props + callbacks
+Container (useHistoryView / useActiveWorkoutScreen / useExerciseScreen)
+  └─ Único ponto que une os contextos especializados de cada tela.
+      │ consome
+      ├─ HistoryContext (workoutHistory, deleteSession, reloadAllData)
+      ├─ SessionContext (startNewWorkout, updateActiveSession, finishActiveWorkout, cancelActiveWorkout, saveEditedWorkout)
+      └─ NavigationContext (navigateToHistory, navigateToActiveWorkout)
+      │
+      ▼ chama quando necessário
+Serviço de persistência (storageService.ts / backupService.ts / exportAI.ts)
+  └─ Lê e grava diretamente no LocalStorage (chaves: meu_treino_history, meu_treino_active, meu_treino_templates, meu_treino_global_notes, meu_treino_last_backup_count)
+```
+
+Essa separação é intencional: nenhum componente recebe props em cascade (prop-drilling é proibido pelo AGENTS.md). Cada camada tem um papel claro e a View nunca sabe que o LocalStorage existe.
+
 ## Quem detém o estado
 
 O estado do app é dividido em três contextos especializados (não há passagem de props em cascade):
@@ -43,7 +66,7 @@ Não há cadastro, não há servidor, não há nuvem.
 - **Notepad-style:** se uma série está listada na tela, ela já foi executada. Não há checkboxes de confirmação.
 - **Mobile-first rigoroso:** interface feita para uso com uma mão na academia, com alvos de toque generosos.
 - **Offline-first:** o app funciona inteiramente sem internet.
-- **Sem prop-drilling:** os componentes consomem os contextos diretamente, sem receber props encadeados.
+- **Sem prop-drilling:** os componentes consomem os contextos diretamente, sem receber props encadeados. Cada tela tem seu container hook co-localizado (`useHistoryView`, `useActiveWorkoutScreen`, `useExerciseScreen`) que une os contextos especializados.
 - **Soberania dos dados:** o usuário exporta e importa backups em JSON quando quiser.
 
 ## Como ler os outros arquivos
@@ -56,7 +79,7 @@ Os arquivos se referenciam uns aos outros, então você pode navegar entre eles 
 
 ## O que não encaixou aqui?
 
-Esta visão geral é intencionalmente rasgada. Assuntos que não couberam em nenhum dos três módulos principais (backup em lote, exportação de IA, service worker, migração de notas, etc.) são listados ao final de cada módulo na seção **"Ficou de fora?"**. Se algo parecer que merece um documento próprio, é por ali que começa a discussão.
+Esta visão geral é intencionalmente rasgada. Assuntos que não couberam em nenhum dos três módulos principais (backup em lote, exportação de IA, service worker, migração de notas, etc.) são listados ao final de cada módulo na seção **"Ficou de fora?"**. Cada módulo (`historico.md`, `treino-ativo.md`, `tela-exercicio.md`) tem sua própria seção "Ficou de fora?", onde acumulamos assuntos que podem merecer um arquivo próprio no futuro. Se algo parecer que merece um documento novo, é por ali que começamos a conversa.
 
 ---
 
