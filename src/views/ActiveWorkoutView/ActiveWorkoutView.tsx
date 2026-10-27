@@ -37,7 +37,7 @@ export function ActiveWorkoutView() {
    */
   const [currentExerciseId, setCurrentExerciseId] = useState<string | null>(null);
 
-  const { openModal, closeModal, isModalOpen, navigateToHistory } = useNavigation();
+  const { openModal, closeModal, isModalOpen, navigateToHistory, registerBackHandler, clearBackHandler } = useNavigation();
 
   const isExerciseDetailOpen = isModalOpen('exercise_detail');
 
@@ -77,16 +77,15 @@ export function ActiveWorkoutView() {
   }, [currentExerciseId, handleBackToList, navigateToHistory]);
 
   useEffect(() => {
-    const navigationCtx = useNavigation();
-    if (navigationCtx.registerBackHandler) {
-      navigationCtx.registerBackHandler(activeWorkoutBackHandler);
+    if (registerBackHandler) {
+      registerBackHandler(activeWorkoutBackHandler);
     }
     return () => {
-      if (navigationCtx.clearBackHandler) {
-        navigationCtx.clearBackHandler();
+      if (clearBackHandler) {
+        clearBackHandler();
       }
     };
-  }, [activeWorkoutBackHandler, useNavigation]);
+  }, [activeWorkoutBackHandler, registerBackHandler, clearBackHandler]);
 
   if (!session) {
     return (
