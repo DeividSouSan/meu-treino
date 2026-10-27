@@ -37,21 +37,34 @@ export function ActiveWorkoutView() {
    */
   const [currentExerciseId, setCurrentExerciseId] = useState<string | null>(null);
 
+  const { openModal, closeModal, isModalOpen, navigateToHistory } = useNavigation();
+
+  const isExerciseDetailOpen = isModalOpen('exercise_detail');
+
+  // Sincroniza o estado local do exercício selecionado com o modal de detalhe
+  // gerenciado pelo NavigationProvider (History API). Quando o modal fecha via
+  // popstate (gesto de voltar), o exercício selecionado é limpo.
+  useEffect(() => {
+    if (!isExerciseDetailOpen && currentExerciseId !== null) {
+      setCurrentExerciseId(null);
+    }
+  }, [isExerciseDetailOpen, currentExerciseId]);
+
   const handleSelectExercise = useCallback((exerciseId: string) => {
     setCurrentExerciseId(exerciseId);
-  }, []);
+    openModal('exercise_detail');
+  }, [openModal]);
 
   const handleBackToList = useCallback(() => {
     setCurrentExerciseId(null);
-  }, []);
+    closeModal('exercise_detail');
+  }, [closeModal]);
 
   const navigation = useExerciseNavigation(
     session.exercises,
     currentExerciseId,
     handleSelectExercise,
   );
-
-  const { navigateToHistory, registerBackHandler, clearBackHandler } = useNavigation();
 
   // Quando o usuário estiver no detalhe de um exercício, o gesto de voltar retorna para a lista;
   // caso contrário, retorna para o Histórico.
@@ -64,9 +77,16 @@ export function ActiveWorkoutView() {
   }, [currentExerciseId, handleBackToList, navigateToHistory]);
 
   useEffect(() => {
-    registerBackHandler(activeWorkoutBackHandler);
-    return () => clearBackHandler();
-  }, [registerBackHandler, clearBackHandler, activeWorkoutBackHandler]);
+    const navigationCtx = useNavigation();
+    if (navigationCtx.registerBackHandler) {
+      navigationCtx.registerBackHandler(activeWorkoutBackHandler);
+    }
+    return () => {
+      if (navigationCtx.clearBackHandler) {
+        navigationCtx.clearBackHandler();
+      }
+    };
+  }, [activeWorkoutBackHandler, useNavigation]);
 
   if (!session) {
     return (
