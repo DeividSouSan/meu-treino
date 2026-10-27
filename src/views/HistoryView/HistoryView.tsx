@@ -1,6 +1,7 @@
+import { useCallback, useEffect, useState } from 'react';
 import packageInfo from '../../../package.json';
 import { useHistoryView } from './useHistoryView';
-import { useTheme } from '../../hooks';
+import { useTheme, useNavigation } from '../../hooks';
 import {
   BackupSection,
   ExportAISection,
@@ -59,11 +60,56 @@ export function HistoryView() {
     handleImportSuccess,
     handleExportSuccess,
     handleCreateNewWorkout,
+    confirmNewWorkout,
+    confirmCreateNewWorkout,
+    cancelCreateNewWorkout,
     formatWorkoutDate,
     formatWorkoutDuration,
   } = useHistoryView();
 
   const { theme, setTheme, resolvedTheme } = useTheme();
+
+  const [isExitWarningOpen, setIsExitWarningOpen] = useState(false);
+
+  const { registerBackHandler, clearBackHandler } = useNavigation();
+
+  // Handler de prioridade para o gesto de voltar no Histórico:
+  // 1. Fecha o aviso de saída se estiver aberto
+  // 2. Fecha as configurações se estiverem abertas
+  // 3. Fecha o menu de ações se estiver aberto
+  // 4. Abre o aviso de saída se houver treino ativo
+  // 5. Senão, não trata (permite sair do app)
+  const historyBackHandler = useCallback(() => {
+    if (isExitWarningOpen) {
+      setIsExitWarningOpen(false);
+      return;
+    }
+    if (isSettingsOpen) {
+      closeSettings();
+      return;
+    }
+    if (selectedSessionForActions !== null) {
+      closeActionMenu();
+      return;
+    }
+    if (activeSession) {
+      setIsExitWarningOpen(true);
+      return;
+    }
+  }, [
+    isExitWarningOpen,
+    setIsExitWarningOpen,
+    isSettingsOpen,
+    closeSettings,
+    selectedSessionForActions,
+    closeActionMenu,
+    activeSession,
+  ]);
+
+  useEffect(() => {
+    registerBackHandler(historyBackHandler);
+    return () => clearBackHandler();
+  }, [registerBackHandler, clearBackHandler, historyBackHandler]);
 
   return (
     <div>
@@ -220,6 +266,34 @@ export function HistoryView() {
         confirmText="Excluir"
         onConfirm={confirmDeleteSession}
         onCancel={cancelDeleteSession}
+      />
+
+      <MtConfirmDialog
+        isOpen={confirmNewWorkout}
+        title="Treino em Andamento"
+        message="Você já possui um treino em andamento. Deseja descartá-lo e iniciar um novo treino?"
+        confirmVariant="danger"
+        confirmText="Iniciar Novo Treino"
+        cancelText="Cancelar"
+        onConfirm={confirmCreateNewWorkout}
+        onCancel={cancelCreateNewWorkout}
+      />
+
+      <MtConfirmDialog
+        isOpen={isExitWarningOpen}
+        title="Treino em Andamento"
+        message="Você possui um treino ativo. Deseja realmente sair do aplicativo ou prefere continuar seu treino?"
+        confirmVariant="default"
+        confirmText="Continuar Treino"
+        cancelText="Sair do App"
+        onConfirm={() => {
+          setIsExitWarningOpen(false);
+          resumeActiveWorkout();
+        }}
+        onCancel={() => {
+          setIsExitWarningOpen(false);
+          window.history.back();
+        }}
       />
     </div>
   );

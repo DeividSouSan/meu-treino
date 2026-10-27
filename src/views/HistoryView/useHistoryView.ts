@@ -84,7 +84,21 @@ export interface UseHistoryViewResult {
    */
   handleExportSuccess: () => void;
   /**
-   * Cria um novo treino em branco ("Treino Livre").
+   * Estado de visibilidade do diálogo de confirmação para criar um novo
+   * treino quando já existe um treino em andamento.
+   */
+  confirmNewWorkout: boolean;
+  /**
+   * Confirma a criação de um novo treino, descartando o treino em andamento.
+   */
+  confirmCreateNewWorkout: () => void;
+  /**
+   * Cancela a criação de um novo treino, mantendo o treino em andamento.
+   */
+  cancelCreateNewWorkout: () => void;
+  /**
+   * Cria um novo treino em branco ("Treino Livre"). Se já houver um treino em
+   * andamento, abre o diálogo de confirmação antes de descartá-lo.
    */
   handleCreateNewWorkout: () => void;
   /**
@@ -107,6 +121,7 @@ export interface UseHistoryViewResult {
  */
 export function useHistoryView(): UseHistoryViewResult {
   const [sessionToDeleteId, setSessionToDeleteId] = useState<string | null>(null);
+  const [confirmNewWorkout, setConfirmNewWorkout] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [hasUnsavedSessions, setHasUnsavedSessions] = useState<boolean>(false);
   const [selectedSessionForActions, setSelectedSessionForActions] = useState<WorkoutSession | null>(
@@ -193,16 +208,30 @@ export function useHistoryView(): UseHistoryViewResult {
   }, []);
 
   const handleCreateNewWorkout = useCallback(() => {
+    if (activeSession) {
+      setConfirmNewWorkout(true);
+      return;
+    }
+    startNewWorkout(null);
+    navigateToActiveWorkout();
+  }, [activeSession, startNewWorkout, navigateToActiveWorkout]);
+
+  const confirmCreateNewWorkout = useCallback(() => {
+    setConfirmNewWorkout(false);
     startNewWorkout(null);
     navigateToActiveWorkout();
   }, [startNewWorkout, navigateToActiveWorkout]);
 
+  const cancelCreateNewWorkout = useCallback(() => {
+    setConfirmNewWorkout(false);
+  }, []);
+
   useEffect(() => {
-    var savedWorkoutsCount = getLastBackupWorkoutCount();
+    const savedWorkoutsCount = getLastBackupWorkoutCount();
 
     if (savedWorkoutsCount < workoutHistory.length) setHasUnsavedSessions(true);
     else setHasUnsavedSessions(false);
-  });
+  }, [workoutHistory]);
 
   return {
     workoutHistory,
@@ -225,6 +254,9 @@ export function useHistoryView(): UseHistoryViewResult {
     handleImportSuccess,
     handleExportSuccess,
     handleCreateNewWorkout,
+    confirmNewWorkout,
+    confirmCreateNewWorkout,
+    cancelCreateNewWorkout,
     formatWorkoutDate,
     formatWorkoutDuration,
   };

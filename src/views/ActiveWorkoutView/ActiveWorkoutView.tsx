@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useActiveWorkoutScreen } from './useActiveWorkoutScreen';
 import { useExerciseNavigation } from '../../hooks/useExerciseNavigation';
 import { ExerciseList, ExerciseScreen } from '../../components/exercise';
@@ -51,7 +51,22 @@ export function ActiveWorkoutView() {
     handleSelectExercise,
   );
 
-  const { navigateToHistory } = useNavigation();
+  const { navigateToHistory, registerBackHandler, clearBackHandler } = useNavigation();
+
+  // Quando o usuário estiver no detalhe de um exercício, o gesto de voltar retorna para a lista;
+  // caso contrário, retorna para o Histórico.
+  const activeWorkoutBackHandler = useCallback(() => {
+    if (currentExerciseId) {
+      handleBackToList();
+      return;
+    }
+    navigateToHistory();
+  }, [currentExerciseId, handleBackToList, navigateToHistory]);
+
+  useEffect(() => {
+    registerBackHandler(activeWorkoutBackHandler);
+    return () => clearBackHandler();
+  }, [registerBackHandler, clearBackHandler, activeWorkoutBackHandler]);
 
   if (!session) {
     return (
