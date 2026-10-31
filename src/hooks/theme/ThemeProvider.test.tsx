@@ -30,14 +30,11 @@ describe('useTheme hook edge cases', () => {
   );
 
   it('lança erro ao ser usado fora do ThemeProvider', () => {
-    const consoleError = console.error;
-    console.error = () => {};
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     expect(() => renderHook(() => useTheme())).toThrowError(
       'useTheme must be used within a ThemeProvider',
     );
-
-    console.error = consoleError;
   });
 
   it('inicia com tema padrão "system" e resolvedTheme "light" (sem preferência escura)', () => {
