@@ -7,11 +7,22 @@ import {
 } from './hooks';
 import { HistoryView } from './views/HistoryView';
 import { ActiveWorkoutView } from './views/ActiveWorkoutView';
+import { ExerciseScreenView } from './views/ExerciseScreenView';
+import { SettingsView } from './views/SettingsView';
 
 function AppContent() {
-  const { currentView } = useNavigation();
+  const { currentScreen } = useNavigation();
 
-  return <div>{currentView === 'history' ? <HistoryView /> : <ActiveWorkoutView />}</div>;
+  switch (currentScreen) {
+    case 'history':
+      return <HistoryView />;
+    case 'active_workout':
+      return <ActiveWorkoutView />;
+    case 'exercise_screen':
+      return <ExerciseScreenView />;
+    case 'settings':
+      return <SettingsView />;
+  }
 }
 
 function App() {

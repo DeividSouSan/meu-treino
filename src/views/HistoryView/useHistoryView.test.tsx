@@ -77,6 +77,7 @@ describe('useHistoryView — carregamento', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
+    window.history.replaceState(null, '', '/');
   });
 
   it('inicia com histórico vazio quando não há treinos no LocalStorage', () => {
@@ -100,6 +101,7 @@ describe('useHistoryView — navegação e sessão', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
+    window.history.replaceState(null, '', '/');
   });
 
   it('ao tocar em uma sessão, inicia edição e navega para a tela de treino', () => {
@@ -112,7 +114,7 @@ describe('useHistoryView — navegação e sessão', () => {
 
     act(() => result.current.history.handleSessionTap(mockSession));
 
-    expect(result.current.nav.currentView).toBe('active_workout');
+    expect(result.current.nav.currentScreen).toBe('active_workout');
     expect(result.current.session.editingSession?.id).toBe(mockSession.id);
     expect(result.current.session.activeSession).toBeNull();
   });
@@ -124,7 +126,7 @@ describe('useHistoryView — navegação e sessão', () => {
 
     act(() => result.current.history.resumeActiveWorkout());
 
-    expect(result.current.nav.currentView).toBe('active_workout');
+    expect(result.current.nav.currentScreen).toBe('active_workout');
   });
 
   it('cria um treino livre e navega quando não há treino em andamento', () => {
@@ -136,13 +138,14 @@ describe('useHistoryView — navegação e sessão', () => {
     act(() => result.current.history.handleCreateNewWorkout());
 
     expect(result.current.history.confirmNewWorkout).toBe(false);
-    expect(result.current.nav.currentView).toBe('active_workout');
+    expect(result.current.nav.currentScreen).toBe('active_workout');
     expect(result.current.session.activeSession?.name).toBe('Treino Livre');
   });
 });
 
 describe('useHistoryView — confirmação ao criar treino com outro em andamento', () => {
   beforeEach(() => {
+    window.history.replaceState(null, '', '/');
     localStorage.clear();
     vi.clearAllMocks();
   });
@@ -159,7 +162,7 @@ describe('useHistoryView — confirmação ao criar treino com outro em andament
     act(() => result.current.history.handleCreateNewWorkout());
 
     expect(result.current.history.confirmNewWorkout).toBe(true);
-    expect(result.current.nav.currentView).toBe('history');
+    expect(result.current.nav.currentScreen).toBe('history');
     expect(result.current.session.activeSession?.id).toBe(sessaoEmAndamento?.id);
   });
 
@@ -176,7 +179,7 @@ describe('useHistoryView — confirmação ao criar treino com outro em andament
     act(() => result.current.history.confirmCreateNewWorkout());
 
     expect(result.current.history.confirmNewWorkout).toBe(false);
-    expect(result.current.nav.currentView).toBe('active_workout');
+    expect(result.current.nav.currentScreen).toBe('active_workout');
     expect(result.current.session.activeSession?.id).not.toBe(sessaoAnterior?.id);
   });
 
@@ -193,7 +196,7 @@ describe('useHistoryView — confirmação ao criar treino com outro em andament
     act(() => result.current.history.cancelCreateNewWorkout());
 
     expect(result.current.history.confirmNewWorkout).toBe(false);
-    expect(result.current.nav.currentView).toBe('history');
+    expect(result.current.nav.currentScreen).toBe('history');
     expect(result.current.session.activeSession?.id).toBe(sessaoEmAndamento?.id);
   });
 });
@@ -277,7 +280,7 @@ describe('useHistoryView — menu de ações', () => {
     act(() => result.current.history.handleEditFromActionMenu());
 
     expect(result.current.history.selectedSessionForActions).toBeNull();
-    expect(result.current.nav.currentView).toBe('active_workout');
+    expect(result.current.nav.currentScreen).toBe('active_workout');
     expect(result.current.session.editingSession?.id).toBe(mockSession.id);
   });
 
@@ -297,15 +300,16 @@ describe('useHistoryView — backup e configurações', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
+    window.history.replaceState(null, '', '/');
   });
 
-  it('recarrega os dados, fecha as configurações e navega ao histórico após importar', () => {
+  it('navega para as configurações e retorna ao histórico após importar', () => {
     const { result } = renderHook(() => ({ history: useHistoryView(), nav: useNavigation() }), {
       wrapper: createWrapper(),
     });
 
-    act(() => result.current.history.openSettings());
-    expect(result.current.history.isSettingsOpen).toBe(true);
+    act(() => result.current.history.navigateToSettings());
+    expect(result.current.nav.currentScreen).toBe('settings');
 
     // Sessão importada "por fora" do React.
     storageService.saveWorkoutSession(mockSession);
@@ -313,20 +317,7 @@ describe('useHistoryView — backup e configurações', () => {
     act(() => result.current.history.handleImportSuccess());
 
     expect(result.current.history.workoutHistory).toHaveLength(1);
-    expect(result.current.history.isSettingsOpen).toBe(false);
-    expect(result.current.nav.currentView).toBe('history');
-  });
-
-  it('controla a abertura e o fechamento do modal de configurações', () => {
-    const { result } = renderHistory();
-
-    expect(result.current.isSettingsOpen).toBe(false);
-
-    act(() => result.current.openSettings());
-    expect(result.current.isSettingsOpen).toBe(true);
-
-    act(() => result.current.closeSettings());
-    expect(result.current.isSettingsOpen).toBe(false);
+    expect(result.current.nav.currentScreen).toBe('history');
   });
 
   it('sinaliza treinos não salvos quando o histórico tem mais treinos que o último backup', () => {

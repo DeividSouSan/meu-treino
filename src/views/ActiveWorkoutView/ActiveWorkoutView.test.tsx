@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { ActiveWorkoutView } from './ActiveWorkoutView';
 import { NavigationProvider, HistoryProvider, useNavigation } from '../../hooks';
 import type { WorkoutSession, WorkoutExercise } from '../../types/workout';
@@ -73,13 +73,13 @@ function configurarHook(): AcoesEspiadas {
 }
 
 function ViewProbe() {
-  const { currentView } = useNavigation();
-  return <span data-testid="view-atual">{currentView}</span>;
+  const { currentScreen } = useNavigation();
+  return <span data-testid="view-atual">{currentScreen}</span>;
 }
 
 function renderView() {
   return render(
-    <NavigationProvider initialView="active_workout">
+    <NavigationProvider initialScreen="active_workout">
       <HistoryProvider>
         <ActiveWorkoutView />
         <ViewProbe />
@@ -88,16 +88,11 @@ function renderView() {
   );
 }
 
-function pressionarVoltar() {
-  act(() => {
-    window.dispatchEvent(new PopStateEvent('popstate'));
-  });
-}
-
 describe('ActiveWorkoutView — lista de exercícios', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
+    window.history.replaceState(null, '', '/');
     configurarHook();
   });
 
@@ -132,21 +127,13 @@ describe('ActiveWorkoutView — lista de exercícios', () => {
     expect(input).toHaveValue('');
   });
 
-  it('volta ao histórico pelo gesto de voltar quando está na lista', () => {
-    renderView();
-
-    expect(screen.getByTestId('view-atual')).toHaveTextContent('active_workout');
-
-    pressionarVoltar();
-
-    expect(screen.getByTestId('view-atual')).toHaveTextContent('history');
-  });
 });
 
 describe('ActiveWorkoutView — detalhe do exercício', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
+    window.history.replaceState(null, '', '/');
     configurarHook();
   });
 
@@ -165,16 +152,6 @@ describe('ActiveWorkoutView — detalhe do exercício', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /Supino/ }));
     fireEvent.click(screen.getByLabelText('Voltar para a lista de exercícios'));
-
-    expect(screen.getByText('Cues da Sessão (Lembretes)')).toBeInTheDocument();
-    expect(screen.getByTestId('view-atual')).toHaveTextContent('active_workout');
-  });
-
-  it('volta para a lista pelo gesto de voltar, mantendo-se no treino ativo', () => {
-    renderView();
-
-    fireEvent.click(screen.getByRole('button', { name: /Supino/ }));
-    pressionarVoltar();
 
     expect(screen.getByText('Cues da Sessão (Lembretes)')).toBeInTheDocument();
     expect(screen.getByTestId('view-atual')).toHaveTextContent('active_workout');

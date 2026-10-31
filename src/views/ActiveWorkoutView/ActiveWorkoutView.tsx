@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { useActiveWorkoutScreen } from './useActiveWorkoutScreen';
 import { useExerciseNavigation } from '../../hooks/useExerciseNavigation';
 import { ExerciseList, ExerciseScreen } from '../../components/exercise';
@@ -35,57 +35,25 @@ export function ActiveWorkoutView() {
    * Quando é nulo, mostra a lista de exercícios; caso contrário, abre a tela
    * de edição (ExerciseScreen) do exercício selecionado.
    */
-  const [currentExerciseId, setCurrentExerciseId] = useState<string | null>(null);
+  const { exerciseId, navigateToExercise, goBackToList, navigateToHistory } =
+    useNavigation();
 
-  const { openModal, closeModal, isModalOpen, navigateToHistory, registerBackHandler, clearBackHandler } = useNavigation();
-
-  const isExerciseDetailOpen = isModalOpen('exercise_detail');
-
-  // Sincroniza o estado local do exercício selecionado com o modal de detalhe
-  // gerenciado pelo NavigationProvider (History API). Quando o modal fecha via
-  // popstate (gesto de voltar), o exercício selecionado é limpo.
-  useEffect(() => {
-    if (!isExerciseDetailOpen && currentExerciseId !== null) {
-      setCurrentExerciseId(null);
-    }
-  }, [isExerciseDetailOpen, currentExerciseId]);
-
-  const handleSelectExercise = useCallback((exerciseId: string) => {
-    setCurrentExerciseId(exerciseId);
-    openModal('exercise_detail');
-  }, [openModal]);
+  const handleSelectExercise = useCallback(
+    (exerciseIdParam: string) => {
+      navigateToExercise(exerciseIdParam);
+    },
+    [navigateToExercise],
+  );
 
   const handleBackToList = useCallback(() => {
-    setCurrentExerciseId(null);
-    closeModal('exercise_detail');
-  }, [closeModal]);
+    goBackToList();
+  }, [goBackToList]);
 
   const navigation = useExerciseNavigation(
     session.exercises,
-    currentExerciseId,
+    exerciseId,
     handleSelectExercise,
   );
-
-  // Quando o usuário estiver no detalhe de um exercício, o gesto de voltar retorna para a lista;
-  // caso contrário, retorna para o Histórico.
-  const activeWorkoutBackHandler = useCallback(() => {
-    if (currentExerciseId) {
-      handleBackToList();
-      return;
-    }
-    navigateToHistory();
-  }, [currentExerciseId, handleBackToList, navigateToHistory]);
-
-  useEffect(() => {
-    if (registerBackHandler) {
-      registerBackHandler(activeWorkoutBackHandler);
-    }
-    return () => {
-      if (clearBackHandler) {
-        clearBackHandler();
-      }
-    };
-  }, [activeWorkoutBackHandler, registerBackHandler, clearBackHandler]);
 
   if (!session) {
     return (
@@ -121,8 +89,8 @@ export function ActiveWorkoutView() {
         onRenameSession={renameSession}
       />
 
-      <main style={{ paddingBottom: currentExerciseId ? '20px' : '120px' }}>
-        {currentExerciseId && navigation.selectedExercise ? (
+      <main style={{ paddingBottom: exerciseId ? '20px' : '120px' }}>
+        {exerciseId && navigation.selectedExercise ? (
           <ExerciseScreen
             exercise={navigation.selectedExercise}
             onUpdateExercise={updateExercise}
@@ -151,7 +119,7 @@ export function ActiveWorkoutView() {
               </MtSectionTitle>
               <ExerciseList
                 exercises={session.exercises}
-                selectedExerciseId={currentExerciseId}
+                selectedExerciseId={exerciseId}
                 onSelectExercise={handleSelectExercise}
               />
             </section>

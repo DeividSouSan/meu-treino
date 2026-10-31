@@ -1,13 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
-import packageInfo from '../../../package.json';
+import { useState } from 'react';
 import { useHistoryView } from './useHistoryView';
-import { useTheme, useNavigation } from '../../hooks';
 import {
-  BackupSection,
-  ExportAISection,
   ActiveWorkoutCard,
   WorkoutHistoryList,
-  VersionInfo,
 } from '../../components/history';
 
 import {
@@ -17,7 +12,6 @@ import {
   MtConfirmDialog,
   MtButton,
   MtModal,
-  MtSelect,
 } from '../../components/ui';
 import {
   Calendar,
@@ -26,9 +20,6 @@ import {
   Pencil,
   Download,
   Trash2,
-  Sun,
-  Moon,
-  Monitor,
 } from 'lucide-react';
 
 /**
@@ -44,10 +35,8 @@ export function HistoryView() {
     activeSession,
     sessionToDeleteId,
     selectedSessionForActions,
-    isSettingsOpen,
     hasUnsavedSessions,
-    openSettings,
-    closeSettings,
+    navigateToSettings,
     resumeActiveWorkout,
     handleSessionTap,
     handleSessionLongPress,
@@ -57,8 +46,6 @@ export function HistoryView() {
     handleDeleteFromActionMenu,
     confirmDeleteSession,
     cancelDeleteSession,
-    handleImportSuccess,
-    handleExportSuccess,
     handleCreateNewWorkout,
     confirmNewWorkout,
     confirmCreateNewWorkout,
@@ -67,49 +54,7 @@ export function HistoryView() {
     formatWorkoutDuration,
   } = useHistoryView();
 
-  const { theme, setTheme, resolvedTheme } = useTheme();
-
   const [isExitWarningOpen, setIsExitWarningOpen] = useState(false);
-
-  const { registerBackHandler, clearBackHandler } = useNavigation();
-
-  // Handler de prioridade para o gesto de voltar no Histórico:
-  // 1. Fecha o aviso de saída se estiver aberto
-  // 2. Fecha as configurações se estiverem abertas
-  // 3. Fecha o menu de ações se estiver aberto
-  // 4. Abre o aviso de saída se houver treino ativo
-  // 5. Senão, não trata (permite sair do app)
-  const historyBackHandler = useCallback(() => {
-    if (isExitWarningOpen) {
-      setIsExitWarningOpen(false);
-      return;
-    }
-    if (isSettingsOpen) {
-      closeSettings();
-      return;
-    }
-    if (selectedSessionForActions !== null) {
-      closeActionMenu();
-      return;
-    }
-    if (activeSession) {
-      setIsExitWarningOpen(true);
-      return;
-    }
-  }, [
-    isExitWarningOpen,
-    setIsExitWarningOpen,
-    isSettingsOpen,
-    closeSettings,
-    selectedSessionForActions,
-    closeActionMenu,
-    activeSession,
-  ]);
-
-  useEffect(() => {
-    registerBackHandler(historyBackHandler);
-    return () => clearBackHandler();
-  }, [registerBackHandler, clearBackHandler, historyBackHandler]);
 
   return (
     <div>
@@ -118,7 +63,7 @@ export function HistoryView() {
         <MtButton
           variant="text"
           size="small"
-          onClick={openSettings}
+          onClick={navigateToSettings}
           aria-label="Configurações e Backup"
           title="Configurações e Backup"
           style={
@@ -163,64 +108,6 @@ export function HistoryView() {
         label="Novo Treino"
         ariaLabel="Criar novo treino"
       />
-
-      <MtModal isOpen={isSettingsOpen} onClose={closeSettings} title="Configurações & Backup">
-        <div
-          className="mt-modal-body"
-          style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--spacing-sm)',
-              padding: 'var(--spacing-sm) 0',
-            }}
-          >
-            {resolvedTheme === 'dark' ? (
-              <Moon size={18} strokeWidth={2.25} />
-            ) : resolvedTheme === 'light' ? (
-              <Sun size={18} strokeWidth={2.25} />
-            ) : (
-              <Monitor size={18} strokeWidth={2.25} />
-            )}
-            <MtSelect
-              label="Tema"
-              value={theme}
-              onChange={(event) => setTheme(event.target.value as 'light' | 'dark' | 'system')}
-              options={[
-                { value: 'system', label: 'Seguir o sistema' },
-                { value: 'light', label: 'Claro' },
-                { value: 'dark', label: 'Escuro' },
-              ]}
-              style={{ flex: 1, maxWidth: '220px' }}
-            />
-          </div>
-          <BackupSection
-            asCard={false}
-            onImportSuccess={handleImportSuccess}
-            onExportSuccess={handleExportSuccess}
-            workoutHistoryLength={workoutHistory.length}
-          />
-          <hr
-            style={{
-              border: 'none',
-              borderTop: '1px solid var(--border-color)',
-              margin: 'var(--spacing-xs) 0',
-            }}
-          />
-          {/* Pass the full workout history to ExportAISection for proper export */}
-          <ExportAISection asCard={false} workoutHistory={workoutHistory} />
-          <hr
-            style={{
-              border: 'none',
-              borderTop: '1px solid var(--border-color)',
-              margin: 'var(--spacing-xs) 0',
-            }}
-          />
-          <VersionInfo version={packageInfo.version} />
-        </div>
-      </MtModal>
 
       <MtModal
         isOpen={selectedSessionForActions !== null}
@@ -292,7 +179,6 @@ export function HistoryView() {
         }}
         onCancel={() => {
           setIsExitWarningOpen(false);
-          window.history.back();
         }}
       />
     </div>

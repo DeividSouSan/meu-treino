@@ -23,21 +23,13 @@ export interface UseHistoryViewResult {
    */
   selectedSessionForActions: WorkoutSession | null;
   /**
-   * Estado de visibilidade do modal de Configurações & Backup.
+   * Navega para a tela de Configurações & Backup.
    */
-  isSettingsOpen: boolean;
+  navigateToSettings: () => void;
   /**
    * Estado de visibilidade do alerta vermelho (treinos não salvos) de Configurações & Backup.
    */
   hasUnsavedSessions: boolean;
-  /**
-   * Abre o modal de Configurações & Backup.
-   */
-  openSettings: () => void;
-  /**
-   * Fecha o modal de Configurações & Backup.
-   */
-  closeSettings: () => void;
   /**
    * Navega para a tela de treino ativo para retomar uma sessão em andamento.
    */
@@ -128,19 +120,14 @@ export function useHistoryView(): UseHistoryViewResult {
   );
   const { workoutHistory, deleteSession, reloadAllData } = useHistory();
   const { activeSession, startNewWorkout, startEditingWorkout } = useSession();
-  const { navigateToHistory, navigateToActiveWorkout, openModal, closeModal, isModalOpen } =
+  const { navigateToHistory, navigateToActiveWorkout, navigateToSettings: navToSettings } =
     useNavigation();
-  const isSettingsOpen = isModalOpen('settings');
 
   const { formatWorkoutDate, formatWorkoutDuration } = useHistoryFormatters();
 
-  const openSettings = useCallback(() => {
-    openModal('settings');
-  }, [openModal]);
-
-  const closeSettings = useCallback(() => {
-    closeModal('settings');
-  }, [closeModal]);
+  const navigateToSettings = useCallback(() => {
+    navToSettings();
+  }, [navToSettings]);
 
   const handleSessionTap = useCallback(
     (session: WorkoutSession) => {
@@ -200,7 +187,6 @@ export function useHistoryView(): UseHistoryViewResult {
 
   const handleImportSuccess = useCallback(() => {
     reloadAllData();
-    closeModal('settings');
     navigateToHistory();
   }, [reloadAllData, navigateToHistory]);
 
@@ -239,10 +225,8 @@ export function useHistoryView(): UseHistoryViewResult {
     activeSession,
     sessionToDeleteId,
     selectedSessionForActions,
-    isSettingsOpen,
     hasUnsavedSessions,
-    openSettings,
-    closeSettings,
+    navigateToSettings,
     resumeActiveWorkout: navigateToActiveWorkout,
     handleSessionTap,
     handleSessionLongPress,
