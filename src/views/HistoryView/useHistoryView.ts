@@ -122,24 +122,25 @@ export interface UseHistoryViewResult {
 export function useHistoryView(): UseHistoryViewResult {
   const [sessionToDeleteId, setSessionToDeleteId] = useState<string | null>(null);
   const [confirmNewWorkout, setConfirmNewWorkout] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [hasUnsavedSessions, setHasUnsavedSessions] = useState<boolean>(false);
   const [selectedSessionForActions, setSelectedSessionForActions] = useState<WorkoutSession | null>(
     null,
   );
   const { workoutHistory, deleteSession, reloadAllData } = useHistory();
   const { activeSession, startNewWorkout, startEditingWorkout } = useSession();
-  const { navigateToHistory, navigateToActiveWorkout } = useNavigation();
+  const { navigateToHistory, navigateToActiveWorkout, openModal, closeModal, isModalOpen } =
+    useNavigation();
+  const isSettingsOpen = isModalOpen('settings');
 
   const { formatWorkoutDate, formatWorkoutDuration } = useHistoryFormatters();
 
   const openSettings = useCallback(() => {
-    setIsSettingsOpen(true);
-  }, []);
+    openModal('settings');
+  }, [openModal]);
 
   const closeSettings = useCallback(() => {
-    setIsSettingsOpen(false);
-  }, []);
+    closeModal('settings');
+  }, [closeModal]);
 
   const handleSessionTap = useCallback(
     (session: WorkoutSession) => {
@@ -199,7 +200,7 @@ export function useHistoryView(): UseHistoryViewResult {
 
   const handleImportSuccess = useCallback(() => {
     reloadAllData();
-    setIsSettingsOpen(false);
+    closeModal('settings');
     navigateToHistory();
   }, [reloadAllData, navigateToHistory]);
 
