@@ -1,16 +1,22 @@
 import { createContext, useContext } from 'react';
 
-export type ModalId = 'exit_warning' | 'exercise_detail' | 'settings';
+export type ScreenId = 'history' | 'active_workout' | 'exercise_screen' | 'settings';
+
+export interface NavigationParams {
+  exerciseId?: string;
+}
 
 export interface UseNavigationReturn {
-  currentView: 'history' | 'active_workout';
+  currentScreen: ScreenId;
+  exerciseId: string | null;
+
+  navigateTo: (screen: ScreenId, params?: NavigationParams) => void;
   navigateToHistory: () => void;
   navigateToActiveWorkout: () => void;
-  registerBackHandler: (handler: () => void) => void;
-  clearBackHandler: () => void;
-  openModal: (id: ModalId) => void;
-  closeModal: (id: ModalId) => void;
-  isModalOpen: (id: ModalId) => boolean;
+  navigateToExercise: (exerciseId: string) => void;
+  navigateToSettings: () => void;
+  goBackToList: () => void;
+  goBack: () => void;
 }
 
 export const NavigationContext = createContext<UseNavigationReturn | null>(null);

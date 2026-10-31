@@ -1,6 +1,5 @@
-import { useCallback, useContext, useRef, useState, useEffect, type ReactNode } from 'react';
-import { NavigationContext, type ModalId } from './NavigationContext';
-import { useHardwareBackPress } from './useHardwareBackPress';
+import { useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { NavigationContext, type ScreenId, type NavigationParams } from './NavigationContext';
 
 // Debug mode: define globally for development debugging
 // Set (window as any).__DEBUG_NAV__ = true in your app to enable
@@ -20,124 +19,151 @@ const devLog = (...args: unknown[]) => {
 
 export interface NavigationProviderProps {
   children: ReactNode;
-  initialView?: 'history' | 'active_workout';
+  initialScreen?: ScreenId;
 }
 
-export function NavigationProvider({ children, initialView = 'history' }: NavigationProviderProps) {
-  const [currentView, setCurrentView] = useState<'history' | 'active_workout'>(initialView);
-  const [modalStack, setModalStack] = useState<ModalId[]>([]);
-  const backHandlerRef = useRef<(() => void) | null>(null);
+const SCREEN_PATHS: Record<ScreenId, string> = {
+  history: '/',
+  active_workout: '/treino',
+  exercise_screen: '/exercicio',
+  settings: '/configuracoes',
+};
+
+function pathnameForScreen(screen: ScreenId, params?: NavigationParams): string {
+  if (screen === 'exercise_screen' && params?.exerciseId) {
+    return `/exercicio/${params.exerciseId}`;
+  }
+  return SCREEN_PATHS[screen];
+}
+
+function screenFromPathname(pathname: string): { screen: ScreenId; exerciseId: string | null } {
+  if (pathname === '/') return { screen: 'history', exerciseId: null };
+  if (pathname === '/treino') return { screen: 'active_workout', exerciseId: null };
+  if (pathname === '/configuracoes') return { screen: 'settings', exerciseId: null };
+
+  const exerciseMatch = pathname.match(/^\/exercicio\/([^/]+)$/);
+  if (exerciseMatch) {
+    return { screen: 'exercise_screen', exerciseId: exerciseMatch[1] };
+  }
+
+  // Fallback: caminho desconhecido vai para histórico
+  return { screen: 'history', exerciseId: null };
+}
+
+export function NavigationProvider({
+  children,
+  initialScreen = 'history',
+}: NavigationProviderProps) {
+  const [currentScreen, setCurrentScreen] = useState<ScreenId>(initialScreen);
+  const [exerciseId, setExerciseId] = useState<string | null>(null);
+
   // Refs para manter o listener de popstate estável (sem re-registrar a cada mudança)
-  const currentViewRef = useRef(currentView);
-  const modalStackRef = useRef(modalStack);
+  const currentScreenRef = useRef(currentScreen);
+  const exerciseIdRef = useRef(exerciseId);
+
   useEffect(() => {
-    currentViewRef.current = currentView;
-  }, [currentView]);
+    currentScreenRef.current = currentScreen;
+  }, [currentScreen]);
+
   useEffect(() => {
-    modalStackRef.current = modalStack;
-  }, [modalStack]);
+    exerciseIdRef.current = exerciseId;
+  }, [exerciseId]);
 
-  // Único ponto de interceptação do gesto de voltar para todo o app.
-  useHardwareBackPress(() => {
-    backHandlerRef.current?.();
-  }, true);
+  devLog('NavigationProvider initialized', {
+    initialScreen,
+    currentScreen,
+    exerciseId,
+  });
 
-  devLog('NavigationProvider initialized', { initialView, modalStack: modalStack.length });
+  // Navega para uma tela, atualizando o estado React e o history do navegador
+  const navigateTo = useCallback((screen: ScreenId, params?: NavigationParams) => {
+    const path = pathnameForScreen(screen, params);
+    const newExerciseId =
+      screen === 'exercise_screen' && params?.exerciseId ? params.exerciseId : null;
 
-  // Empilha modal ao abrir; dessempilha ao fechar
-  const openModal = useCallback((id: ModalId) => {
-    setModalStack((prev) => {
-      const newStack = [...prev, id];
-      devLog('openModal', id, 'newStack:', newStack);
-      window.history.pushState({ view: currentViewRef.current, modals: newStack }, '');
-      return newStack;
-    });
+    setCurrentScreen(screen);
+    setExerciseId(newExerciseId);
+    window.history.pushState({ screen, exerciseId: newExerciseId }, '', path);
+
+    devLog('navigateTo', { screen, params, path, exerciseId: newExerciseId });
   }, []);
 
-  const closeModal = useCallback((id: ModalId) => {
-    setModalStack((prev) => {
-      // remove apenas a última ocorrência (topo da pilha)
-      const idx = prev.lastIndexOf(id);
-      const newStack = idx === -1 ? prev : [...prev.slice(0, idx), ...prev.slice(idx + 1)];
-      devLog('closeModal', id, 'newStack:', newStack);
-      // Substitui o estado atual da history
-      window.history.replaceState({ view: currentViewRef.current, modals: newStack }, '');
-      // Remove o estado virtual de voltar ({ isVirtualBackState: true }) que foi
-      // empilhado no usoHardwareBackPress no início da aplicação. Isso evita que
-      // o próximo gesto de voltar reabra o modal ou cause comportamento duplo de back.
-      // Sempre executamos o pop porque o estado virtual foi registrado no mount
-      // do NavigationProvider e permanece na history stack.
-      window.history.back();
-      window.history.forward(); // restore the replaced state
-      return newStack;
-    });
-  }, []);
-
-  const isModalOpen = useCallback(
-    (id: ModalId) => {
-      const open = modalStack.includes(id);
-      devLog('isModalOpen', id, 'open:', open, 'stack:', modalStack);
-      return open;
-    },
-    [modalStack],
-  );
-
-  // Navegação entre views
   const navigateToHistory = useCallback(() => {
-    setCurrentView('history');
-    setModalStack([]);
-    // Colapsa a pilha do navegador para a base (página inicial)
-    window.history.replaceState({ view: 'history', modals: [] }, '');
-    devLog('navigateToHistory', 'view: history (stack reset)');
-  }, []);
+    navigateTo('history');
+  }, [navigateTo]);
 
   const navigateToActiveWorkout = useCallback(() => {
-    setCurrentView('active_workout');
-    window.history.pushState({ view: 'active_workout', modals: [] }, '');
-    devLog('navigateToActiveWorkout', 'view: active_workout');
+    navigateTo('active_workout');
+  }, [navigateTo]);
+
+  const navigateToExercise = useCallback(
+    (exerciseIdParam: string) => {
+      navigateTo('exercise_screen', { exerciseId: exerciseIdParam });
+    },
+    [navigateTo],
+  );
+
+  const navigateToSettings = useCallback(() => {
+    navigateTo('settings');
+  }, [navigateTo]);
+
+  const goBackToList = useCallback(() => {
+    navigateTo('active_workout');
+  }, [navigateTo]);
+
+  const goBack = useCallback(() => {
+    window.history.back();
   }, []);
 
-  const registerBackHandler = useCallback((handler: () => void) => {
-    backHandlerRef.current = handler;
-    devLog('registerBackHandler', 'handler bound');
-  }, []);
+  // Sincroniza o estado inicial com a URL no mount (deep link / refresh).
+  // Se o pathname for o padrão "/", respeita a prop initialScreen.
+  useEffect(() => {
+    const isDefaultPath = window.location.pathname === '/';
+    const { screen, exerciseId: parsedExerciseId } = isDefaultPath
+      ? { screen: initialScreen, exerciseId: null }
+      : screenFromPathname(window.location.pathname);
 
-  const clearBackHandler = useCallback(() => {
-    backHandlerRef.current = null;
-    devLog('clearBackHandler', 'handler cleared');
-  }, []);
+    setCurrentScreen(screen);
+    setExerciseId(parsedExerciseId);
 
-  // Efeito: gerencia popstate do browser
+    const initialState = { screen, exerciseId: parsedExerciseId };
+    window.history.replaceState(initialState, '', window.location.pathname);
+
+    devLog('initial state synced from pathname', {
+      pathname: window.location.pathname,
+      screen,
+      exerciseId: parsedExerciseId,
+    });
+  }, [initialScreen]);
+
+  // Efeito: gerencia popstate do navegador (botão voltar / gestos)
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
       const state = event.state as {
-        view?: 'history' | 'active_workout';
-        modals?: ModalId[];
-        isVirtualBackState?: boolean;
+        screen?: ScreenId;
+        exerciseId?: string | null;
       } | null;
 
-      devLog('popstate event received', { state, currentViewBefore: currentViewRef.current });
+      devLog('popstate event received', {
+        state,
+        currentScreenBefore: currentScreenRef.current,
+      });
 
-      // Se for estado virtual de voltar (protegido), não navegar
-      if (state?.isVirtualBackState) {
-        devLog('popstate ignored: isVirtualBackState');
+      // Se o estado vier do history.state (pushState/replaceState), use-o diretamente
+      if (state?.screen) {
+        setCurrentScreen(state.screen);
+        setExerciseId(state.exerciseId ?? null);
         return;
       }
 
-      // Navegar baseado no view salvo
-      if (state?.view === 'history') {
-        setCurrentView('history');
-        devLog('navigated to: history');
-      } else if (state?.view === 'active_workout') {
-        setCurrentView('active_workout');
-        devLog('navigated to: active_workout');
-      }
-
-      // Restaurar stack de modais se presente
-      if (state?.modals !== undefined) {
-        setModalStack(state.modals);
-        devLog('modalStack restored from history state:', state.modals);
-      }
+      // Caso contrário, re-derive a partir do pathname atual (deep link externo)
+      const { screen, exerciseId: parsedExerciseId } = screenFromPathname(window.location.pathname);
+      setCurrentScreen(screen);
+      setExerciseId(parsedExerciseId);
+      devLog('popstate derived from pathname', {
+        screen,
+        exerciseId: parsedExerciseId,
+      });
     };
 
     window.addEventListener('popstate', handlePopState);
@@ -146,32 +172,16 @@ export function NavigationProvider({ children, initialView = 'history' }: Naviga
 
   devLog('popstate listener added');
 
-  // Efeito: empilha estado inicial no history na montagem
-  useEffect(() => {
-    const initialState: {
-      view: 'history' | 'active_workout';
-      modals: ModalId[];
-      isVirtualBackState?: boolean;
-    } = {
-      view: currentView,
-      modals: [],
-    };
-    window.history.replaceState(initialState, '');
-    devLog('initial state pushed to history', {
-      view: initialState.view,
-      modals: initialState.modals,
-    });
-  }, []);
-
   const value = {
-    currentView,
+    currentScreen,
+    exerciseId,
+    navigateTo,
     navigateToHistory,
     navigateToActiveWorkout,
-    registerBackHandler,
-    clearBackHandler,
-    openModal,
-    closeModal,
-    isModalOpen,
+    navigateToExercise,
+    navigateToSettings,
+    goBackToList,
+    goBack,
   };
 
   return <NavigationContext.Provider value={value}>{children}</NavigationContext.Provider>;

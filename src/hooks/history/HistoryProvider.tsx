@@ -10,13 +10,13 @@ export interface HistoryProviderProps {
 
 export function HistoryProvider({ children }: HistoryProviderProps) {
   const [workoutHistory, setWorkoutHistory] = useState<WorkoutSession[]>([]);
-  const { currentView } = useNavigation();
+  const { currentScreen } = useNavigation();
 
   useEffect(() => {
-    if (currentView === 'history') {
+    if (currentScreen === 'history') {
       setWorkoutHistory(getWorkoutHistory());
     }
-  }, [currentView]);
+  }, [currentScreen]);
 
   const reloadAllData = useCallback(() => {
     setWorkoutHistory(getWorkoutHistory());
