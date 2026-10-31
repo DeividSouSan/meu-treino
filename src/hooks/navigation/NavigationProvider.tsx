@@ -4,8 +4,8 @@ import { useHardwareBackPress } from './useHardwareBackPress';
 
 // Debug mode: define globally for development debugging
 // Set window.__DEBUG_NAV__ = true in your app to enable
- const isDebugMode = typeof window !== 'undefined' && (window as any).__DEBUG_NAV__;
- const devLog = (...args: unknown[]) => {
+const isDebugMode = typeof window !== 'undefined' && (window as any).__DEBUG_NAV__;
+const devLog = (...args: unknown[]) => {
   if (isDebugMode) {
     console.log('[NavigationProvider DEBUG]', ...args);
   }
@@ -20,6 +20,15 @@ export function NavigationProvider({ children, initialView = 'history' }: Naviga
   const [currentView, setCurrentView] = useState<'history' | 'active_workout'>(initialView);
   const [modalStack, setModalStack] = useState<ModalId[]>([]);
   const backHandlerRef = useRef<(() => void) | null>(null);
+  // Refs para manter o listener de popstate estável (sem re-registrar a cada mudança)
+  const currentViewRef = useRef(currentView);
+  const modalStackRef = useRef(modalStack);
+  useEffect(() => {
+    currentViewRef.current = currentView;
+  }, [currentView]);
+  useEffect(() => {
+    modalStackRef.current = modalStack;
+  }, [modalStack]);
 
   // Único ponto de interceptação do gesto de voltar para todo o app.
   useHardwareBackPress(() => {
@@ -30,36 +39,47 @@ export function NavigationProvider({ children, initialView = 'history' }: Naviga
 
   // Empilha modal ao abrir; dessempilha ao fechar
   const openModal = useCallback((id: ModalId) => {
-    setModalStack(prev => {
+    setModalStack((prev) => {
       const newStack = [...prev, id];
       devLog('openModal', id, 'newStack:', newStack);
+      window.history.pushState({ view: currentViewRef.current, modals: newStack }, '');
       return newStack;
     });
   }, []);
 
   const closeModal = useCallback((id: ModalId) => {
-    setModalStack(prev => {
-      const newStack = prev.filter(mod => mod !== id);
+    setModalStack((prev) => {
+      // remove apenas a última ocorrência (topo da pilha)
+      const idx = prev.lastIndexOf(id);
+      const newStack = idx === -1 ? prev : [...prev.slice(0, idx), ...prev.slice(idx + 1)];
       devLog('closeModal', id, 'newStack:', newStack);
+      window.history.replaceState({ view: currentViewRef.current, modals: newStack }, '');
       return newStack;
     });
   }, []);
 
-  const isModalOpen = useCallback((id: ModalId) => {
-    const open = modalStack.includes(id);
-    devLog('isModalOpen', id, 'open:', open, 'stack:', modalStack);
-    return open;
-  }, [modalStack]);
+  const isModalOpen = useCallback(
+    (id: ModalId) => {
+      const open = modalStack.includes(id);
+      devLog('isModalOpen', id, 'open:', open, 'stack:', modalStack);
+      return open;
+    },
+    [modalStack],
+  );
 
   // Navegação entre views
   const navigateToHistory = useCallback(() => {
     setCurrentView('history');
-    devLog('navigateToHistory', 'view:', currentView);
+    setModalStack([]);
+    // Colapsa a pilha do navegador para a base (página inicial)
+    window.history.replaceState({ view: 'history', modals: [] }, '');
+    devLog('navigateToHistory', 'view: history (stack reset)');
   }, []);
 
   const navigateToActiveWorkout = useCallback(() => {
     setCurrentView('active_workout');
-    devLog('navigateToActiveWorkout', 'view:', currentView);
+    window.history.pushState({ view: 'active_workout', modals: [] }, '');
+    devLog('navigateToActiveWorkout', 'view: active_workout');
   }, []);
 
   const registerBackHandler = useCallback((handler: () => void) => {
@@ -81,7 +101,7 @@ export function NavigationProvider({ children, initialView = 'history' }: Naviga
         isVirtualBackState?: boolean;
       } | null;
 
-      devLog('popstate event received', { state, currentViewBefore: currentView });
+      devLog('popstate event received', { state, currentViewBefore: currentViewRef.current });
 
       // Se for estado virtual de voltar (protegido), não navegar
       if (state?.isVirtualBackState) {
@@ -107,7 +127,7 @@ export function NavigationProvider({ children, initialView = 'history' }: Naviga
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [currentView, modalStack]);
+  }, []);
 
   devLog('popstate listener added');
 
@@ -121,9 +141,12 @@ export function NavigationProvider({ children, initialView = 'history' }: Naviga
       view: currentView,
       modals: [],
     };
-    window.history.pushState(initialState, '');
-    devLog('initial state pushed to history', { view: initialState.view, modals: initialState.modals });
-  }, [currentView]);
+    window.history.replaceState(initialState, '');
+    devLog('initial state pushed to history', {
+      view: initialState.view,
+      modals: initialState.modals,
+    });
+  }, []);
 
   const value = {
     currentView,
