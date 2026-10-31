@@ -1,5 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { exportWorkoutBackup, importWorkoutBackup } from './backupService';
+import {
+  exportWorkoutBackup,
+  exportSingleWorkoutSession,
+  importWorkoutBackup,
+} from './backupService';
 import { saveWorkoutSession, getWorkoutHistory, getLastBackupWorkoutCount } from './storageService';
 import type { WorkoutSession } from '../types/workout';
 
@@ -160,6 +164,108 @@ describe('exportWorkoutBackup', () => {
   });
 });
 
+describe('importWorkoutBackup — formatos alternativos', () => {
+  it('importa um treino individual no formato { session }', () => {
+    const sessao = sessaoValidaJSON('individual');
+
+    const result = importWorkoutBackup(
+      JSON.stringify({ version: 1, type: 'single_workout', session: sessao }),
+    );
+
+    expect(result).toEqual({ success: true, count: 1, sessionName: sessao.name });
+    expect(getWorkoutHistory()).toHaveLength(1);
+    expect(getWorkoutHistory()[0].id).toBe('individual');
+  });
+
+  it('importa uma sessão avulsa quando o objeto raiz é a própria sessão', () => {
+    const sessao = sessaoValidaJSON('raiz');
+
+    const result = importWorkoutBackup(JSON.stringify(sessao));
+
+    expect(result).toEqual({ success: true, count: 1, sessionName: sessao.name });
+    expect(getWorkoutHistory()[0].id).toBe('raiz');
+  });
+
+  it('importa um array direto de sessões e descarta as inválidas', () => {
+    const result = importWorkoutBackup(
+      JSON.stringify([sessaoValidaJSON('a'), sessaoValidaJSON('b'), { id: 'invalida' }]),
+    );
+
+    expect(result.success).toBe(true);
+    expect(result.count).toBe(2);
+    expect(result.sessionName).toBeUndefined();
+    expect(getWorkoutHistory()).toHaveLength(2);
+  });
+
+  it('mescla com o histórico existente sem apagar sessões antigas', () => {
+    saveWorkoutSession(sessaoValidaJSON('antiga'));
+
+    const backupJson = JSON.stringify({
+      version: 1,
+      history: [sessaoValidaJSON('nova')],
+    });
+
+    const result = importWorkoutBackup(backupJson);
+
+    expect(result.count).toBe(1);
+    expect(
+      getWorkoutHistory()
+        .map((s) => s.id)
+        .sort(),
+    ).toEqual(['antiga', 'nova']);
+  });
+
+  it('atualiza a sessão existente quando o id coincide', () => {
+    saveWorkoutSession(criarSessaoDeTreinoValida({ id: 'mesma', name: 'Nome Antigo' }));
+
+    const backupJson = JSON.stringify({
+      version: 1,
+      history: [criarSessaoDeTreinoValida({ id: 'mesma', name: 'Nome Novo' })],
+    });
+
+    importWorkoutBackup(backupJson);
+
+    const historico = getWorkoutHistory();
+    expect(historico).toHaveLength(1);
+    expect(historico[0].name).toBe('Nome Novo');
+  });
+});
+
+describe('exportSingleWorkoutSession', () => {
+  it('exporta um treino individual com nome de arquivo sanitizado e dados corretos', async () => {
+    const captura = prepararCapturaDeDownloadComNome();
+    const sessao = criarSessaoDeTreinoValida({
+      id: 'unico',
+      name: 'Peito & Tríceps',
+    });
+
+    exportSingleWorkoutSession(sessao);
+    const blob = await captura.blob;
+
+    expect(captura.obterNome()).toBe('meu_treino_peito_tríceps_2024-01-15.json');
+
+    const conteudo = JSON.parse(await blob.text());
+    expect(conteudo.version).toBe(1);
+    expect(conteudo.type).toBe('single_workout');
+    expect(conteudo.session.id).toBe('unico');
+    expect(conteudo.history).toBeUndefined();
+  });
+
+  it('permite reimportar o arquivo exportado (round-trip)', async () => {
+    const captura = prepararCapturaDeDownloadComNome();
+    const sessao = criarSessaoDeTreinoValida({ id: 'round-trip' });
+
+    exportSingleWorkoutSession(sessao);
+    const conteudo = await (await captura.blob).text();
+
+    const result = importWorkoutBackup(conteudo);
+
+    expect(result.success).toBe(true);
+    expect(result.count).toBe(1);
+    expect(getWorkoutHistory()[0].id).toBe('round-trip');
+  });
+});
+
 /**
  * Espiona URL.createObjectURL e URL.revokeObjectURL, e também o clique do
  * link de download, evitando warnings de navegação do jsdom.
@@ -193,4 +299,32 @@ function prepararCapturaDeDownload(): Promise<Blob> {
     vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
     vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
   });
+}
+
+/**
+ * Como `prepararCapturaDeDownload`, mas também expõe o `download` do `<a>`
+ * que disparou o download, permitindo validar o nome do arquivo exportado.
+ */
+function prepararCapturaDeDownloadComNome(): { blob: Promise<Blob>; obterNome: () => string } {
+  let nomeDoArquivo = '';
+  let resolverBlob: (blob: Blob) => void = () => undefined;
+
+  const blob = new Promise<Blob>((resolve) => {
+    resolverBlob = resolve;
+  });
+
+  vi.spyOn(URL, 'createObjectURL').mockImplementation((objeto: Blob | MediaSource) => {
+    if (objeto instanceof Blob) {
+      resolverBlob(objeto);
+    }
+    return 'blob:url-falso';
+  });
+  vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+  vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (
+    this: HTMLAnchorElement,
+  ) {
+    nomeDoArquivo = this.download;
+  });
+
+  return { blob, obterNome: () => nomeDoArquivo };
 }
