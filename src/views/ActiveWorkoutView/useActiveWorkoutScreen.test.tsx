@@ -1,16 +1,24 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import React from 'react';
 import { useActiveWorkoutScreen } from './useActiveWorkoutScreen';
 import { NavigationProvider, SessionProvider, HistoryProvider, useSession } from '../../hooks';
+import type { WorkoutSession } from '../../types/workout';
+import {
+  getActiveWorkoutSession,
+  getWorkoutHistory,
+  saveWorkoutSession,
+} from '../../services/storageService';
 
 /**
  * useActiveWorkoutScreen depende de useStopwatch. Damos mock para isolar
- * os testes da lógica de temporização.
+ * os testes da lógica de temporização e controlar a duração "atual".
  */
+const relogio = vi.hoisted(() => ({ seconds: 0 }));
+
 vi.mock('../../hooks/useStopwatch', () => ({
   useStopwatch: () => ({
-    seconds: 0,
+    seconds: relogio.seconds,
     isRunning: false,
     start: vi.fn(),
     pause: vi.fn(),
@@ -31,338 +39,280 @@ function createWrapper() {
   };
 }
 
-describe('useActiveWorkoutScreen — renameSession sem sessão ativa', () => {
-  it('expõe renameSession como função no resultado do hook', () => {
-    const { result } = renderHook(() => useActiveWorkoutScreen(), {
-      wrapper: createWrapper(),
-    });
+function renderScreen() {
+  return renderHook(
+    () => ({
+      screen: useActiveWorkoutScreen(),
+      session: useSession(),
+    }),
+    { wrapper: createWrapper() },
+  );
+}
 
-    expect(typeof result.current.renameSession).toBe('function');
-  });
+function criarSessao(overrides: Partial<WorkoutSession> = {}): WorkoutSession {
+  return {
+    id: 'sessao-salva',
+    date: '2026-01-01T10:00:00.000Z',
+    durationInSeconds: 600,
+    name: 'Treino Salvo',
+    cues: [],
+    exercises: [],
+    isTemplate: false,
+    status: 'completed',
+    ...overrides,
+  };
+}
 
-  it('não lança erro ao chamar renameSession sem sessão ativa', () => {
-    const { result } = renderHook(() => useActiveWorkoutScreen(), {
-      wrapper: createWrapper(),
-    });
-
-    act(() => {
-      expect(() => result.current.renameSession('Qualquer Nome')).not.toThrow();
-    });
-  });
-
-  it('não lança erro ao chamar renameSession com string vazia sem sessão ativa', () => {
-    const { result } = renderHook(() => useActiveWorkoutScreen(), {
-      wrapper: createWrapper(),
-    });
-
-    act(() => {
-      expect(() => result.current.renameSession('')).not.toThrow();
-    });
-  });
+beforeEach(() => {
+  localStorage.clear();
+  relogio.seconds = 0;
 });
 
-describe('useActiveWorkoutScreen — renameSession com sessão ativa', () => {
-  it('atualiza o nome da sessão ativa com um nome válido', () => {
-    const { result } = renderHook(
-      () => ({
-        screen: useActiveWorkoutScreen(),
-        session: useSession(),
-      }),
-      { wrapper: createWrapper() },
-    );
+describe('useActiveWorkoutScreen — sem sessão', () => {
+  it('expõe a sessão como nula quando não há treino ativo nem em edição', () => {
+    const { result } = renderScreen();
 
-    act(() => {
-      result.current.session.startNewWorkout(null);
-    });
-
-    expect(result.current.screen.session?.name).toBe('Treino Livre');
-
-    act(() => {
-      result.current.screen.renameSession('Peito e Tríceps');
-    });
-
-    expect(result.current.screen.session?.name).toBe('Peito e Tríceps');
-  });
-
-  it('ignora renameSession quando o novo nome é string vazia', () => {
-    const { result } = renderHook(
-      () => ({
-        screen: useActiveWorkoutScreen(),
-        session: useSession(),
-      }),
-      { wrapper: createWrapper() },
-    );
-
-    act(() => {
-      result.current.session.startNewWorkout(null);
-    });
-
-    const nomeOriginal = result.current.screen.session?.name;
-
-    act(() => {
-      result.current.screen.renameSession('');
-    });
-
-    expect(result.current.screen.session?.name).toBe(nomeOriginal);
-  });
-
-  it('ignora renameSession quando o novo nome é composto apenas por espaços', () => {
-    const { result } = renderHook(
-      () => ({
-        screen: useActiveWorkoutScreen(),
-        session: useSession(),
-      }),
-      { wrapper: createWrapper() },
-    );
-
-    act(() => {
-      result.current.session.startNewWorkout(null);
-    });
-
-    const nomeOriginal = result.current.screen.session?.name;
-
-    act(() => {
-      result.current.screen.renameSession('   ');
-    });
-
-    expect(result.current.screen.session?.name).toBe(nomeOriginal);
-  });
-
-  it('salva o nome com trim, removendo espaços das bordas', () => {
-    const { result } = renderHook(
-      () => ({
-        screen: useActiveWorkoutScreen(),
-        session: useSession(),
-      }),
-      { wrapper: createWrapper() },
-    );
-
-    act(() => {
-      result.current.session.startNewWorkout(null);
-    });
-
-    act(() => {
-      result.current.screen.renameSession('  Costas e Bíceps  ');
-    });
-
-    expect(result.current.screen.session?.name).toBe('Costas e Bíceps');
-  });
-
-  it('permite renomear múltiplas vezes consecutivas', () => {
-    const { result } = renderHook(
-      () => ({
-        screen: useActiveWorkoutScreen(),
-        session: useSession(),
-      }),
-      { wrapper: createWrapper() },
-    );
-
-    act(() => {
-      result.current.session.startNewWorkout(null);
-    });
-
-    act(() => {
-      result.current.screen.renameSession('Nome Inicial');
-    });
-    expect(result.current.screen.session?.name).toBe('Nome Inicial');
-
-    act(() => {
-      result.current.screen.renameSession('Nome Final');
-    });
-    expect(result.current.screen.session?.name).toBe('Nome Final');
-  });
-
-  it('saveOrFinish deve chamar finishActiveWorkout se a sessão não for edição', () => {
-    const { result } = renderHook(
-      () => ({
-        screen: useActiveWorkoutScreen(),
-        session: useSession(),
-      }),
-      { wrapper: createWrapper() },
-    );
-
-    act(() => {
-      result.current.session.startNewWorkout(null);
-    });
-
+    expect(result.current.screen.session).toBeNull();
     expect(result.current.screen.isEditing).toBe(false);
-
-    act(() => {
-      result.current.screen.saveOrFinish();
-    });
-
-    // Se encerrou, activeSession fica nula
-    expect(result.current.session.activeSession).toBeNull();
   });
 
-  it('saveOrFinish deve chamar saveEditedWorkout se a sessão for edição', () => {
-    const { result } = renderHook(
-      () => ({
-        screen: useActiveWorkoutScreen(),
-        session: useSession(),
-      }),
-      { wrapper: createWrapper() },
-    );
+  it('ignora todas as mutações sem sessão, sem criar estado fantasma', () => {
+    const { result } = renderScreen();
 
     act(() => {
-      // Começamos uma sessão nova apenas para ter uma mockada
-      result.current.session.startNewWorkout(null);
-    });
-    const mockSession = result.current.session.activeSession!;
-
-    act(() => {
-      // Ao editar, activeSession vira null e editingSession recebe a mockSession
-      result.current.session.startEditingWorkout(mockSession);
-    });
-
-    expect(result.current.screen.isEditing).toBe(true);
-
-    act(() => {
+      result.current.screen.addCue('Lembrete');
+      result.current.screen.removeCue(0);
+      result.current.screen.addExercise('Supino');
+      result.current.screen.updateExercise({
+        id: 'x',
+        name: 'Supino',
+        weightInKg: 0,
+        notes: '',
+        sets: [],
+      });
+      result.current.screen.deleteExercise('x');
+      result.current.screen.renameSession('Novo Nome');
       result.current.screen.saveOrFinish();
-    });
-
-    // Se salvou edição, editingSession fica nula
-    expect(result.current.session.editingSession).toBeNull();
-  });
-
-  it('cancel deve chamar cancelActiveWorkout', () => {
-    const { result } = renderHook(
-      () => ({
-        screen: useActiveWorkoutScreen(),
-        session: useSession(),
-      }),
-      { wrapper: createWrapper() },
-    );
-
-    act(() => {
-      result.current.session.startNewWorkout(null);
-    });
-
-    expect(result.current.session.activeSession).not.toBeNull();
-
-    act(() => {
       result.current.screen.cancel();
     });
 
     expect(result.current.session.activeSession).toBeNull();
+    expect(result.current.session.editingSession).toBeNull();
+    expect(getActiveWorkoutSession()).toBeNull();
+    expect(getWorkoutHistory()).toEqual([]);
+  });
+});
+
+describe('useActiveWorkoutScreen — renameSession', () => {
+  it('atualiza o nome da sessão ativa removendo espaços das bordas', () => {
+    const { result } = renderScreen();
+
+    act(() => result.current.session.startNewWorkout(null));
+    act(() => result.current.screen.renameSession('  Peito e Tríceps  '));
+
+    expect(result.current.session.activeSession?.name).toBe('Peito e Tríceps');
   });
 
-  it('ignora saveOrFinish quando não há sessão', () => {
-    const { result } = renderHook(() => useActiveWorkoutScreen(), {
-      wrapper: createWrapper(),
-    });
+  it('ignora nomes vazios ou compostos apenas por espaços', () => {
+    const { result } = renderScreen();
 
-    act(() => {
-      expect(() => result.current.saveOrFinish()).not.toThrow();
+    act(() => result.current.session.startNewWorkout(null));
+
+    act(() => result.current.screen.renameSession(''));
+    expect(result.current.session.activeSession?.name).toBe('Treino Livre');
+
+    act(() => result.current.screen.renameSession('   '));
+    expect(result.current.session.activeSession?.name).toBe('Treino Livre');
+  });
+
+  it('permite renomear várias vezes e persiste o último nome', () => {
+    const { result } = renderScreen();
+
+    act(() => result.current.session.startNewWorkout(null));
+    act(() => result.current.screen.renameSession('Nome Inicial'));
+    act(() => result.current.screen.renameSession('Nome Final'));
+
+    expect(result.current.session.activeSession?.name).toBe('Nome Final');
+    expect(getActiveWorkoutSession()?.name).toBe('Nome Final');
+  });
+
+  it('renomeia a sessão em edição sem tocar na sessão ativa', () => {
+    const { result } = renderScreen();
+
+    act(() => result.current.session.startEditingWorkout(criarSessao()));
+    act(() => result.current.screen.renameSession('Treino Revisado'));
+
+    expect(result.current.session.editingSession?.name).toBe('Treino Revisado');
+    expect(result.current.session.activeSession).toBeNull();
+  });
+});
+
+describe('useActiveWorkoutScreen — saveOrFinish', () => {
+  it('finaliza o treino ativo gravando a duração atual do cronômetro', () => {
+    const { result, rerender } = renderScreen();
+
+    act(() => result.current.session.startNewWorkout(null));
+    expect(result.current.session.activeSession).not.toBeNull();
+
+    relogio.seconds = 125;
+    act(() => rerender());
+    act(() => result.current.screen.saveOrFinish());
+
+    expect(result.current.session.activeSession).toBeNull();
+    expect(getActiveWorkoutSession()).toBeNull();
+
+    const historico = getWorkoutHistory();
+    expect(historico).toHaveLength(1);
+    expect(historico[0]).toMatchObject({ status: 'completed', durationInSeconds: 125 });
+  });
+
+  it('salva a edição de um treino do histórico com a duração atual do cronômetro', () => {
+    const { result, rerender } = renderScreen();
+
+    act(() =>
+      result.current.session.startEditingWorkout(
+        criarSessao({ id: 'editado', name: 'Treino Editado' }),
+      ),
+    );
+    expect(result.current.screen.isEditing).toBe(true);
+
+    relogio.seconds = 900;
+    act(() => rerender());
+    act(() => result.current.screen.saveOrFinish());
+
+    expect(result.current.session.editingSession).toBeNull();
+
+    const historico = getWorkoutHistory();
+    expect(historico).toHaveLength(1);
+    expect(historico[0]).toMatchObject({
+      id: 'editado',
+      name: 'Treino Editado',
+      durationInSeconds: 900,
     });
   });
 
-  describe('mutações de sessão', () => {
-    it('adiciona e remove cues corretamente', () => {
-      const { result } = renderHook(
-        () => ({
-          screen: useActiveWorkoutScreen(),
-          session: useSession(),
-        }),
-        { wrapper: createWrapper() },
-      );
+  it('não persiste nada quando não há sessão', () => {
+    const { result } = renderScreen();
 
-      act(() => {
-        result.current.session.startNewWorkout(null);
-      });
+    act(() => result.current.screen.saveOrFinish());
 
-      act(() => {
-        result.current.screen.addCue('Lembrete 1');
-      });
-      expect(result.current.screen.session?.cues).toContain('Lembrete 1');
+    expect(getWorkoutHistory()).toEqual([]);
+  });
+});
 
-      act(() => {
-        result.current.screen.removeCue(0);
-      });
-      expect(result.current.screen.session?.cues).not.toContain('Lembrete 1');
-    });
+describe('useActiveWorkoutScreen — cancel', () => {
+  it('descarta o treino ativo e limpa o armazenamento', () => {
+    const { result } = renderScreen();
 
-    it('ignora addCue e removeCue quando não há sessão', () => {
-      const { result } = renderHook(() => useActiveWorkoutScreen(), {
-        wrapper: createWrapper(),
-      });
+    act(() => result.current.session.startNewWorkout(null));
+    act(() => result.current.screen.cancel());
 
-      act(() => {
-        expect(() => result.current.addCue('Teste')).not.toThrow();
-        expect(() => result.current.removeCue(0)).not.toThrow();
-      });
-    });
+    expect(result.current.session.activeSession).toBeNull();
+    expect(getActiveWorkoutSession()).toBeNull();
+  });
+});
 
-    it('adiciona, atualiza e remove exercícios', () => {
-      const { result } = renderHook(
-        () => ({
-          screen: useActiveWorkoutScreen(),
-          session: useSession(),
-        }),
-        { wrapper: createWrapper() },
-      );
+describe('useActiveWorkoutScreen — cues', () => {
+  it('adiciona um lembrete e persiste na sessão ativa', () => {
+    const { result } = renderScreen();
 
-      act(() => {
-        result.current.session.startNewWorkout(null);
-      });
+    act(() => result.current.session.startNewWorkout(null));
+    act(() => result.current.screen.addCue('Aquecer bem'));
+    act(() => result.current.screen.addCue('Respirar fundo'));
 
-      act(() => {
-        result.current.screen.addExercise('Supino');
-      });
+    expect(result.current.screen.session?.cues).toEqual(['Aquecer bem', 'Respirar fundo']);
+    expect(getActiveWorkoutSession()?.cues).toEqual(['Aquecer bem', 'Respirar fundo']);
+  });
 
-      expect(result.current.screen.session?.exercises.length).toBe(1);
-      const exercise = result.current.screen.session?.exercises[0]!;
-      expect(exercise.name).toBe('Supino');
+  it('remove apenas o lembrete do índice informado', () => {
+    const { result } = renderScreen();
 
-      act(() => {
-        result.current.screen.updateExercise({ ...exercise, name: 'Supino Inclinado' });
-      });
-      expect(result.current.screen.session?.exercises[0].name).toBe('Supino Inclinado');
+    act(() => result.current.session.startNewWorkout(null));
+    act(() => result.current.screen.addCue('Primeiro'));
+    act(() => result.current.screen.addCue('Segundo'));
+    act(() => result.current.screen.addCue('Terceiro'));
 
-      act(() => {
-        result.current.screen.deleteExercise(exercise.id);
-      });
-      expect(result.current.screen.session?.exercises.length).toBe(0);
-    });
+    act(() => result.current.screen.removeCue(1));
 
-    it('ignora adicionar exercício se o nome for vazio', () => {
-      const { result } = renderHook(
-        () => ({
-          screen: useActiveWorkoutScreen(),
-          session: useSession(),
-        }),
-        { wrapper: createWrapper() },
-      );
+    expect(result.current.screen.session?.cues).toEqual(['Primeiro', 'Terceiro']);
+  });
+});
 
-      act(() => {
-        result.current.session.startNewWorkout(null);
-      });
+describe('useActiveWorkoutScreen — exercícios', () => {
+  it('adiciona um exercício com o nome aparado e persiste na sessão', () => {
+    const { result } = renderScreen();
 
-      act(() => {
-        result.current.screen.addExercise('   ');
-      });
+    act(() => result.current.session.startNewWorkout(null));
+    act(() => result.current.screen.addExercise('  Supino Inclinado  '));
 
-      expect(result.current.screen.session?.exercises.length).toBe(0);
-    });
+    const exercicios = result.current.screen.session?.exercises ?? [];
+    expect(exercicios).toHaveLength(1);
+    expect(exercicios[0].name).toBe('Supino Inclinado');
+    expect(exercicios[0].sets).toEqual([]);
+    expect(getActiveWorkoutSession()?.exercises[0].name).toBe('Supino Inclinado');
+  });
 
-    it('ignora mutações de exercício se não houver sessão', () => {
-      const { result } = renderHook(() => useActiveWorkoutScreen(), {
-        wrapper: createWrapper(),
-      });
+  it('ignora exercícios com nome vazio ou só com espaços', () => {
+    const { result } = renderScreen();
 
-      act(() => {
-        expect(() => result.current.addExercise('Supino')).not.toThrow();
-        expect(() =>
-          result.current.updateExercise({
-            id: '1',
-            name: 'Supino',
-            weightInKg: 0,
-            notes: '',
-            sets: [],
-          }),
-        ).not.toThrow();
-        expect(() => result.current.deleteExercise('1')).not.toThrow();
-      });
-    });
+    act(() => result.current.session.startNewWorkout(null));
+    act(() => result.current.screen.addExercise('   '));
+
+    expect(result.current.screen.session?.exercises).toEqual([]);
+  });
+
+  it('atualiza apenas o exercício com o id correspondente', () => {
+    const { result } = renderScreen();
+
+    act(() => result.current.session.startNewWorkout(null));
+    act(() => result.current.screen.addExercise('Supino'));
+    act(() => result.current.screen.addExercise('Agachamento'));
+
+    const [supino] = result.current.screen.session?.exercises ?? [];
+    act(() => result.current.screen.updateExercise({ ...supino, notes: 'Pegada aberta' }));
+
+    const exercicios = result.current.screen.session?.exercises ?? [];
+    expect(exercicios[0].notes).toBe('Pegada aberta');
+    expect(exercicios[1].name).toBe('Agachamento');
+    expect(exercicios[1].notes).toBe('');
+  });
+
+  it('remove apenas o exercício com o id informado', () => {
+    const { result } = renderScreen();
+
+    act(() => result.current.session.startNewWorkout(null));
+    act(() => result.current.screen.addExercise('Supino'));
+    act(() => result.current.screen.addExercise('Agachamento'));
+
+    const [supino] = result.current.screen.session?.exercises ?? [];
+    act(() => result.current.screen.deleteExercise(supino.id));
+
+    const exercicios = result.current.screen.session?.exercises ?? [];
+    expect(exercicios).toHaveLength(1);
+    expect(exercicios[0].name).toBe('Agachamento');
+  });
+
+  it('aplica mutações na sessão em edição, não na sessão ativa', () => {
+    const { result } = renderScreen();
+
+    act(() => result.current.session.startEditingWorkout(criarSessao()));
+
+    act(() => result.current.screen.addCue('Lembrete de edição'));
+    act(() => result.current.screen.addExercise('Remada'));
+
+    expect(result.current.session.editingSession?.cues).toEqual(['Lembrete de edição']);
+    expect(result.current.session.editingSession?.exercises[0].name).toBe('Remada');
+    expect(result.current.session.activeSession).toBeNull();
+  });
+});
+
+describe('useActiveWorkoutScreen — histórico', () => {
+  it('expõe o histórico carregado pelo HistoryProvider', () => {
+    saveWorkoutSession(criarSessao({ id: 'h-1' }));
+    saveWorkoutSession(criarSessao({ id: 'h-2' }));
+
+    const { result } = renderScreen();
+
+    expect(result.current.screen.workoutHistory.map((s) => s.id).sort()).toEqual(['h-1', 'h-2']);
   });
 });
