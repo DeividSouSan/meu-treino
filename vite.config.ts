@@ -45,6 +45,23 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
+      // Inclui arquivos que ainda não foram importados por nenhum teste.
+      // Sem isso a cobertura reportada fica artificialmente alta.
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: [
+        'src/**/*.test.{ts,tsx}',
+        'src/**/*.spec.{ts,tsx}',
+        'src/vitest-setup.ts',
+        'src/types/**',
+        'src/main.tsx',
+      ],
+      // Calibrado logo abaixo da cobertura real da suíte (ver Fase 1.2).
+      thresholds: {
+        statements: 92,
+        branches: 85,
+        functions: 90,
+        lines: 93,
+      },
     },
   },
 });
