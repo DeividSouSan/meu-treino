@@ -1,8 +1,23 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import type { ChangeEvent } from 'react';
-import type { WorkoutExercise, AdvancedTechnique } from '../../types/workout';
+import type { WorkoutExercise, AdvancedTechnique, WorkoutSession } from '../../types/workout';
 import { useExerciseScreen } from './useExerciseScreen';
+import * as storageService from '../../services/storageService';
+
+/**
+ * Isola o hook do LocalStorage real: controlamos as notas globais e o
+ * histórico usados para herdar equipamento/carga padrão.
+ */
+vi.mock('../../services/storageService', () => ({
+  getGlobalExerciseNotes: vi.fn(),
+  saveGlobalExerciseNote: vi.fn(),
+  getWorkoutHistory: vi.fn(),
+}));
+
+const getGlobalExerciseNotesMock = vi.mocked(storageService.getGlobalExerciseNotes);
+const saveGlobalExerciseNoteMock = vi.mocked(storageService.saveGlobalExerciseNote);
+const getWorkoutHistoryMock = vi.mocked(storageService.getWorkoutHistory);
 
 /**
  * O hook useExerciseScreen depende de useStopwatch (que por sua vez usa
@@ -42,7 +57,10 @@ function eventoComValor(valor: string): ChangeEvent<HTMLInputElement> {
 }
 
 beforeEach(() => {
+  vi.clearAllMocks();
   espioncarDoStopwatch.reset.mockClear();
+  getGlobalExerciseNotesMock.mockReturnValue({});
+  getWorkoutHistoryMock.mockReturnValue([]);
 });
 
 afterEach(() => {
@@ -430,5 +448,199 @@ describe('useExerciseScreen — sincronização com exercício externo', () => {
 
     expect(result.current.exercise.equipmentType).toBe('dumbbell');
     expect(result.current.exercise.loadType).toBe('each_side');
+  });
+});
+
+describe('useExerciseScreen — notas globais por exercício', () => {
+  it('carrega a nota global do exercício ao abrir a tela', () => {
+    getGlobalExerciseNotesMock.mockReturnValue({ supino: 'Nota salva anteriormente' });
+
+    const { result } = renderHook(() =>
+      useExerciseScreen({
+        initialExercise: exercicioInicial({ name: '  Supino  ', notes: 'nota antiga' }),
+        onUpdateExercise: vi.fn(),
+      }),
+    );
+
+    expect(result.current.exercise.notes).toBe('Nota salva anteriormente');
+  });
+
+  it('mantém a nota do próprio exercício quando não existe nota global', () => {
+    const { result } = renderHook(() =>
+      useExerciseScreen({
+        initialExercise: exercicioInicial({ name: 'Supino', notes: 'nota do treino' }),
+        onUpdateExercise: vi.fn(),
+      }),
+    );
+
+    expect(result.current.exercise.notes).toBe('nota do treino');
+  });
+
+  it('salva a nota global ao editar as observações', () => {
+    const notificarAlteracao = vi.fn();
+    const { result } = renderHook(() =>
+      useExerciseScreen({
+        initialExercise: exercicioInicial({ name: 'Supino' }),
+        onUpdateExercise: notificarAlteracao,
+      }),
+    );
+
+    act(() => result.current.handleUpdateNotes(eventoComValor('Controlar a descida')));
+
+    expect(saveGlobalExerciseNoteMock).toHaveBeenCalledWith('Supino', 'Controlar a descida');
+    expect(notificarAlteracao).toHaveBeenCalledWith(
+      expect.objectContaining({ notes: 'Controlar a descida' }),
+    );
+  });
+
+  it('salva a nota global ao atualizar as observações por valor', () => {
+    const { result } = renderHook(() =>
+      useExerciseScreen({
+        initialExercise: exercicioInicial({ name: 'Supino' }),
+        onUpdateExercise: vi.fn(),
+      }),
+    );
+
+    act(() => result.current.handleUpdateNotesValue('Pausa de 2s no topo'));
+
+    expect(saveGlobalExerciseNoteMock).toHaveBeenCalledWith('Supino', 'Pausa de 2s no topo');
+    expect(result.current.exercise.notes).toBe('Pausa de 2s no topo');
+  });
+
+  it('carrega a nota global do novo nome ao renomear o exercício', () => {
+    getGlobalExerciseNotesMock.mockReturnValue({ agachamento: 'Descer controlado' });
+
+    const { result } = renderHook(() =>
+      useExerciseScreen({
+        initialExercise: exercicioInicial({ name: 'Supino' }),
+        onUpdateExercise: vi.fn(),
+      }),
+    );
+
+    act(() => result.current.handleUpdateName(eventoComValor('Agachamento')));
+
+    expect(result.current.exercise.name).toBe('Agachamento');
+    expect(result.current.exercise.notes).toBe('Descer controlado');
+  });
+
+  it('limpa a nota ao renomear o exercício para um nome vazio', () => {
+    const { result } = renderHook(() =>
+      useExerciseScreen({
+        initialExercise: exercicioInicial({ name: 'Supino', notes: 'nota antiga' }),
+        onUpdateExercise: vi.fn(),
+      }),
+    );
+
+    act(() => result.current.handleUpdateName(eventoComValor('   ')));
+
+    expect(result.current.exercise.notes).toBe('');
+  });
+});
+
+function sessaoComExercicio(exercicio: Partial<WorkoutExercise>): WorkoutSession {
+  return {
+    id: 'sessao-passada',
+    date: '2026-01-01T10:00:00.000Z',
+    durationInSeconds: 600,
+    name: 'Treino passado',
+    cues: [],
+    isTemplate: false,
+    status: 'completed',
+    exercises: [
+      {
+        id: 'ex-passado',
+        name: 'Supino',
+        weightInKg: 80,
+        notes: '',
+        sets: [],
+        ...exercicio,
+      },
+    ],
+  };
+}
+
+describe('useExerciseScreen — herança de equipamento e carga do histórico', () => {
+  it('herda equipamento e carga de um treino anterior com o mesmo exercício', () => {
+    getWorkoutHistoryMock.mockReturnValue([
+      sessaoComExercicio({
+        name: '  SUPINO ',
+        equipmentType: 'dumbbell',
+        loadType: 'each_side',
+      }),
+    ]);
+
+    const { result } = renderHook(() =>
+      useExerciseScreen({
+        initialExercise: exercicioInicial({ name: 'Supino' }),
+        onUpdateExercise: vi.fn(),
+      }),
+    );
+
+    expect(result.current.exercise.equipmentType).toBe('dumbbell');
+    expect(result.current.exercise.loadType).toBe('each_side');
+  });
+
+  it('não sobrescreve o equipamento e a carga já definidos no exercício', () => {
+    getWorkoutHistoryMock.mockReturnValue([
+      sessaoComExercicio({ equipmentType: 'dumbbell', loadType: 'each_side' }),
+    ]);
+
+    const { result } = renderHook(() =>
+      useExerciseScreen({
+        initialExercise: exercicioInicial({
+          name: 'Supino',
+          equipmentType: 'barbell',
+          loadType: 'total',
+        }),
+        onUpdateExercise: vi.fn(),
+      }),
+    );
+
+    expect(result.current.exercise.equipmentType).toBe('barbell');
+    expect(result.current.exercise.loadType).toBe('total');
+    expect(getWorkoutHistoryMock).not.toHaveBeenCalled();
+  });
+
+  it('mantém os campos indefinidos quando o histórico não tem o exercício', () => {
+    getWorkoutHistoryMock.mockReturnValue([
+      sessaoComExercicio({ name: 'Agachamento', equipmentType: 'barbell' }),
+    ]);
+
+    const { result } = renderHook(() =>
+      useExerciseScreen({
+        initialExercise: exercicioInicial({ name: 'Supino' }),
+        onUpdateExercise: vi.fn(),
+      }),
+    );
+
+    expect(result.current.exercise.equipmentType).toBeUndefined();
+    expect(result.current.exercise.loadType).toBeUndefined();
+  });
+});
+
+describe('useExerciseScreen — alvo do cronômetro de descanso', () => {
+  it('é zero quando ainda não há séries', () => {
+    const { result } = renderHook(() =>
+      useExerciseScreen({ initialExercise: exercicioInicial(), onUpdateExercise: vi.fn() }),
+    );
+
+    expect(result.current.restTargetSeconds).toBe(0);
+  });
+
+  it('usa o descanso da última série registrada', () => {
+    const { result } = renderHook(() =>
+      useExerciseScreen({ initialExercise: exercicioInicial(), onUpdateExercise: vi.fn() }),
+    );
+
+    act(() => result.current.setRepetitionsInput('10'));
+    act(() => result.current.setRestInput('90'));
+    act(() => result.current.handleAddSet());
+    expect(result.current.restTargetSeconds).toBe(90);
+
+    act(() => result.current.setRepetitionsInput('8'));
+    act(() => result.current.setRestInput('45'));
+    act(() => result.current.handleAddSet());
+
+    expect(result.current.restTargetSeconds).toBe(45);
   });
 });
