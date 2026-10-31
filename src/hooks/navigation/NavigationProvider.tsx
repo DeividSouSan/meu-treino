@@ -53,14 +53,15 @@ export function NavigationProvider({ children, initialView = 'history' }: Naviga
       const idx = prev.lastIndexOf(id);
       const newStack = idx === -1 ? prev : [...prev.slice(0, idx), ...prev.slice(idx + 1)];
       devLog('closeModal', id, 'newStack:', newStack);
-      // Remove o estado virtual de voltar ({ isVirtualBackState: true }) da history stack
-      // para evitar que o gesto de voltar reabra o modal após fechá-lo
+      // Substitui o estado atual da history
       window.history.replaceState({ view: currentViewRef.current, modals: newStack }, '');
-      // Pop the virtual back state entry to prevent double-back behavior
-      if (window.history.state?.isVirtualBackState) {
-        window.history.back();
-        window.history.forward(); // restore the replaced state
-      }
+      // Remove o estado virtual de voltar ({ isVirtualBackState: true }) que foi
+      // empilhado no usoHardwareBackPress no início da aplicação. Isso evita que
+      // o próximo gesto de voltar reabra o modal ou cause comportamento duplo de back.
+      // Sempre executamos o pop porque o estado virtual foi registrado no mount
+      // do NavigationProvider e permanece na history stack.
+      window.history.back();
+      window.history.forward(); // restore the replaced state
       return newStack;
     });
   }, []);
