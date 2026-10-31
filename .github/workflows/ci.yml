@@ -31,11 +31,14 @@ jobs:
       - name: Typecheck (TypeScript)
         run: npx tsc -b
 
+      - name: Typecheck dos testes (TypeScript)
+        run: npm run test:types
+
       - name: Linter (Oxlint)
         run: npm run lint
 
-      - name: Testes Unitários (Vitest)
-        run: npm test
+      - name: Testes Unitários + Cobertura (Vitest)
+        run: npm run test:coverage
 
       - name: Build da Aplicação
         run: npm run build
