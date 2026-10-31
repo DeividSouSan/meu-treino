@@ -8,7 +8,13 @@ const devLog = (...args: unknown[]) => {
   // Check debug mode on each call (not just at module load)
   // This allows enabling/disabling via console without page reload
   if (typeof window !== 'undefined' && (window as any).__DEBUG_NAV__) {
-    console.log('[NavigationProvider DEBUG]', ...args);
+    const timestamp = new Date().toLocaleTimeString('pt-BR', {
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+    console.log('[NavigationProvider DEBUG]', timestamp, '|', ...args);
   }
 };
 
