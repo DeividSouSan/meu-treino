@@ -12,6 +12,8 @@ import {
   getLastBackupWorkoutCount,
   saveLastBackupWorkoutCount,
   clearAllWorkoutData,
+  getGlobalExerciseNotes,
+  saveGlobalExerciseNote,
 } from './storageService';
 
 /**
@@ -32,6 +34,7 @@ const HISTORY_STORAGE_KEY = 'meu_treino_history';
 const TEMPLATE_STORAGE_KEY = 'meu_treino_templates';
 const ACTIVE_WORKOUT_STORAGE_KEY = 'meu_treino_active';
 const LAST_BACKUP_COUNT_STORAGE_KEY = 'meu_treino_last_backup_count';
+const GLOBAL_NOTES_STORAGE_KEY = 'meu_treino_global_notes';
 
 function criarSessaoDeTreino(parciais: Partial<WorkoutSession> = {}): WorkoutSession {
   return {
@@ -241,12 +244,52 @@ describe('saveLastBackupWorkoutCount', () => {
   });
 });
 
+describe('getGlobalExerciseNotes', () => {
+  it('retorna um objeto vazio quando não há notas salvas', () => {
+    expect(getGlobalExerciseNotes()).toEqual({});
+  });
+
+  it('retorna um objeto vazio quando o JSON está corrompido', () => {
+    localStorage.setItem(GLOBAL_NOTES_STORAGE_KEY, '{ invalido');
+    expect(getGlobalExerciseNotes()).toEqual({});
+  });
+});
+
+describe('saveGlobalExerciseNote', () => {
+  it('salva a nota normalizando o nome do exercício', () => {
+    saveGlobalExerciseNote('  Supino Reto  ', 'Controlar a descida');
+
+    expect(getGlobalExerciseNotes()).toEqual({
+      'supino reto': 'Controlar a descida',
+    });
+  });
+
+  it('ignora nomes vazios ou compostos apenas por espaços', () => {
+    saveGlobalExerciseNote('', 'Nota sem dono');
+    saveGlobalExerciseNote('   ', 'Outra nota');
+
+    expect(getGlobalExerciseNotes()).toEqual({});
+  });
+
+  it('atualiza a nota existente sem apagar as demais', () => {
+    saveGlobalExerciseNote('Supino', 'Nota antiga');
+    saveGlobalExerciseNote('Agachamento', 'Nota do agachamento');
+    saveGlobalExerciseNote('supino', 'Nota nova');
+
+    expect(getGlobalExerciseNotes()).toEqual({
+      supino: 'Nota nova',
+      agachamento: 'Nota do agachamento',
+    });
+  });
+});
+
 describe('clearAllWorkoutData', () => {
-  it('remove todo o histórico, templates, sessão ativa e contagem de backup', () => {
+  it('remove todo o histórico, templates, sessão ativa, contagem de backup e notas globais', () => {
     saveWorkoutSession(criarSessaoDeTreino({ id: 'h-1' }));
     saveWorkoutTemplate(criarSessaoDeTreino({ id: 't-1', isTemplate: true }));
     saveActiveWorkoutSession(criarSessaoDeTreino({ id: 'a-1' }));
     saveLastBackupWorkoutCount(3);
+    saveGlobalExerciseNote('Supino', 'Nota');
 
     clearAllWorkoutData();
 
@@ -254,5 +297,6 @@ describe('clearAllWorkoutData', () => {
     expect(getWorkoutTemplates()).toEqual([]);
     expect(getActiveWorkoutSession()).toBeNull();
     expect(getLastBackupWorkoutCount()).toBe(0);
+    expect(getGlobalExerciseNotes()).toEqual({});
   });
 });
