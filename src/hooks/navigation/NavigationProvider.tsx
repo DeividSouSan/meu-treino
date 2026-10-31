@@ -3,10 +3,11 @@ import { NavigationContext, type ModalId } from './NavigationContext';
 import { useHardwareBackPress } from './useHardwareBackPress';
 
 // Debug mode: define globally for development debugging
-// Set window.__DEBUG_NAV__ = true in your app to enable
-const isDebugMode = typeof window !== 'undefined' && (window as any).__DEBUG_NAV__;
+// Set (window as any).__DEBUG_NAV__ = true in your app to enable
 const devLog = (...args: unknown[]) => {
-  if (isDebugMode) {
+  // Check debug mode on each call (not just at module load)
+  // This allows enabling/disabling via console without page reload
+  if (typeof window !== 'undefined' && (window as any).__DEBUG_NAV__) {
     console.log('[NavigationProvider DEBUG]', ...args);
   }
 };
