@@ -65,7 +65,7 @@ export function MtFloatingActionButton({
         fontSize: isExtended ? '1rem' : '28px',
         fontWeight: 600,
         gap: isExtended ? '8px' : '0',
-        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)',
+        boxShadow: '0 4px 14px var(--shadow-fab)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
