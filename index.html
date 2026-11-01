@@ -11,6 +11,25 @@
       content="Aplicativo pessoal e minimalista para rastreamento de musculação."
     />
     <title>Meu Treino</title>
+    <script>
+      // Aplica o tema antes do primeiro paint para evitar flash de tela clara.
+      // A chave e as cores devem ficar em sincronia com o ThemeProvider.
+      (function () {
+        try {
+          var storedTheme = localStorage.getItem('meu_treino_theme');
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var isDark = storedTheme === 'dark' || (storedTheme !== 'light' && prefersDark);
+          document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+
+          var themeColorMeta = document.querySelector('meta[name="theme-color"]');
+          if (themeColorMeta) {
+            themeColorMeta.setAttribute('content', isDark ? '#1a1a1a' : '#ffffff');
+          }
+        } catch (error) {
+          // Sem acesso ao localStorage, o CSS mantém o tema claro como fallback.
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -151,6 +151,31 @@ describe('useTheme hook edge cases', () => {
     expect(result.current.resolvedTheme).toBe('light');
   });
 
+  it('reage à mudança de preferência do sistema quando o tema é system', () => {
+    let changeHandler: ((event: MediaQueryListEvent) => void) | null = null;
+    const mediaQuery = {
+      matches: false,
+      addEventListener: vi.fn((_event: string, handler: (event: MediaQueryListEvent) => void) => {
+        changeHandler = handler;
+      }),
+      removeEventListener: vi.fn(),
+      media: '',
+      onchange: null,
+    };
+    vi.stubGlobal('matchMedia', () => mediaQuery);
+
+    const { result } = renderHook(() => useTheme(), { wrapper });
+
+    expect(result.current.resolvedTheme).toBe('light');
+
+    act(() => {
+      changeHandler?.({ matches: true } as MediaQueryListEvent);
+    });
+
+    expect(result.current.resolvedTheme).toBe('dark');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+  });
+
   it('aplica data-theme no elemento html ao mudar o tema', () => {
     const { result } = renderHook(() => useTheme(), { wrapper });
 

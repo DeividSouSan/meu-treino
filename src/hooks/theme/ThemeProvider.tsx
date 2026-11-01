@@ -3,24 +3,64 @@ import { ThemeContext, type Theme, type ThemeContextType } from './ThemeContext'
 
 export type { Theme, ThemeContextType } from './ThemeContext';
 
+/**
+ * Chave compartilhada com o script inline de `index.html`, que aplica o tema
+ * antes do primeiro paint para evitar flash de tela clara. Mantenha as duas
+ * referências em sincronia.
+ */
 const THEME_STORAGE_KEY = 'meu_treino_theme';
+
+/**
+ * Cores usadas na meta tag theme-color do navegador/PWA. Mantenha em sincronia
+ * com o script inline de `index.html`.
+ */
+const THEME_COLOR_META = {
+  light: '#ffffff',
+  dark: '#1a1a1a',
+} as const;
 
 export interface ThemeProviderProps {
   children: ReactNode;
 }
 
 /**
+ * Lê o tema salvo de forma síncrona, para que o primeiro render já use a
+ * preferência do usuário em vez de aplicar 'system' e depois corrigir.
+ */
+function getStoredTheme(): Theme {
+  if (typeof window === 'undefined') {
+    return 'system';
+  }
+
+  const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+  if (storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system') {
+    return storedTheme;
+  }
+
+  return 'system';
+}
+
+/**
+ * Consulta a preferência de tema escuro do sistema operacional.
+ */
+function getSystemPrefersDark(): boolean {
+  if (typeof window === 'undefined' || !window.matchMedia) {
+    return false;
+  }
+
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+/**
  * Resolve o tema efetivo ('light' | 'dark') a partir do tema configurado,
  * respeitando a preferência do sistema quando o tema é 'system'.
  */
-function resolveTheme(theme: Theme): 'light' | 'dark' {
+function resolveTheme(theme: Theme, systemPrefersDark: boolean): 'light' | 'dark' {
   if (theme !== 'system') {
     return theme;
   }
-  if (typeof window === 'undefined' || !window.matchMedia) {
-    return 'light';
-  }
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+
+  return systemPrefersDark ? 'dark' : 'light';
 }
 
 /**
@@ -32,21 +72,15 @@ function applyTheme(resolvedTheme: 'light' | 'dark'): void {
 
   const themeColorMeta = document.querySelector('meta[name="theme-color"]');
   if (themeColorMeta) {
-    themeColorMeta.setAttribute('content', resolvedTheme === 'dark' ? '#1a1a1a' : '#ffffff');
+    themeColorMeta.setAttribute('content', THEME_COLOR_META[resolvedTheme]);
   }
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  const [theme, setThemeState] = useState<Theme>('system');
+  const [theme, setThemeState] = useState<Theme>(getStoredTheme);
+  const [systemPrefersDark, setSystemPrefersDark] = useState<boolean>(getSystemPrefersDark);
 
-  useEffect(() => {
-    const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-    if (storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system') {
-      setThemeState(storedTheme);
-    }
-  }, []);
-
-  const resolvedTheme = resolveTheme(theme);
+  const resolvedTheme = resolveTheme(theme, systemPrefersDark);
 
   useEffect(() => {
     applyTheme(resolvedTheme);
@@ -58,10 +92,11 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     }
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handler = () => {
-      applyTheme(resolveTheme(theme));
+    const handler = (event: MediaQueryListEvent) => {
+      setSystemPrefersDark(event.matches);
     };
 
+    setSystemPrefersDark(mediaQuery.matches);
     mediaQuery.addEventListener('change', handler);
     return () => mediaQuery.removeEventListener('change', handler);
   }, [theme]);
