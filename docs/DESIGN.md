@@ -87,3 +87,31 @@ O aplicativo é usado predominantemente com uma mão durante o cansaço do trein
 ### 5. Contraste e Destaque para Dados Operacionais
 
 - Aumentar o tamanho e o contraste das informações vitais em movimento na academia: **repetições**, **carga (kg)** e **cronômetro de descanso**.
+
+---
+
+## 🌗 Tema (Claro / Escuro / Sistema)
+
+O aplicativo oferece três modos de tema, com **“Seguir o sistema”** como padrão:
+
+- **Sistema:** acompanha `prefers-color-scheme` e reage à troca de tema do aparelho sem recarregar o app.
+- **Claro:** força a paleta clara.
+- **Escuro:** força a paleta escura.
+
+### Regras de implementação
+
+1. **Local do controle:** o seletor de tema fica em **Configurações > Aparência**, na `SettingsView`.
+2. **Somente tokens:** componentes não podem usar cores literais (`#hex`, `rgb`, `hsl`). Toda cor deve vir de um token CSS.
+3. **Dois temas obrigatórios:** todo token de cor novo precisa ser definido em `:root` **e** em `[data-theme='dark']`.
+4. **Contraste mínimo:** textos devem atingir **4,5:1** e elementos de interface **3:1** contra o fundo em ambos os temas.
+5. **`color-scheme`:** o `:root` declara `color-scheme: light` e o tema escuro declara `color-scheme: dark`, para que inputs, selects e scrollbars nativos acompanhem o tema.
+6. **Sem flash:** um script inline no `index.html` aplica `data-theme` antes do primeiro paint. A chave `meu_treino_theme` e as cores da meta tag `theme-color` devem ficar em sincronia com o `ThemeProvider`.
+7. **PWA:** o `theme_color` do manifest é estático; a meta tag `theme-color` é atualizada em tempo de execução pelo `ThemeProvider`.
+
+### Checklist antes de abrir PR
+
+- [ ] Testei a tela no tema claro e no tema escuro.
+- [ ] Nenhuma cor literal foi adicionada em componentes.
+- [ ] Tokens novos existem nos dois temas.
+- [ ] O contraste dos textos e controles foi verificado.
+- [ ] `npm test`, `npm run lint` e `npm run build` passam.

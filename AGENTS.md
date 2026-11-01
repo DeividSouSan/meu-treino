@@ -100,6 +100,8 @@ meu-treino/
 - **Proibição de Tags HTML Puras:** É expressamente proibido usar tags HTML nativas (`<button>`, `<div className="card">`, `<section className="card">`, `<span className="pill">`, etc.) quando já existir ou couber a criação de um componente `Mt*`.
 - **Ações Destrutivas Exigem Confirmação:** Ações destrutivas (como excluir série, remover exercício, cancelar treino ou resetar dados) **sempre** exigem diálogo de confirmação explícita do usuário antes de serem executadas.
 - **Preservação de Componentes:** Nunca apague nem renomeie componentes existentes sem perguntar e confirmar previamente com o usuário.
+- **Tema (Claro / Escuro / Sistema):** O seletor de tema vive em **Configurações > Aparência** (`SettingsView`). Cores devem vir exclusivamente de tokens CSS; todo token de cor novo precisa ser definido em `:root` **e** em `[data-theme='dark']`. Teste sempre os dois temas antes de concluir a tarefa.
+- **Migração de Telas/Modais:** Ao substituir uma tela, modal ou fluxo, liste as funcionalidades existentes, garanta paridade e adicione/ajuste testes **antes** de remover o código antigo. Nunca remova um controle de configuração sem migrá-lo e cobri-lo com teste.
 
 ---
 
@@ -196,13 +198,15 @@ O projeto conta com dois ambientes de publicação isolados:
 
 ## 🚫 10. Tabela Rápida: O que NUNCA fazer
 
-| Proibição                                                                           | Motivo                                                   |
-| :---------------------------------------------------------------------------------- | :------------------------------------------------------- |
-| **Nunca rodar `npm run deploy` sem pedido explícito**                               | Evita deploys acidentais ou não testados em produção     |
-| **Nunca instalar dependências sem permissão**                                       | Mantém a base leve, auditável e soberana                 |
-| **Nunca usar tags HTML puras se houver `MtComponent`**                              | Garante uniformidade e consistência no Design System     |
-| **Nunca adicionar versões soltas (`^` ou `~`) no `package.json`**                   | Garante builds 100% reproduzíveis e determinísticos      |
-| **Nunca criar componentes de UI fora de `src/components/ui/` ou sem prefixo `Mt*`** | Mantém a separação clara entre primitivos e domínio      |
-| **Nunca fazer prop-drilling**                                                       | Mantém a arquitetura limpa e os componentes desacoplados |
-| **Nunca alterar o esquema de armazenamento sem migração**                           | Protege os dados reais dos usuários contra corrupção     |
-| **Nunca apagar componentes existentes sem confirmação**                             | Previne quebras e regressões na aplicação                |
+| Proibição                                                                           | Motivo                                                    |
+| :---------------------------------------------------------------------------------- | :-------------------------------------------------------- |
+| **Nunca rodar `npm run deploy` sem pedido explícito**                               | Evita deploys acidentais ou não testados em produção      |
+| **Nunca instalar dependências sem permissão**                                       | Mantém a base leve, auditável e soberana                  |
+| **Nunca usar tags HTML puras se houver `MtComponent`**                              | Garante uniformidade e consistência no Design System      |
+| **Nunca adicionar versões soltas (`^` ou `~`) no `package.json`**                   | Garante builds 100% reproduzíveis e determinísticos       |
+| **Nunca criar componentes de UI fora de `src/components/ui/` ou sem prefixo `Mt*`** | Mantém a separação clara entre primitivos e domínio       |
+| **Nunca fazer prop-drilling**                                                       | Mantém a arquitetura limpa e os componentes desacoplados  |
+| **Nunca alterar o esquema de armazenamento sem migração**                           | Protege os dados reais dos usuários contra corrupção      |
+| **Nunca apagar componentes existentes sem confirmação**                             | Previne quebras e regressões na aplicação                 |
+| **Nunca usar cores literais (`#hex`, `rgb`, `hsl`) em componentes**                 | Garante que os temas claro e escuro continuem funcionando |
+| **Nunca remover um controle de configuração sem migrar e testar**                   | Evita regressões como a perda do seletor de tema          |
