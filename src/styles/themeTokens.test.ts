@@ -58,12 +58,51 @@ function extractUsages(content: string): string[] {
   return [...content.matchAll(/var\((--[\w-]+)/g)].map((match) => match[1]);
 }
 
+function extractValues(block: string): Map<string, string> {
+  return new Map(
+    [...block.matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)].map((match) => [match[1], match[2].trim()]),
+  );
+}
+
+function relativeLuminance(hexColor: string): number {
+  const hex = hexColor.replace('#', '');
+  const channels = [0, 2, 4].map((start) => parseInt(hex.slice(start, start + 2), 16) / 255);
+
+  return channels.reduce((luminance, channel, index) => {
+    const linear = channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+    return luminance + linear * [0.2126, 0.7152, 0.0722][index];
+  }, 0);
+}
+
+function contrastRatio(foreground: string, background: string): number {
+  const foregroundLuminance = relativeLuminance(foreground);
+  const backgroundLuminance = relativeLuminance(background);
+  const lighter = Math.max(foregroundLuminance, backgroundLuminance);
+  const darker = Math.min(foregroundLuminance, backgroundLuminance);
+
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
 const css = readFileSync(CSS_FILE, 'utf8');
 const rootBlock = extractBlock(css, ':root');
 const darkBlock = extractBlock(css, "[data-theme='dark']");
 const rootTokens = extractDefinitions(rootBlock);
 const darkTokens = extractDefinitions(darkBlock);
+const darkValues = extractValues(darkBlock);
 const sourceFiles = listSourceFiles(SRC_DIR).filter((file) => file !== CSS_FILE);
+
+const DARK_CONTRAST_PAIRS = [
+  ['--text-primary', '--card-background'],
+  ['--text-secondary', '--card-background'],
+  ['--text-light', '--card-background'],
+  ['--accent-color', '--card-background'],
+  ['--accent-color', '--accent-light'],
+  ['--accent-contrast', '--accent-solid'],
+  ['--danger-color', '--card-background'],
+  ['--danger-contrast', '--danger-solid'],
+  ['--warning-color', '--warning-light'],
+  ['--success-color', '--success-light'],
+] as const;
 
 describe('contrato dos tokens de tema', () => {
   it('define no :root todos os tokens usados em src', () => {
@@ -93,5 +132,22 @@ describe('contrato dos tokens de tema', () => {
   it('declara color-scheme coerente nos dois temas', () => {
     expect(rootBlock).toContain('color-scheme: light');
     expect(darkBlock).toContain('color-scheme: dark');
+  });
+
+  it('mantém contraste mínimo de 4,5:1 nos pares de cor do tema escuro', () => {
+    DARK_CONTRAST_PAIRS.forEach(([foregroundToken, backgroundToken]) => {
+      const foreground = darkValues.get(foregroundToken);
+      const background = darkValues.get(backgroundToken);
+
+      expect(foreground, `Token ausente: ${foregroundToken}`).toBeDefined();
+      expect(background, `Token ausente: ${backgroundToken}`).toBeDefined();
+
+      const ratio = contrastRatio(foreground!, background!);
+
+      expect(
+        ratio,
+        `${foregroundToken} sobre ${backgroundToken} tem contraste ${ratio.toFixed(2)}:1`,
+      ).toBeGreaterThanOrEqual(4.5);
+    });
   });
 });
