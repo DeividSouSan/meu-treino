@@ -16,6 +16,12 @@ describe('MtSelect', () => {
     expect(screen.getAllByRole('option')).toHaveLength(2);
   });
 
+  it('associa o label ao select para acessibilidade', () => {
+    render(<MtSelect label="Test Select" value="opt1" onChange={() => {}} options={options} />);
+
+    expect(screen.getByLabelText('Test Select')).toBe(screen.getByRole('combobox'));
+  });
+
   it('calls onChange when selection changes', () => {
     const handleChange = vi.fn();
     render(<MtSelect label="Test Select" value="opt1" onChange={handleChange} options={options} />);

@@ -1,4 +1,4 @@
-import type { ChangeEvent, CSSProperties } from 'react';
+import { useId, type ChangeEvent, type CSSProperties } from 'react';
 
 export interface MtSelectOption {
   value: string;
@@ -24,10 +24,13 @@ export function MtSelect({
   style,
   labelStyle,
 }: MtSelectProps) {
+  const selectId = useId();
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', ...style }}>
       {label && (
         <label
+          htmlFor={selectId}
           style={{
             fontSize: '0.85rem',
             fontWeight: 600,
@@ -39,6 +42,7 @@ export function MtSelect({
         </label>
       )}
       <select
+        id={selectId}
         value={value}
         onChange={onChange}
         disabled={disabled}
