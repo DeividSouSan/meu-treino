@@ -4,9 +4,9 @@ import { useExerciseScreen } from './useExerciseScreen';
 import { RestTimer } from '../common/RestTimer';
 import {
   MtButton,
+  MtCard,
   MtEmptyState,
   MtField,
-  MtCard,
   MtConfirmDialog,
   MtStepper,
   MtAlertDialog,
@@ -49,7 +49,15 @@ export function ExerciseScreen({
   };
 
   return (
-    <MtCard style={{ padding: 'var(--spacing-md)' }}>
+    <MtCard
+      style={{
+        padding: 'var(--spacing-md)',
+        border: 'none',
+        borderRadius: 0,
+        boxShadow: 'none',
+        transform: 'none',
+      }}
+    >
       {/* Barra superior de navegação com hit targets generosos */}
       <div
         style={{

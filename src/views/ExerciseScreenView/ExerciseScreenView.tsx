@@ -1,7 +1,9 @@
 import { useCallback } from 'react';
 import { useNavigation } from '../../hooks';
 import { useActiveWorkoutScreen } from '../ActiveWorkoutView/useActiveWorkoutScreen';
+import { useExerciseNavigation } from '../../hooks/useExerciseNavigation';
 import { ExerciseScreen } from '../../components/exercise';
+import type { WorkoutExercise } from '../../types/workout';
 
 /**
  * ExerciseScreenView é a tela de edição de um exercício específico.
@@ -14,13 +16,15 @@ import { ExerciseScreen } from '../../components/exercise';
  * seja resolvido para um WorkoutExercise disponível no contexto da sessão.
  */
 export function ExerciseScreenView() {
-  const { exerciseId, goBackToList } = useNavigation();
+  const { exerciseId, goBackToList, navigateToExercise } = useNavigation();
   const { session, updateExercise, deleteExercise } = useActiveWorkoutScreen();
 
   const exercise = session.exercises.find((e) => e.id === exerciseId) ?? null;
 
+  const navigation = useExerciseNavigation(session.exercises, exerciseId, navigateToExercise);
+
   const handleUpdateExercise = useCallback(
-    (updatedExercise: import('../../types/workout').WorkoutExercise) => {
+    (updatedExercise: WorkoutExercise) => {
       updateExercise(updatedExercise);
     },
     [updateExercise],
@@ -48,14 +52,10 @@ export function ExerciseScreenView() {
       onDeleteExercise={handleDeleteExercise}
       exerciseNavigation={{
         onBack: goBackToList,
-        onNavigatePrevious: () => {
-          // Navegação entre exercícios pode ser estendida aqui
-        },
-        onNavigateNext: () => {
-          // Navegação entre exercícios pode ser estendida aqui
-        },
-        hasPrevious: false,
-        hasNext: false,
+        onNavigatePrevious: navigation.navigatePrevious,
+        onNavigateNext: navigation.navigateNext,
+        hasPrevious: navigation.hasPrevious,
+        hasNext: navigation.hasNext,
       }}
     />
   );
