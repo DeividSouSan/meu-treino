@@ -57,8 +57,10 @@ export function SessionProvider({ children }: SessionProviderProps) {
     if (saved !== null) {
       startedAt = parseInt(saved, 10);
     } else {
+      // Sem startedAt salvo: não inventamos nem salvamos um novo timestamp.
+      // O startedAt só é criado em startNewWorkout. Usamos Date.now() apenas
+      // como referência para que o elapsed seja ~0 nesta primeira leitura.
       startedAt = Date.now();
-      localStorage.setItem(STARTED_AT_STORAGE_KEY, String(startedAt));
     }
 
     startedAtRef.current = startedAt;
@@ -104,6 +106,12 @@ export function SessionProvider({ children }: SessionProviderProps) {
     setActiveSession(newWorkoutSession);
     saveActiveWorkoutSession(newWorkoutSession);
     setEditingSession(null);
+
+    // Marca o instante de início do treino — criado apenas uma vez por sessão.
+    const startedAt = Date.now();
+    localStorage.setItem(STARTED_AT_STORAGE_KEY, String(startedAt));
+    startedAtRef.current = startedAt;
+    currentSessionIdRef.current = newSessionId;
   }, []);
 
   const startEditingWorkout = useCallback((workoutSession: WorkoutSession) => {
