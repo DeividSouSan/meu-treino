@@ -43,7 +43,6 @@ export function SessionProvider({ children }: SessionProviderProps) {
       setInitialSeconds(0);
       startedAtRef.current = null;
       currentSessionIdRef.current = null;
-      localStorage.removeItem(STARTED_AT_STORAGE_KEY);
       return;
     }
 
@@ -122,6 +121,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
   const cancelActiveWorkout = useCallback(() => {
     setActiveSession(null);
     saveActiveWorkoutSession(null);
+    localStorage.removeItem(STARTED_AT_STORAGE_KEY);
   }, []);
 
   const updateActiveSession = useCallback((updatedSession: WorkoutSession) => {
@@ -148,6 +148,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
       saveWorkoutSession(completedSession);
       saveActiveWorkoutSession(null);
       setActiveSession(null);
+      localStorage.removeItem(STARTED_AT_STORAGE_KEY);
     },
     [activeSession],
   );

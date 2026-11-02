@@ -1,7 +1,7 @@
 {
   "name": "meu-treino",
   "private": true,
-  "version": "1.6.93",
+  "version": "1.7.11",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
