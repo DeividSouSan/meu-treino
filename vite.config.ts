@@ -13,9 +13,15 @@ export default defineConfig({
       manifest: {
         name: 'Meu Treino',
         short_name: 'Meu Treino',
+        lang: 'pt-BR',
         description: 'Aplicativo pessoal e minimalista para rastreamento de musculação.',
-        theme_color: '#ffffff',
-        background_color: '#ffffff',
+        // theme_color é usado pelo Android para colorir a barra de navegação/gestos
+        // quando o app está instalado como PWA. Como o app suporta modo escuro e
+        // o manifest é estático (não reage ao prefers-color-scheme), usamos a cor
+        // neutra escura que não causa contraste com nenhum dos dois temas.
+        // A meta tag theme-color no HTML assume o controle em tempo de execução.
+        theme_color: '#1a1a1a',
+        background_color: '#1a1a1a',
         display: 'standalone',
         orientation: 'portrait',
         icons: [

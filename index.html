@@ -4,8 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/pwa-192x192.png" />
     <link rel="apple-touch-icon" href="/pwa-192x192.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta
       name="description"
       content="Aplicativo pessoal e minimalista para rastreamento de musculação."
@@ -13,21 +12,24 @@
     <title>Meu Treino</title>
     <script>
       // Aplica o tema antes do primeiro paint para evitar flash de tela clara.
+      // A meta tag theme-color é criada dinamicamente já com a cor correta,
+      // evitando que o navegador leia um valor branco estático antes do script rodar.
+      // Isso também controla a cor da barra de gestos do Android em modo escuro.
       // A chave e as cores devem ficar em sincronia com o ThemeProvider.
       (function () {
+        var themeColorMeta = document.createElement('meta');
+        themeColorMeta.name = 'theme-color';
         try {
           var storedTheme = localStorage.getItem('meu_treino_theme');
           var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
           var isDark = storedTheme === 'dark' || (storedTheme !== 'light' && prefersDark);
           document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-
-          var themeColorMeta = document.querySelector('meta[name="theme-color"]');
-          if (themeColorMeta) {
-            themeColorMeta.setAttribute('content', isDark ? '#1a1a1a' : '#ffffff');
-          }
+          themeColorMeta.content = isDark ? '#1a1a1a' : '#ffffff';
         } catch (error) {
-          // Sem acesso ao localStorage, o CSS mantém o tema claro como fallback.
+          // Sem acesso ao localStorage, usa fallback claro.
+          themeColorMeta.content = '#ffffff';
         }
+        document.head.appendChild(themeColorMeta);
       })();
     </script>
   </head>
