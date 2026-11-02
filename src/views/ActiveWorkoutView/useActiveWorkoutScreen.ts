@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from 'react';
 import type { WorkoutSession, WorkoutExercise } from '../../types/workout';
-import { useStopwatch } from '../../hooks/useStopwatch';
 import type { UseStopwatchResult } from '../../hooks/useStopwatch';
 import { useSession, useHistory } from '../../hooks';
 
@@ -78,16 +77,12 @@ export function useActiveWorkoutScreen(): UseActiveWorkoutScreenResult {
     finishActiveWorkout,
     saveEditedWorkout,
     cancelActiveWorkout,
+    durationStopwatch,
   } = useSession();
   const { workoutHistory } = useHistory();
 
   const session = editingSession || activeSession;
   const isEditing = editingSession !== null;
-
-  const sessionStopwatch = useStopwatch(
-    session ? session.durationInSeconds : 0,
-    !isEditing && session?.status === 'in_progress',
-  );
 
   /**
    * Aplica uma sessão modificada no estado correto (ativo ou edição).
@@ -182,7 +177,7 @@ export function useActiveWorkoutScreen(): UseActiveWorkoutScreenResult {
     if (!session) return;
     const finalSession: WorkoutSession = {
       ...session,
-      durationInSeconds: sessionStopwatch.seconds,
+      durationInSeconds: durationStopwatch.seconds,
     };
 
     if (isEditing) {
@@ -190,7 +185,7 @@ export function useActiveWorkoutScreen(): UseActiveWorkoutScreenResult {
     } else {
       finishActiveWorkout(finalSession);
     }
-  }, [session, sessionStopwatch.seconds, isEditing, saveEditedWorkout, finishActiveWorkout]);
+  }, [session, durationStopwatch.seconds, isEditing, saveEditedWorkout, finishActiveWorkout]);
 
   const cancel = useCallback(() => {
     cancelActiveWorkout();
@@ -214,7 +209,7 @@ export function useActiveWorkoutScreen(): UseActiveWorkoutScreenResult {
     () => ({
       session: session!,
       isEditing,
-      durationStopwatch: sessionStopwatch,
+      durationStopwatch,
       workoutHistory,
       addCue,
       removeCue,
@@ -228,7 +223,7 @@ export function useActiveWorkoutScreen(): UseActiveWorkoutScreenResult {
     [
       session,
       isEditing,
-      sessionStopwatch,
+      durationStopwatch,
       workoutHistory,
       addCue,
       removeCue,
